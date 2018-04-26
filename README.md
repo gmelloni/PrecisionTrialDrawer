@@ -27,3 +27,10 @@ biocLite(c('cgdsr','parallel','stringr',
 		'knitr','rmarkdown','dplyr','testthat'))
 devtools::install_github("gmelloni/PrecisionTrialDesigner")
 ```
+## Info
+
+For an explanation of the package functionalities, refer to the official website: https://gmelloni.github.io/ptd/
+
+## Web resource
+
+PTD is available as a web resource [here](https://gmelloni.github.io/ptd/shinyapp.html)
