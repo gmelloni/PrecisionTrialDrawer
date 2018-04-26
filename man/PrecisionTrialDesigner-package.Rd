@@ -31,7 +31,7 @@ data(panelexample)
 # Create a CancerPanel object
 mypanel <- newCancerPanel(panelexample)
 # Retrieve data for breast cancer and lung adenocarcinoma
-mypanel <- getAlterations(mypanel , tumor_type=c("brca" , "luad"))
+mypanel <- getAlterations(mypanel , tumor_type=c("brca_tcga_pub"))
 mypanel <- subsetAlterations(mypanel)
 # Plot your panel on your chosen data
 coveragePlot(mypanel 

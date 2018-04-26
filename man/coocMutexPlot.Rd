@@ -184,22 +184,5 @@ coocMutexPlot(cpObj
               , alterationType="mutations"
               , style="dendro"
               , method="ward.D")
-# Report data used in the plot above
-head( coocMutexPlot(cpObj 
-                  , var="gene_symbol" 
-                  , grouping="tumor_type"  
-                  , alterationType="mutations"
-                  , style="dendro"
-                  , noPlot=TRUE)
-                  )
-# Change cooccurence MutEx calculation
-head( coocMutexPlot(cpObj 
-                  , var="gene_symbol" 
-                  , grouping="tumor_type"  
-                  , alterationType="mutations"
-                  , prob="firth"
-                  , noPlot=TRUE)
-                  )
-
 }
 

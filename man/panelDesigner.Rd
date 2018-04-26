@@ -77,17 +77,15 @@ Giorgio Melloni, Alessandro Guida
 \code{\link{newCancerPanel}}
 }
 \examples{
-#Load panelexample
-data(panelexample)
-# Create a cancer panel object
-mypanel <- newCancerPanel(panelexample)
+#Load a Cancer Panel Object
+data("cpObj")
 # Design your panel
 # Parallelize part of the code using BiocParallel backend for Unix systems
 if(tolower(Sys.info()["sysname"])=="windows"){
-  mydesign <- panelDesigner(mypanel 
+  mydesign <- panelDesigner(cpObj 
                           , alterationType="mutations")
 } else {
-  mydesign <- panelDesigner(mypanel 
+  mydesign <- panelDesigner(cpObj 
                           , alterationType="mutations" 
                           , BPPARAM=BiocParallel::MulticoreParam(workers=2)
                           )
