@@ -1,0 +1,51 @@
+Package: PrecisionTrialDesigner
+Type: Package
+Title: PrecisionTrialDesigner - A Tool to Analyze and Design NGS Based Custom Gene Panels
+Version: 0.99.0
+Date: 2015-12-09
+Author: Giorgio Melloni , Alessandro Guida
+Maintainer: Giorgio Melloni <melloni.giorgio@gmail.com>
+Description: We developed a tool to analyze list of genes and
+    their alterations in order to create a custom panel for clinical genomics
+    studies. It represents a resource to design basket or umbrella clinical trials and 
+    provides a suite of methods to simulate an in silico prescription from a gene or 
+    drug prospective. Finally, it is possible to design the genomic ranges 
+    that will be sequenced in ready-to-be-submitted bed format.
+License: GPL-3
+Depends:
+    R (>= 2.10)
+Imports:
+    methods,
+    cgdsr,
+    parallel,
+    stringr,
+    reshape2,
+    data.table,
+    RColorBrewer,
+    BiocParallel,
+    magrittr,
+    biomaRt,
+    XML,
+    httr,
+    jsonlite,
+    ggplot2,
+    ggrepel,
+    grid,
+    S4Vectors,
+    IRanges,
+    GenomicRanges,
+    LowMACAAnnotation,
+    googleVis,
+    shiny,
+    shinyBS,
+    DT,
+    brglm
+Suggests:
+    BiocStyle,
+    knitr,
+    rmarkdown,
+    dplyr,
+    testthat
+VignetteBuilder: knitr
+biocViews: SomaticMutation, WholeGenome, Sequencing, DataImport
+RoxygenNote: 5.0.1

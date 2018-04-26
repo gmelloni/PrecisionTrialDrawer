@@ -1,0 +1,9 @@
+.gitignore
+.gitkeep
+data/.gitkeep
+inst/.gitkeep
+vignette/.gitkeep
+^.*\.Rproj$
+^\.Rproj\.user$
+README.md
+LICENSE

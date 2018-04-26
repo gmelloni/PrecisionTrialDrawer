@@ -1,0 +1,16 @@
+alteration;exact alteration;mutation_specification
+CNA;amplification;NULL
+CNA;deletion;NULL
+expression;up;NULL
+expression;down;NULL
+fusion;NULL;NULL
+SNV;NULL;NULL
+SNV;mutation_type;missense
+SNV;mutation_type;truncating
+SNV;amino_acid_position;300-300
+SNV;amino_acid_position;300-350
+SNV;amino_acid_variant;V600E
+SNV;genomic_position;13:20000-40000
+SNV;genomic_position;13:20000-20000
+SNV;genomic_variant;13:20000:A,C
+SNV;dbSNP_rs;rs1234567
