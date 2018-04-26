@@ -1,8 +1,8 @@
 Package: PrecisionTrialDesigner
 Type: Package
-Title: PrecisionTrialDesigner - A Tool to Analyze and Design NGS Based Custom Gene Panels
+Title: A Tool to Analyze and Design NGS Based Custom Gene Panels
 Version: 0.99.0
-Date: 2015-12-09
+Date: 2018-04-25
 Author: Giorgio Melloni , Alessandro Guida
 Maintainer: Giorgio Melloni <melloni.giorgio@gmail.com>
 Description: We developed a tool to analyze list of genes and
