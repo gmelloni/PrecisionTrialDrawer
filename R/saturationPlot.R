@@ -199,7 +199,7 @@ setMethod('saturationPlot', 'CancerPanel', function(object
 	# Aggregate the panel according to the adding variable
 	panel_transition <- object@arguments$panel
 	# panel_transition <- panel
-	panel_transition$alteration_id <- mapvalues(from=c("SNV" , "CNA" , "fusion" , "expression")
+	panel_transition$alteration_id <- .mapvalues(from=c("SNV" , "CNA" , "fusion" , "expression")
 														,to=c("mut" , "cna" , "fus" , "expr")
 														,panel_transition$alteration
 														,warn_missing=FALSE)
