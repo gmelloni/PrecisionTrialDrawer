@@ -252,7 +252,7 @@ Additionally, instead of specifying the tumor type, it is also possible to displ
 associated with each tumor type and select them one by one. This for example allows 
 the user more control over what dataset will be used to run the simulation. 
 
-```{r showCancerStudy, echo=TRUE , eval=TRUE , message=FALSE , warning=FALSE}
+```{r showCancerStudy, echo=TRUE , eval=FALSE , message=FALSE , warning=FALSE}
 # Check available tumor types
 knitr::kable( showCancerStudy(c("brca","luad")) , row.names = FALSE )
 # Fetch data from breast cancer and lung adenocarcinoma samples
