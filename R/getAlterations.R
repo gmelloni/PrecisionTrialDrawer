@@ -477,7 +477,7 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
 			# If the number of requested genes is too large we subset the SQL query in chunks
 			if(length(cnagenes)>100) {
 				myGenesBlocks_cna <- .subsetter(cnagenes , gene_block)
-				message("Too many genes. We subset data retrieval in" %++% length(myGenesBlocks) %++% "blocks of" %++% gene_block %++% "genes each")
+				message("Too many genes. We subset data retrieval in" %++% length(myGenesBlocks_cna) %++% "blocks of" %++% gene_block %++% "genes each")
 				gcOut <- lapply(1:length(myGenesBlocks_cna) , function(x){
 							geneblock <- myGenesBlocks_cna[[x]]
 							tobereturned <- .getCNA(geneblock , tumor_type=tumor_type , block=x)
@@ -638,7 +638,7 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
 			# If the number of requested genes is too large we subset the SQL query in chunks
 			if(length(exprgenes)>100) {
 				myGenesBlocks_expr <- .subsetter(exprgenes , gene_block)
-				message("Too many genes. We subset data retrieval in" %++% length(myGenesBlocks) %++% "blocks of" %++% gene_block %++% "genes each")
+				message("Too many genes. We subset data retrieval in" %++% length(myGenesBlocks_expr) %++% "blocks of" %++% gene_block %++% "genes each")
 				geOut <- lapply(1:length(myGenesBlocks_expr) , function(x){
 							geneblock <- myGenesBlocks_expr[[x]]
 							tobereturned <- .getExpression(geneblock , tumor_type=tumor_type , block=x)
