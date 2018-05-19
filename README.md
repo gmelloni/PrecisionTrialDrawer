@@ -22,9 +22,10 @@ biocLite(c('cgdsr','parallel','stringr',
 		'XML','httr','jsonlite',
 		'ggplot2','ggrepel','grid',
 		'S4Vectors','IRanges','GenomicRanges',
-		'LowMACAAnnotation','googleVis','shiny',
+		'googleVis','shiny',
 		'shinyBS','DT','brglm','BiocStyle',
 		'knitr','rmarkdown','dplyr','testthat'))
+biocLite('LowMACAAnnotation')
 devtools::install_github("gmelloni/PrecisionTrialDesigner")
 ```
 ## Info
