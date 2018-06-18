@@ -1,15 +1,15 @@
-# PrecisionTrialDesigner
+# PrecisionTrialDrawer
 
 A set of tools to help bioinformaticians, clinicians and biostatisticians
 to design, analyze and finalize a custom gene panel for clinical trial in cancer genomics.
 
 ## Install
 
-You can install **PrecisionTrialDesigner** using devtools
+You can install **PrecisionTrialDrawer** using devtools
 
 ```{r}
 install.packages("devtools")
-devtools::install_github("gmelloni/PrecisionTrialDesigner")
+devtools::install_github("gmelloni/PrecisionTrialDrawer")
 ```
 In case some of the dependencies are not automatically downloaded,
 you can install the dependencies first and then run *install_github*
@@ -26,7 +26,7 @@ biocLite(c('cgdsr','parallel','stringr',
 		'shinyBS','DT','brglm','BiocStyle',
 		'knitr','rmarkdown','dplyr','testthat'))
 biocLite('LowMACAAnnotation')
-devtools::install_github("gmelloni/PrecisionTrialDesigner")
+devtools::install_github("gmelloni/PrecisionTrialDrawer")
 ```
 ## Info
 
