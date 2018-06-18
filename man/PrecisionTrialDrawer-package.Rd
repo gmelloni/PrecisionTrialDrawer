@@ -1,12 +1,12 @@
-\name{PrecisionTrialDesigner-package}
-\alias{PrecisionTrialDesigner-package}
-\alias{PrecisionTrialDesigner}
+\name{PrecisionTrialDrawer-package}
+\alias{PrecisionTrialDrawer-package}
+\alias{PrecisionTrialDrawer}
 \docType{package}
 \title{
-PrecisionTrialDesigner: a package to analyze and design custom cancer panels
+PrecisionTrialDrawer: a package to analyze and design custom cancer panels
 }
 \description{
-PrecisionTrialDesigner is a package that a allows the design and study of a cancer panel 
+PrecisionTrialDrawer is a package that a allows the design and study of a cancer panel 
 to create pilot sets for a clinical trial.
 }
 \details{

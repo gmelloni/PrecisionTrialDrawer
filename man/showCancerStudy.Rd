@@ -4,7 +4,7 @@
 List of cancer studies included in the cBioportal
 }
 \description{
-Show all the possible cancer studies accepted by PrecisionTrialDesigner
+Show all the possible cancer studies accepted by PrecisionTrialDrawer
 }
 \usage{
 showCancerStudy(tumor_type=NULL)

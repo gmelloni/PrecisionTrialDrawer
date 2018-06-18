@@ -82,7 +82,7 @@
         panel_aa$mutation_specification <- .mapvalues(panel_aa$mutation_specification , aa$aa , aa$aa_num , warn_missing=FALSE)
     }
     genes <- unique(panel_aa$gene_symbol)
-    # uniprot_can <- readRDS(file.path(system.file(package="PrecisionTrialDesigner")
+    # uniprot_can <- readRDS(file.path(system.file(package="PrecisionTrialDrawer")
     #                                 , "extdata"
     #                                 , "uniProtCanonical.rds"))
     # uniprot_can <- LowMACAAnnotation::getMyUni()

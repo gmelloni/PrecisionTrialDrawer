@@ -217,8 +217,8 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
 	#-----------------------------------------------------------------------------
 	if(any(object@arguments$panel$alteration=="fusion")) {
 		message("Retrieving fusions...")
-		fus <- readRDS(file.path(system.file(package="PrecisionTrialDesigner") , "extdata" , "TCGAtranslocation.rds"))
-		fusSamples <- readRDS(file.path(system.file(package="PrecisionTrialDesigner") , "extdata" , "TCGAtranslocationSamples.rds"))
+		fus <- readRDS(file.path(system.file(package="PrecisionTrialDrawer") , "extdata" , "TCGAtranslocation.rds"))
+		fusSamples <- readRDS(file.path(system.file(package="PrecisionTrialDrawer") , "extdata" , "TCGAtranslocationSamples.rds"))
 		if(tumor_type[1]!="all_tumors"){
 		# fusion table does not include the study so we include just the tumor types of the study (e.g. brca_tcga_pub becomes brca)
 			# derived_tumor_type <- unname(unique(sapply(tumor_type, function(x) strsplit(x , "_")[[1]][1]))) 

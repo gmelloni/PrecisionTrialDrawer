@@ -1,5 +1,5 @@
 ---
-title: "PrecisionTrialDesigner - A tool to analyze and design NGS based custom gene panels"
+title: "PrecisionTrialDrawer - A tool to analyze and design NGS based custom gene panels"
 author: 
 - name: Giorgio Melloni
   affiliation: Harvard Medical School, Boston, MA.
@@ -30,13 +30,13 @@ In the era of personalized medicine and personalized health there is a tremendou
 to bring NGS based technology in the clinical routine. Nevertheless, the information coming 
 from research studies is in most cases useless for the clinical practice and in addition too 
 expensive. To bridge the gap between cancer research and clinical genomics, 
-we propose `r Rpackage("PrecisionTrialDesigner")`, a suite of simple tools to explore the ability 
+we propose `r Rpackage("PrecisionTrialDrawer")`, a suite of simple tools to explore the ability 
 of less expensive cancer gene panels to be used in clinical trials. 
 With this package, you can use information coming from different sources 
 like mutations, expression, copynumber and fusion data and apply them to your cancer panel 
 to see for example how many patients are covered by a specific mutations or better, 
 how many patients would be covered by a drug that acts on multiple targets. 
-Given a panel and tumor types to analyze, `r Rpackage("PrecisionTrialDesigner")`
+Given a panel and tumor types to analyze, `r Rpackage("PrecisionTrialDrawer")`
 can be a terrific tool to create a pilot project for a basket or umbrella design 
 and also to design the library to be ready for sequencing.
 
@@ -44,7 +44,7 @@ and also to design the library to be ready for sequencing.
 
 The only input data the user has to provide is the panel itself. 
 We create an easy to read standard format, suitable for every kind 
-of alteration supported by `r Rpackage("PrecisionTrialDesigner")`. 
+of alteration supported by `r Rpackage("PrecisionTrialDrawer")`. 
 For example, while in the research practice genomic regions are a standard way to 
 represent mutations (e.g. VCF style, 1:10000:A,C) this is not the most used form of 
 representing druggable or pathogenic variants in clinical routine. 
@@ -58,7 +58,7 @@ any database at your disposal without any particular effort.
 First of all, let's see what is the format of a cancer panel:
 
 ```{r chunk1, echo=TRUE , eval=TRUE , message=FALSE , warning=FALSE}
-library(PrecisionTrialDesigner)
+library(PrecisionTrialDrawer)
 library(knitr)
 data(panelexample)
 knitr::kable(panelexample)
@@ -113,7 +113,7 @@ or only truncating variants. In the example panel, *BRCA1* is sensitive to a PAR
 only if it is either deleted or truncated, 
 because generally missense mutations are not considered pathogenic. 
 Fusions have no particular format, but are expressed in the gene\textunderscore symbol column. 
-If you put a single gene, `r Rpackage("PrecisionTrialDesigner")` will interpret it as 
+If you put a single gene, `r Rpackage("PrecisionTrialDrawer")` will interpret it as 
 'every fusion involving that gene' (see *RET*), 
 while if you put a specific fusion (see *EML4\_\_ALK*), 
 it will look only for that specific fusion. 
@@ -347,7 +347,7 @@ mypanel_exclude <- subsetAlterations(mypanel_exclude
 
 # Plots and Stats
 
-`r Rpackage("PrecisionTrialDesigner")` has three different plot capabilities/statistics. Every plot can be turned off by using 
+`r Rpackage("PrecisionTrialDrawer")` has three different plot capabilities/statistics. Every plot can be turned off by using 
 noPlot=TRUE option and statistics are reported instead. The first plot is the **coveragePlot**, 
 which returns the absolute number of samples covered by at least one or more alterations. 
 A more compact but less informative version of the same plot is the **coverageStackPlot**, which returns a breakdown 
@@ -706,7 +706,7 @@ Idelalisib and Olaparib are mutual exclusive with a p-value of `r prettyNum(olap
 
 ## Create your own plots
 
-*PrecisionTrialDesigner* is designed to allow the user to perform a lot of tasks for designing a genomic based trial. 
+*PrecisionTrialDrawer* is designed to allow the user to perform a lot of tasks for designing a genomic based trial. 
 Nevertheless, not all the possible plots are available inside the package. We implemented a function to extract the relevant information 
 for any kind of simulation, called `dataExtractor`.
 
@@ -755,7 +755,7 @@ panOpt <- panelOptimizer(mypanel)
 # Sample Size and Power Calculation
 
 In a classical epidemiological study design, one of the most important task is power and sample size estimation. 
-In `r Rpackage("PrecisionTrialDesigner")` is currently possible to evaluate two of the most common oncological trial designs: 
+In `r Rpackage("PrecisionTrialDrawer")` is currently possible to evaluate two of the most common oncological trial designs: 
 time-to-event (survival) and proportion equality. The methods **survPowerSampleSize** and **propPowerSampleSize** 
 are currently implemented inside the package. In this vignette, we will evaluate the first of the two methods. The latter is very similar, 
 but requires a different set of initial parameter (*pCase* and *pControl*). A single-sample time-to-event calculator is also 
@@ -1036,7 +1036,7 @@ with `r length(cpData(mypanel)$mutations$Samples$brca)` sequenced samples for br
 for lung adenocarcinoma. Therefore, when calculating compound frequencies across tumor types, breast cancer weights more than lung cancer. 
 
 This behaviour was purposely set by default given the nature of the original idea of a panel-wise analysis that is the base of **Umbrella Designs** 
-(one tumor type, multiple targets). In other words, `r Rpackage("PrecisionTrialDesigner")` is best suited for tumor-wise analysis where homogeneity 
+(one tumor type, multiple targets). In other words, `r Rpackage("PrecisionTrialDrawer")` is best suited for tumor-wise analysis where homogeneity 
 of samples is automatically granted.
 
 Nevertheless, **Basket Designs** (one target, multiple tumor types) can also be explored using this package by adding two parameters common to many of our functions.

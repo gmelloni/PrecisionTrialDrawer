@@ -4,7 +4,7 @@
 List of tumor type barcode
 }
 \description{
-Show all the possible tumor types accepted by PrecisionTrialDesigners
+Show all the possible tumor types accepted by PrecisionTrialDrawer
 }
 \usage{
 showTumorType()

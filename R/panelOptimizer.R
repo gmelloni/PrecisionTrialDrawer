@@ -1,12 +1,12 @@
 .busyIndicator <- function(text = "Processing..."
-                        # , image = file.path(system.file(package="PrecisionTrialDesigner") , "extdata" , "ajax-loader.gif")
+                        # , image = file.path(system.file(package="PrecisionTrialDrawer") , "extdata" , "ajax-loader.gif")
                         , image=NULL
                         , wait=1000) {
   tagList(
     singleton(tags$head(
       tags$link(rel = "stylesheet"
         , type = "text/css" 
-        # ,href = file.path("PrecisionTrialDesigner","inst","extdata","busyIndicator.css")
+        # ,href = file.path("PrecisionTrialDrawer","inst","extdata","busyIndicator.css")
       )))
     ,div(class = "mybusyindicator",p(text),img(src=image))
     ,tags$script(sprintf(

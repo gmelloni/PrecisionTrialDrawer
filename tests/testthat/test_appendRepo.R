@@ -6,11 +6,11 @@ context("Testing appendRepo function")
 # ----------------------------
 data(panelexample)
 mypanel <- newCancerPanel(panelexample)
+data(cpObj)
+mypanel_full <- cpObj
 repos_empty <- lapply(cpData(mypanel) , '[' , c('data' , 'Samples'))
-mypanel_full <- getAlterations(mypanel, tumor_type = "brca")
+#mypanel_full <- getAlterations(mypanel, tumor_type = "brca")
 #mypanel_full2 <- getAlterations(mypanel, tumor_type = "luad")
-#mypanel_full <- readRDS("PrecisionTrialDesigner/data/mypanel_brca.rds")
-#mypanel_full2 <- readRDS("PrecisionTrialDesigner/data/mypanel_luad.rds")
 repos_full <- lapply(cpData(mypanel_full) , '[' , c('data' , 'Samples'))
 
 ################################################################################

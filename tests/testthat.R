@@ -1,4 +1,4 @@
 library(testthat)
-library(PrecisionTrialDesigner)
+library(PrecisionTrialDrawer)
 
-test_check("PrecisionTrialDesigner")
+test_check("PrecisionTrialDrawer")
