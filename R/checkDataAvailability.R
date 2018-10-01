@@ -17,12 +17,12 @@
                             )
 {
   #select only first element of the list
-	genProfile <- genProfile[1]
+    genProfile <- genProfile[1]
   
-	#get cbioportal datasets
-	mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
-  all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
-  all_cancer_studies$tumor_type <- sapply(strsplit(all_cancer_studies[,1] , "_") , '[' , 1)
+    #get cbioportal datasets
+    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
+    all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
+    all_cancer_studies$tumor_type <- sapply(strsplit(all_cancer_studies[,1] , "_") , '[' , 1)
     
   #-----------------------------------------------------------------------------
   # FIND WHAT TUMOR INFO REQUIRED

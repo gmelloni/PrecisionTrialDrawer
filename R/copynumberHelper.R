@@ -60,7 +60,7 @@
              })
             # This definition changes often, keep the pace
             sel <- caseList$case_list_name %in% c("Tumors log2 copy-number" 
-            									, "Tumor Samples with CNA data")
+                                                , "Tumor Samples with CNA data")
             if(any(sel)) {
                 if(is.null(block)){
                     message(paste("getting CNA from this cancer study:" , i ))
@@ -68,7 +68,7 @@
                     message(paste("getting CNA from this cancer study:" , i, paste0("(" , block , ")")))
                 }
                 if(length(which(sel))>1)
-                	sel <- which(sel)[1]
+                    sel <- which(sel)[1]
                 caseListID <- caseList[sel, 1]
                 error <- tryCatch(
                     cna <- cgdsr::getProfileData( mycgds 

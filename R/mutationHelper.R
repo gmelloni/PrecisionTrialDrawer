@@ -98,31 +98,31 @@
                         muts <- NULL
                         patients <- NULL
                     } else {
-                    	colsIlike <- c(
-										"entrez_gene_id"
-										,"gene_symbol"
-										,"case_id"
-										# ,"sequencing_center"
-										# ,"mutation_status"
-										,"mutation_type"
-										# ,"validation_status"
-										,"amino_acid_change"
-										# ,"functional_impact_score"
-										# ,"xvar_link"
-										# ,"xvar_link_pdb"
-										# ,"xvar_link_msa"
-										,"chr"
-										,"start_position"
-										# ,"end_position"
-										,"reference_allele"
-										,"variant_allele"
-										# ,"reference_read_count_tumor"
-										# ,"variant_read_count_tumor"
-										# ,"reference_read_count_normal"
-										# ,"variant_read_count_normal"
-										# ,"genetic_profile_id"
-										)
-                    	muts <- muts[ , colsIlike]
+                        colsIlike <- c(
+                                "entrez_gene_id"
+                                ,"gene_symbol"
+                                ,"case_id"
+                                # ,"sequencing_center"
+                                # ,"mutation_status"
+                                ,"mutation_type"
+                                # ,"validation_status"
+                                ,"amino_acid_change"
+                                # ,"functional_impact_score"
+                                # ,"xvar_link"
+                                # ,"xvar_link_pdb"
+                                # ,"xvar_link_msa"
+                                ,"chr"
+                                ,"start_position"
+                                # ,"end_position"
+                                ,"reference_allele"
+                                ,"variant_allele"
+                                # ,"reference_read_count_tumor"
+                                # ,"variant_read_count_tumor"
+                                # ,"reference_read_count_normal"
+                                # ,"variant_read_count_normal"
+                                # ,"genetic_profile_id"
+                                )
+                        muts <- muts[ , colsIlike]
                         muts$genetic_profile_id <- i
                         patients <- strsplit(caseList[sel, 'case_ids'] , split=" ")[[1]]
                     }

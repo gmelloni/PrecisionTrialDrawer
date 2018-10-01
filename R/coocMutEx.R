@@ -38,7 +38,7 @@
     nspp <- nrow(spp_site_mat)
     spp_pairs <- choose(nspp, 2)
     obs_cooccur <- prob_cooccur <- exp_cooccur <- matrix(nrow = spp_pairs, ncol = 3)
-    prob_occur <- incidence <- cbind(1:nspp, rowSums(spp_site_mat, na.rm = T))
+    prob_occur <- incidence <- cbind(1:nspp, rowSums(spp_site_mat, na.rm = TRUE))
     prob_occur[ , 2] <- prob_occur[ , 2]/nsite
     spp_pairs_mat <- t(combn(nspp,2))
     pairs_observations <- apply(spp_pairs_mat, 1, function(x) {
@@ -143,10 +143,10 @@
     output$pVal.MutEx <- ifelse( output$pVal.MutEx==0 , 10^-100 , output$pVal.MutEx)
     sp1_name <- merge(x = data.frame(order = 1:length(output$sp1), 
             sp1 = output$sp1), y = spp_key, by.x = "sp1", by.y = "num", 
-            all.x = T, sort = FALSE)
+            all.x = TRUE, sort = FALSE)
     sp2_name <- merge(x = data.frame(order = 1:length(output$sp2), 
             sp2 = output$sp2), y = spp_key, by.x = "sp2", by.y = "num", 
-            all.x = T, sort = FALSE)
+            all.x = TRUE, sort = FALSE)
     output$sp1_name <- sp1_name[with(sp1_name, order(order)), 
             "spp"]
     output$sp2_name <- sp2_name[with(sp2_name, order(order)), 
@@ -452,18 +452,18 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
     })
   # return(mat_split)
   if(style=="dendro"){
-  	mat_dist <- lapply(mat_split , function(x) dist(t(x) , method="binary") )
-  	if(!noPlot){
+      mat_dist <- lapply(mat_split , function(x) dist(t(x) , method="binary") )
+      if(!noPlot){
       opar <- par("mfrow" , "mar")
       on.exit(par(opar))
-  		return({
-  			n_plots <- length(mat_dist)
-  			par(mfrow=.mfrow(n_plots, ncolPlot))
-  			for(i in 1:length(mat_dist)){
+          return({
+              n_plots <- length(mat_dist)
+              par(mfrow=.mfrow(n_plots, ncolPlot))
+              for(i in 1:length(mat_dist)){
           title <- grouping %+% ": " %+% names(mat_dist)[i]
           if(attributes(mat_dist[[i]])$Size>2){
-    				plot(hclust( mat_dist[[i]]  , ...)
-    					, xlab="" 
+                    plot(hclust( mat_dist[[i]]  , ...)
+                        , xlab="" 
               , main=title
               )
           } else {
@@ -471,9 +471,9 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
             text(x = 0.5, y = 0.5, "Not enough elements\nto display\n(minimum 3)"
                 ,cex = 1, col = "black" , main=names(mydata_split)[i])
           }
-  			}
-  		})
-  	} else {
+              }
+          })
+      } else {
       return(mat_split)
     }
   }

@@ -17,14 +17,14 @@ you can install the dependencies first and then run *install_github*
 ```{r}
 source("https://bioconductor.org/biocLite.R")
 biocLite(c('cgdsr','parallel','stringr',
-		'reshape2','data.table','RColorBrewer',
-		'BiocParallel','magrittr','biomaRt',
-		'XML','httr','jsonlite',
-		'ggplot2','ggrepel','grid',
-		'S4Vectors','IRanges','GenomicRanges',
-		'googleVis','shiny',
-		'shinyBS','DT','brglm','BiocStyle',
-		'knitr','rmarkdown','dplyr','testthat'))
+    'reshape2','data.table','RColorBrewer',
+    'BiocParallel','magrittr','biomaRt',
+    'XML','httr','jsonlite',
+    'ggplot2','ggrepel','grid',
+    'S4Vectors','IRanges','GenomicRanges',
+    'googleVis','shiny',
+    'shinyBS','DT','brglm','BiocStyle',
+    'knitr','rmarkdown','dplyr','testthat'))
 biocLite('LowMACAAnnotation')
 devtools::install_github("gmelloni/PrecisionTrialDrawer")
 ```

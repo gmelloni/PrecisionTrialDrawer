@@ -2,19 +2,19 @@
 # CLASS DECLARATION
 ################################################################################
 setClass('CancerPanel', 
-	slots=c(
-		arguments='list'
-		,dataFull='list'
-		,dataSubset='list'
-		)
-	,validity=function(object) {
+    slots=c(
+        arguments='list'
+        ,dataFull='list'
+        ,dataSubset='list'
+        )
+    ,validity=function(object) {
     if(class(object@arguments) == "list" || 
        class(object@dataFull) == "list" ||
        class(object@dataSubset) == "list") {
       return("CancerPanel slots are lists")
-	  }
-	  return(FALSE)
-		}
+      }
+      return(FALSE)
+        }
 )
 
 ################################################################################
@@ -29,13 +29,13 @@ newCancerPanel <- function(panel , rules=NULL
                            , canonicalTranscript=TRUE , myhost="www.ensembl.org"
                            )
 {
-	message("Checking panel construction...")
+    message("Checking panel construction...")
   
   ##################################################
   # CHECK ARGUMENTS
   # ------------------------------------------------
   if( is.null(panel) )
-  	stop('You should enter a dataframe containing your panel')
+      stop('You should enter a dataframe containing your panel')
   panel <- .panelCheck(panel)
   
   # rules requires a more delicate procedure for the check
@@ -82,27 +82,27 @@ newCancerPanel <- function(panel , rules=NULL
   # If we have selected an alteration, correct the size of the feature based 
   # on the selection made.
   panel <- .annotateVariationLength(panel , gene_length=ann_genes , utr=utr , padding_length=padding_length)
-	
+    
   # ------------------------------------------------
   # Fetch RS coordinates 
   # ------------------------------------------------
   #If we have RS ids, fetch it
   if(any(panel$exact_alteration=="dbSNP_rs")){
-  	rs <- unique(panel[ panel$exact_alteration=="dbSNP_rs" , "mutation_specification"])
-  	#get genomic position from each RS id
-  	rs_df <- .rsToGenomicPosition(rs)
+      rs <- unique(panel[ panel$exact_alteration=="dbSNP_rs" , "mutation_specification"])
+      #get genomic position from each RS id
+      rs_df <- .rsToGenomicPosition(rs)
   } else {
     #if we don't have RS ids, create an empty dataframe
-  	rs_df <- data.frame(rs="" , genomic_range="" , stringsAsFactors=FALSE)
+      rs_df <- data.frame(rs="" , genomic_range="" , stringsAsFactors=FALSE)
   }
-	
+    
   # ------------------------------------------------
   # Fetch fusion info
   # ------------------------------------------------
   # distinguish between "gene_fusions" and "exact_fusion"
   if(any(panel$alteration=="fusion")){
-  	panel[ panel$alteration=="fusion" & grepl("__" , panel$gene_symbol) , "exact_alteration"] <- "exact_fusion"
-  	panel[ panel$alteration=="fusion" & !grepl("__" , panel$gene_symbol) , "exact_alteration"] <- "gene_fusion"
+      panel[ panel$alteration=="fusion" & grepl("__" , panel$gene_symbol) , "exact_alteration"] <- "exact_fusion"
+      panel[ panel$alteration=="fusion" & !grepl("__" , panel$gene_symbol) , "exact_alteration"] <- "gene_fusion"
   }
   
   ##################################################

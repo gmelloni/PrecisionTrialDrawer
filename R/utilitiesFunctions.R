@@ -12,10 +12,10 @@ if(getRversion() >= "2.15.1"){
 # These functions differ from "==" and "!=" in the sense that they can also compare NA
 # NA==NA is TRUE and "foo"==NA is FALSE (generally they both return NA)
 "%eq%" <- function(x , y) {
-	out <- x==y
-	nacomp <- is.na(x)==is.na(y)
-	out[is.na(out)] <- nacomp[is.na(out)]
-	return(out)
+    out <- x==y
+    nacomp <- is.na(x)==is.na(y)
+    out[is.na(out)] <- nacomp[is.na(out)]
+    return(out)
 }
 "%noteq%" <- Negate("%eq%")
 

@@ -304,7 +304,7 @@
   # shallow check for exact_alteration/mutation_specification formats
   # make sure that for each row, if either one of the two column values is specified, 
   # also the value of the other column is.
-  muts_specs_check <-	(panel[idx2 ,"exact_alteration"]=="" & panel[idx2 ,"mutation_specification"]=="") |
+  muts_specs_check <- (panel[idx2 ,"exact_alteration"]=="" & panel[idx2 ,"mutation_specification"]=="") |
     (panel[idx2 ,"exact_alteration"]!="" & panel[idx2 ,"mutation_specification"]!="")
   if(!all(muts_specs_check)) {
     message("Mutation alterations at lines" %++% 

@@ -103,7 +103,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
         ,mainPanel(
           tabsetPanel(type="tabs"
             , tabPanel("LowMACA Regions" 
-            	      , bsButton(inputId="storelowmaca"
+                      , bsButton(inputId="storelowmaca"
                                , label= "Store LowMACA" 
                                , style="warning"
                                , size="small"
@@ -118,15 +118,15 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
                       # , uiOutput("lowmacaregions") # Failed attempt to show a plot or table if no results
                       )
             , tabPanel("LowMACA Stats"  
-            	      , helpText("Check the significant positions identified by LowMACA")
-            	      , DT::dataTableOutput("lfm"))
+                      , helpText("Check the significant positions identified by LowMACA")
+                      , DT::dataTableOutput("lfm"))
             , tabPanel("Manual Selection"
-            		  , bsButton(inputId="storesingle"
+                      , bsButton(inputId="storesingle"
                                 , label= "Store Single Mutation" 
                                 , style="warning"
                                 , size="small"
                                 , disabled=FALSE)
-            		  , bsButton(inputId="storeregion"
+                      , bsButton(inputId="storeregion"
                                 , label= "Store Region" 
                                 , style="warning"
                                 , size="small"
@@ -144,7 +144,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
                       , tableOutput("infoclick")
                       , tableOutput("infobrush"))
             , tabPanel("Optimize Panel" 
-            		  , helpText("All your selected regions are here. To remove them, select the rows and then click Discard")
+                      , helpText("All your selected regions are here. To remove them, select the rows and then click Discard")
                       , bsButton(inputId="discard" 
                                 , label= "Discard" 
                                 , style="danger"
@@ -164,7 +164,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
       opar <- par("mfrow" , "mar")
       on.exit(par(opar))
       options(DT.options = list(pageLength = 20))
-      options(xtable.include.rownames=F)
+      options(xtable.include.rownames=FALSE)
       # --------------------------------------
       # LowMACA analysis (tab 1 and 2)
       # --------------------------------------
@@ -570,7 +570,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
         par <- par(opar)
         # par(mar=c(2,4,4,2))
       })
-	    # Reactive values for manual selection
+        # Reactive values for manual selection
           # 1) selectRegion: brush points selected
           # 2) selectSingle: click single mutations selction
           # 2) compoundRegion: incremental brush point + LowMACA regions for tab 4
@@ -660,7 +660,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
       })
         # Store a single mutation in manual selection
       observeEvent(input$storesingle , {
-      	if(!is.null(myregion$selectSingle)){
+          if(!is.null(myregion$selectSingle)){
           tmp <- myregion$selectSingle
           if(is.null(myregion$compoundRegion)){
             myregion$compoundRegion <- tmp
@@ -691,7 +691,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
       })
         # Store a region in manual selection
       observeEvent(input$storeregion , {
-      	if(!is.null(myregion$selectRegion)){
+          if(!is.null(myregion$selectRegion)){
           tmp <- myregion$selectRegion
           if(is.null(myregion$compoundRegion)){
             myregion$compoundRegion <- tmp
@@ -796,7 +796,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
          )
       })
       session$onSessionEnded(function() {
-		stopApp(isolate({
+        stopApp(isolate({
             if(is.null(myregion$compoundRegion)){
               colsToKeep <- c("drug" , "gene_symbol" , "alteration" , "exact_alteration" , "mutation_specification" , "group")
               panelNew <- panel[ , colsToKeep] %>% unique
