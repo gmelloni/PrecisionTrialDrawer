@@ -70,6 +70,3 @@ testthat::expect_equal(suppressMessages(suppressWarnings(
   nrow(appendRepo(mypanel_test , repos = mypanel_test@dataFull)@dataFull$copynumber$data)))
   , 10
   , label = "Check that the copynumbers are merged")
-  
-  
-  

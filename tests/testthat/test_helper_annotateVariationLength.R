@@ -99,7 +99,4 @@ test_that(".annotateVariationLength()", {
                                         , padding_length=0)$variation_len
                , 1
                , label="simulate length from RS id, to be equalt to 1")
-  
-  
-  
 })
