@@ -1,0 +1,17 @@
+### Version 0.99.2
+ADDITIONAL FUNCTIONS:
+- More informative show method for CancerPanel object
+- Add NEWS and CITATION files
+***
+BUG FIXES:
+- Minor bug fixes (warnings and notes from BioCheck)
+- Faster examples
+
+### Version 0.99.1
+ADDITIONAL FUNCTIONS:
+***
+BUG FIXES:
+- major bug fix in protein to genomic coordinates transformation
+
+### Version 0.99.0
+First Bioconductor submission

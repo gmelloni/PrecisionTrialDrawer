@@ -1,0 +1,26 @@
+citHeader("To cite package 'PrecisionTrialDrawer' in publications use:")
+
+citEntry(
+entry="article",
+title = "Precision Trial Drawer, a Computational Tool to Assist Planning of Genomics-Driven Trials in Oncology",
+author = personList(as.person("Giorgio EM Melloni"),
+                    as.person("Alessandro Guida"),
+                    as.person("Giuseppe Curigliano"),
+                    as.person("Edoardo Botteri"),
+                    as.person("Angela Esposito"),
+                    as.person("Maude Kamal"),
+                    as.person("Christoph Le Torneau"),
+                    as.person("Laura Riva"),
+                    as.person("Alberto Magi")
+                    as.person("Ruggero de Maria"),
+                    as.person("Piergiuseppe Pelicci"),
+                    as.person("Luca Mazzarella")
+                    ),
+year = "2018",
+journal = "JCO Precision Oncology",
+#volume = "2",
+#number = "80",
+# pages = "1-16",
+doi = "doi:10.1200/PO.18.00015", 
+textVersion = "Melloni GEM, Guida A., et al. Precision Trial Drawer, a Computational Tool to Assist Planning of Genomics-Driven Trials in Oncology. JCO Precision Oncology. 2018:2,1-16. doi:10.1200/PO.18.00015"
+)
