@@ -18,7 +18,7 @@ importFrom(stats, aggregate, as.formula, dist, hclust,
            , AIC , density , lm , median , binomial
            , p.adjust , pgamma , qgamma , pbinom , qbinom , fisher.test)
 importFrom(graphics , axis , layout , lines , plot.new , plot.window)
-importFrom(utils, adist, combn, head, modifyList, str)
+importFrom(utils, adist, combn, head, modifyList, str, capture.output)
 importFrom(brglm , brglm, summary.brglm)
 importFrom(cgdsr , CGDS
                 , getCancerStudies
