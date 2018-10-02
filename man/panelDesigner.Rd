@@ -79,14 +79,14 @@ Giorgio Melloni, Alessandro Guida
 \examples{
 #Load a Cancer Panel Object
 data("cpObj")
-# Design your panel
+# Design your panel for copynumber data only
 # Parallelize part of the code using BiocParallel backend for Unix systems
 if(tolower(Sys.info()["sysname"])=="windows"){
   mydesign <- panelDesigner(cpObj 
-                          , alterationType="mutations")
+                          , alterationType="copynumber")
 } else {
   mydesign <- panelDesigner(cpObj 
-                          , alterationType="mutations" 
+                          , alterationType="copynumber" 
                           , BPPARAM=BiocParallel::MulticoreParam(workers=2)
                           )
 }

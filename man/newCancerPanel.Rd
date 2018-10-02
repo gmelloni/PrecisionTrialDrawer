@@ -135,9 +135,5 @@ Giorgio Melloni , Alessandro Guida
 data(panelexample)
 # Create a CancerPanel object
 mypanel <- newCancerPanel(panelexample , canonicalTranscript=FALSE)
-mypanelCanonical <- newCancerPanel(panelexample , canonicalTranscript=TRUE)
-# note differences in gene length
-head(cpArguments(mypanel)[['genedata']])
-head(cpArguments(mypanelCanonical)[['genedata']])
 }
 

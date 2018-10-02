@@ -169,20 +169,5 @@ coocMutexPlot(cpObj
               , var="gene_symbol" 
               , grouping="tumor_type" 
               , alterationType="mutations")
-# Report data used in the plot above
-head( coocMutexPlot(cpObj 
-                  , var="gene_symbol" 
-                  , grouping="tumor_type"  
-                  , alterationType="mutations"
-                  , noPlot=TRUE) 
-                  )
-# Plot hierarchical clustering of genes divided by tumor type
-# We add method ward.D for hclust aggregation method
-coocMutexPlot(cpObj 
-              , var="gene_symbol" 
-              , grouping="tumor_type" 
-              , alterationType="mutations"
-              , style="dendro"
-              , method="ward.D")
 }
 

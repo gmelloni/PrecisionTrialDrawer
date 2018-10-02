@@ -26,16 +26,10 @@ Giorgio Melloni, Alessandro Guida
 }
 \keyword{ package }
 \examples{
-# Retrieve a panel 
-data(panelexample)
-# Create a CancerPanel object
-mypanel <- newCancerPanel(panelexample)
-# Retrieve data for breast cancer and lung adenocarcinoma
-mypanel <- getAlterations(mypanel , tumor_type=c("brca_tcga_pub"))
-mypanel <- subsetAlterations(mypanel)
-# Plot your panel on your chosen data
+# Retrieve a Cancer Panel 
+data(cpObj)
+# Show the number of covered samples
 coveragePlot(mypanel 
 			, alterationType=c("mutations" , "copynumber") 
 			, grouping=c("group" , "tumor_type"))
-saturationPlot(mypanel , adding="drug" , grouping="tumor_type")
 }

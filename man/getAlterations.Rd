@@ -61,12 +61,8 @@ Giorgio Melloni , Alessandro Guida
 }
 \examples{
 #Load panelexample
-data(panelexample)
-# Retrieve data from lung adenocarcinoma and colorectal cancer types
-mypanel <- newCancerPanel(panelexample)
-mypanel <- getAlterations(mypanel , tumor_type=c("luad"))
-# Retrieve data from specific cancer studies
-mypanel2 <- getAlterations(mypanel , tumor_type=c("brca_bccrc"
-                                                 ,"brca_tcga_pub2015"))
+data(cpObj)
+# Retrieve data from lung adenocarcinoma
+cpObj <- getAlterations(cpObj , tumor_type=c("luad"))
 }
 
