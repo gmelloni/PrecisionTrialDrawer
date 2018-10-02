@@ -134,7 +134,20 @@ setMethod('dataExtractor', 'CancerPanel', function(object , alterationType=c("co
         mydata <- unique(mydata[ , colnames(mydata)!="alteration_id"])
     }
     if(nrow(mydata)==0){
-        stop("No alteration to display for the selected tumor types and alteration types")
+        allcombs <- lapply( seq.int(1 , length(alterationType) , 1) , function(x) {
+            combn(alterationType , x , simplify=FALSE)
+        }) %>% unlist(recursive = FALSE)
+        mytums <- object@arguments$tumor_type
+        sampSummary <-   lapply( allcombs , function(comb) {
+          allsamps <- lapply( object@dataFull[comb] , '[[' , 'Samples')
+          sapply( mytums , function(tum) {
+              length(Reduce("intersect" , lapply(allsamps , '[[' , tum)))
+          })
+        }) %>% do.call("rbind" , .)
+        sampSummary <- cbind( Combinations = sapply( allcombs , function(x) paste(x , collapse=","))
+                              , sampSummary)
+        message(paste0(capture.output(sampSummary), collapse = "\n"))
+        stop("No alteration to display for the selected tumor types and alteration types: check the output above to see what is available")
     }
 
     #------------------------------------

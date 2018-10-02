@@ -16,8 +16,8 @@ setMethod('show', 'CancerPanel', function(object) {
     message(paste("The panel contains alterations of the following types:" 
             , paste(unique(object@arguments$panel$alteration) , collapse=", ")))
 
-    if(!is.null(object@dataFull)){
-        message("\n")
+    if(!identical(object@dataFull , list())){
+      message("\n")
         for(i in c("mutations" , "copynumber" , "fusions" , "expression")){
             if(!is.null(object@dataFull[[i]]$data)){
                 message("The object contains" %++%
@@ -29,5 +29,22 @@ setMethod('show', 'CancerPanel', function(object) {
                 message("No" %++% i %++% "data")
             }
         }
+        alterationType <- c("copynumber" , "expression" , "mutations" , "fusions")
+        allcombs <- lapply( seq.int(1 , length(alterationType) , 1) , function(x) {
+          combn(alterationType , x , simplify=FALSE)
+        }) %>% unlist(recursive = FALSE)
+        mytums <- object@arguments$tumor_type
+        sampSummary <-   lapply( allcombs , function(comb) {
+        allsamps <- lapply( object@dataFull[comb] , '[[' , 'Samples')
+          sapply( mytums , function(tum) {
+            length(Reduce("intersect" , lapply(allsamps , '[[' , tum)))
+          })
+        }) %>% do.call("rbind" , .)
+        sampSummary <- cbind( Combinations = sapply( allcombs , function(x) paste(x , collapse=","))
+                            , sampSummary)
+        message("\nThe number of samples for each combination of alteration types is as follow:")
+        message(paste0(capture.output(sampSummary), collapse = "\n"))
+    } else {
+      message("The object contains no data")
     }
 })
