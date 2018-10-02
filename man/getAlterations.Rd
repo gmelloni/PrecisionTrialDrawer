@@ -57,7 +57,7 @@ The method returns the original CancerPanel object with the slot dataFull update
 Giorgio Melloni , Alessandro Guida
 }
 \seealso{
-\code{\link[cgdsr]{cgdsr-getCancerStudies}} \code{\link{subsetAlterations}} \code{\link{showTumorType}} \code{\link{showCancerStudy}}
+\code{\link{subsetAlterations}} \code{\link{showTumorType}} \code{\link{showCancerStudy}}
 }
 \examples{
 #Load panelexample

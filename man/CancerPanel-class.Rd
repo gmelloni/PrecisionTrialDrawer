@@ -72,7 +72,7 @@ Every alteration type is defined by a slot; all slots have the same data.frame l
     \item{propPowerSampleSize}{\code{propPowerSampleSize(object = "CancerPanel")}: ... }
     \item{filterMutations}{\code{filterMutations(object = "CancerPanel")}: ... }
     \item{filterFusions}{\code{filterFusions(object = "CancerPanel")}: ... }
-	}
+    }
 }
 \examples{
 showClass("CancerPanel")
