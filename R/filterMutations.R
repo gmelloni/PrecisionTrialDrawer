@@ -4,8 +4,9 @@
 
 .bedCheck <- function(bed){
     # bed must be a dataframe, char num num
-    if(! class(bed)=="data.frame" )
+    if( !is.data.frame(bed) ){
         stop("bed must be a data.frame")
+    }
     # bed must have 3 columns
     if(ncol(bed)!=3)
         stop("bed data.frame must have 3 columns")
@@ -70,7 +71,7 @@ setMethod('filterMutations', 'CancerPanel'
     }
     # If filtered is set
     if(!is.null(filtered)){
-        if(class(filtered)!="data.frame"){
+        if(!is.data.frame(filtered)){
             stop("filtered must be a data.frame")
         }
         filtered <- filtered[ , sort(colnames(filtered))]

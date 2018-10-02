@@ -8,9 +8,9 @@ setClass('CancerPanel',
         ,dataSubset='list'
         )
     ,validity=function(object) {
-    if(class(object@arguments) == "list" || 
-       class(object@dataFull) == "list" ||
-       class(object@dataSubset) == "list") {
+    if(is.list(object@arguments) || 
+       is.list(object@dataFull) ||
+       is.list(object@dataSubset)) {
       return("CancerPanel slots are lists")
       }
       return(FALSE)

@@ -2,7 +2,7 @@
 # CHECK CUSTOM DATA CONSISTENCY
 #
 .checkRepos <- function(repos) {
-  if(class(repos) != "list" ){
+  if( !is.list(repos) ){
     stop("repos should be a list")
   }
   if(length(repos) != 4 ){
@@ -39,7 +39,7 @@
       # elements of Samples must be character vectors
       # elements of Samples must be vectors of length > 1
       
-      if(class(repos[[i]]$data)!="data.frame") {
+      if(!is.data.frame(repos[[i]]$data)) {
         stop(paste("In" , i , "data is not a data.frame"))
       }
       # Last column in copynumber and expression is not necessary
@@ -57,7 +57,7 @@
           stop(paste("colnames in repos are wrong for the alteration type" , i))
       }
       
-      if(class(repos[[i]]$Samples)!="list") {
+      if(!is.list(repos[[i]]$Samples)) {
         stop(paste("In data," , i , ", Samples is not a list"))
       }
       

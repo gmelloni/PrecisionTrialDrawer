@@ -4,7 +4,7 @@ setGeneric('filterFusions', function(object , filtered , mode = c("exclude" , "k
 setMethod('filterFusions', 'CancerPanel', function(object , filtered , mode = c("exclude" , "keep"))
 {
     # browser()
-    if(class(filtered)!="character"){
+    if(!is.character(filtered)){
         stop("filtered must be a character vector")
     }
     mode <- mode[1]

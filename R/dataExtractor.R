@@ -33,7 +33,7 @@ setMethod('dataExtractor', 'CancerPanel', function(object , alterationType=c("co
     if(!is.logical(collapseMutationByGene)) {
         stop("collapseMutationByGene must be a logical")
     }
-    if(class(object)!="CancerPanel") {
+    if(!is(object , "CancerPanel")) {
         stop("object must be an instance of class CancerPanel")
     }
     if(!is.null(tumor_type) && !is.character(tumor_type)) {

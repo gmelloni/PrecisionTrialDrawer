@@ -16,7 +16,7 @@ setMethod('appendRepo', 'CancerPanel', function(object , repos){
   ############################
   # CHECK repos is well formed
   # --------------------------
-  if(class(repos) != "list" ){stop("repos should be a list")}
+  if(!is.list(repos) ){stop("repos should be a list")}
   
   if(length(repos) != 4 ){stop("repos should be a list of length 4")}
   
@@ -61,11 +61,11 @@ setMethod('appendRepo', 'CancerPanel', function(object , repos){
       # elements of Samples must be character vectors
       # elements of Samples must be vectors of length > 1
       
-      if(class(repos[[i]]$data)!="data.frame"){
+      if(!is.data.frame(repos[[i]]$data)){
         stop(paste("In appending new data," , i , "data is not a data.frame"))
       }
       
-      if(class(repos[[i]]$Samples)!="list"){
+      if(!is.list(repos[[i]]$Samples)){
         stop(paste("In appending new data," , i , "Samples is not a list"))
       }
       

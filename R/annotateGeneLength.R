@@ -20,7 +20,7 @@
   }    
   if(any(genes==" ")){
     stop("Submitted gene list contains empty strings instead of gene names: \" \" ")
-  }    
+  }
   
   
   #########################################
@@ -31,12 +31,11 @@
   # attributes like transcript tsl and transcript source can only be found in the most recent versions
   message("Connecting to ensembl biomart...")
   ensembl=biomaRt::useMart(host=myhost
-                  , biomart="ENSEMBL_MART_ENSEMBL" 
-                  , dataset="hsapiens_gene_ensembl")
-  
+                           , biomart="ENSEMBL_MART_ENSEMBL" 
+                           , dataset="hsapiens_gene_ensembl")
   ensemblold=biomaRt::useMart(host="feb2014.archive.ensembl.org" 
-                     , biomart="ENSEMBL_MART_ENSEMBL" 
-                     , dataset="hsapiens_gene_ensembl")
+                              , biomart="ENSEMBL_MART_ENSEMBL" 
+                              , dataset="hsapiens_gene_ensembl")
   
   # ---------------------------------------
   # Run first Biomart Query on hgnc symbol to fetch info
@@ -46,11 +45,11 @@
   # separete queries, and marged them back together. This will be the main 
   # biomart dataset of refence upon which to run further queries. 
   dframe <- biomaRt::getBM(attributes=c("hgnc_symbol"
-                               , "ensembl_transcript_id"
-                               ,"ensembl_gene_id")
-                  , filters=c("hgnc_symbol")
-                  , values=genes
-                  , mart=ensemblold)
+                                        , "ensembl_transcript_id"
+                                        ,"ensembl_gene_id")
+                           , filters=c("hgnc_symbol")
+                           , values=genes
+                           , mart=ensemblold)
   #Check for missing genes symbols in the query results
   if(any(genes %notin% dframe$hgnc_symbol)){
     genesNotFound <- setdiff(unique(genes) , unique(dframe$hgnc_symbol))
@@ -118,8 +117,8 @@
   
   #########################################
   # ADJUST TSL NUMBER TO REMOVE NAs
-  #----------------------------------------
-
+  #----------------------------------------  
+  
   #clean up attribute fetching only the tsl number
   dframe_merge <- lapply(dframe_merge , function(x) {
     if(all( x$transcript_tsl %in% c("tslNA" , NA)) ){
@@ -127,17 +126,17 @@
       return(x)
     }
     x$transcript_tsl <- strsplit(x$transcript_tsl , " ") %>% 
-                        sapply(. , '[' , 1) %>%
-                        sub("^tsl" , "" , .)
+      sapply(. , '[' , 1) %>%
+      sub("^tsl" , "" , .)
     x$transcript_tsl <- suppressWarnings(as.numeric(x$transcript_tsl))
     # Substitute NA transcript tsl with the highest number of tsl
     tsl_max <- ifelse( is.na(max(x$transcript_tsl , na.rm=TRUE)) 
-                     , 1 
-                     , max(x$transcript_tsl , na.rm=TRUE))
+                       , 1 
+                       , max(x$transcript_tsl , na.rm=TRUE))
     x$transcript_tsl[is.na(x$transcript_tsl)] <- tsl_max
     return(x)
-  })
-
+  })  
+  
   #########################################
   # ADJUST GENES WITH NO CDS (like pseudo genes or RNA genes)
   #----------------------------------------
@@ -146,36 +145,36 @@
   # If no cds_length available, raise a warning and use the exon length instead
   chrs <- c(1:22 , "X" , "Y" , "MT" , "M")
   dframe_merge <- lapply(dframe_merge , function(x) {
-      # Check that the gene is mapped to a chromosome if possible
-      x_chr <- x[ as.character(x$chromosome_name) %in% chrs , ]
-      if(nrow(x_chr)>0){
-        x <- x_chr
-      }
-      # Check to make sure the gene in consideration is coding. If not skip it
-      if(nrow(x[ !is.na(x$cds_length) , ])>0){
-        # get coding lenghts (discarding those regions non coding)
-        x <- x[ !is.na(x$cds_length) , , drop=FALSE]
-        return(x)
-      }
-      if(nrow(x[ !is.na(x$cds_length) , ])==0){
-        warning(paste("The following gene has no coding regions:" 
-              , unique(x$hgnc_symbol) 
-              , ". Only full exons length will be used"))
-        x$genomic_coding_start <- x$exon_chrom_start
-        x$genomic_coding_end <- x$exon_chrom_end
-        fakecds_length <- split(x , x$ensembl_transcript_id) %>%
-                          lapply(. , function(transcript){
-                            cds_length <- transcript$genomic_coding_end - transcript$genomic_coding_start
-                            cds_length <- sum(cds_length , na.rm=TRUE)
-                            return(data.frame(ensembl_transcript_id=unique(transcript$ensembl_transcript_id)
-                                            ,fakecds_length=cds_length
-                                            ,stringsAsFactors=FALSE))
-                            }) %>% do.call("rbind" , .)
-        x <- merge(x , fakecds_length , all.x=TRUE)
-        x$cds_length <- x$fakecds_length
-        x$fakecds_length <- NULL
-      }
+    # Check that the gene is mapped to a chromosome if possible
+    x_chr <- x[ as.character(x$chromosome_name) %in% chrs , ]
+    if(nrow(x_chr)>0){
+      x <- x_chr
+    }
+    # Check to make sure the gene in consideration is coding. If not skip it
+    if(nrow(x[ !is.na(x$cds_length) , ])>0){
+      # get coding lenghts (discarding those regions non coding)
+      x <- x[ !is.na(x$cds_length) , , drop=FALSE]
       return(x)
+    }
+    if(nrow(x[ !is.na(x$cds_length) , ])==0){
+      warning(paste("The following gene has no coding regions:" 
+                    , unique(x$hgnc_symbol) 
+                    , ". Only full exons length will be used"))
+      x$genomic_coding_start <- x$exon_chrom_start
+      x$genomic_coding_end <- x$exon_chrom_end
+      fakecds_length <- split(x , x$ensembl_transcript_id) %>%
+        lapply(. , function(transcript){
+          cds_length <- transcript$genomic_coding_end - transcript$genomic_coding_start
+          cds_length <- sum(cds_length , na.rm=TRUE)
+          return(data.frame(ensembl_transcript_id=unique(transcript$ensembl_transcript_id)
+                            ,fakecds_length=cds_length
+                            ,stringsAsFactors=FALSE))
+        }) %>% do.call("rbind" , .)
+      x <- merge(x , fakecds_length , all.x=TRUE)
+      x$cds_length <- x$fakecds_length
+      x$fakecds_length <- NULL
+    }
+    return(x)
   })
   #########################################
   # TRANSCRIPT OPTION1: SELECT CANONICAL
@@ -238,28 +237,28 @@
   # In case we don't select one transcript, we have to collapse all exons of all transcripts
   codingIR <- lapply(dframe_merge 
                      , function(df) { #for each gene
-                      # mynum <- 0
-                      # for(df in dframe_merge){
-                      #   mynum <- mynum+1
-                        df <- df[ !is.na(df$genomic_coding_start) , ] #rm NAs
-                        ir <- IRanges(start=df$genomic_coding_start , end=df$genomic_coding_end)
-                        ir <- reduce(ir , min.gapwidth=1L) #merge transcripts
-                        out <- data.frame(gene_symbol=unique(df$hgnc_symbol)
-                                          , cds_len=sum(ir@width)
-                                          , stringsAsFactors=FALSE)
-                      }
-                    ) %>% do.call("rbind" , .)
+                       # mynum <- 0
+                       # for(df in dframe_merge){
+                       #   mynum <- mynum+1
+                       df <- df[ !is.na(df$genomic_coding_start) , ] #rm NAs
+                       ir <- IRanges(start=df$genomic_coding_start , end=df$genomic_coding_end)
+                       ir <- reduce(ir , min.gapwidth=1L) #merge transcripts
+                       out <- data.frame(gene_symbol=unique(df$hgnc_symbol)
+                                         , cds_len=sum(ir@width)
+                                         , stringsAsFactors=FALSE)
+                     }
+  ) %>% do.call("rbind" , .)
   # for the UTRs
   codingUTRIR <- lapply(dframe_merge 
-                      , function(df) {
-                        df <- df[ !is.na(df$exon_chrom_start) , ]
-                        ir <- IRanges(start=df$exon_chrom_start , end=df$exon_chrom_end) #Select UTS too here
-                        ir <- reduce(ir , min.gapwidth=1L)
-                        out <- data.frame(gene_symbol=unique(df$hgnc_symbol)
-                                          , cds_and_utr_len=sum(ir@width)
-                                          , stringsAsFactors=FALSE)
-                      }
-                    ) %>% do.call("rbind" , .)
+                        , function(df) {
+                          df <- df[ !is.na(df$exon_chrom_start) , ]
+                          ir <- IRanges(start=df$exon_chrom_start , end=df$exon_chrom_end) #Select UTS too here
+                          ir <- reduce(ir , min.gapwidth=1L)
+                          out <- data.frame(gene_symbol=unique(df$hgnc_symbol)
+                                            , cds_and_utr_len=sum(ir@width)
+                                            , stringsAsFactors=FALSE)
+                        }
+  ) %>% do.call("rbind" , .)
   #merge the two dafatrame into one table
   final_df <- merge(codingIR , codingUTRIR , all.x=TRUE) %>% unique
   return(final_df)
