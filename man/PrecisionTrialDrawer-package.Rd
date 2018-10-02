@@ -29,7 +29,7 @@ Giorgio Melloni, Alessandro Guida
 # Retrieve a Cancer Panel 
 data(cpObj)
 # Show the number of covered samples
-coveragePlot(mypanel 
+coveragePlot(cpObj 
 			, alterationType=c("mutations" , "copynumber") 
 			, grouping=c("group" , "tumor_type"))
 }
