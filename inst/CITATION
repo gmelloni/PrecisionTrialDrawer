@@ -11,7 +11,7 @@ author = personList(as.person("Giorgio EM Melloni"),
                     as.person("Maude Kamal"),
                     as.person("Christoph Le Torneau"),
                     as.person("Laura Riva"),
-                    as.person("Alberto Magi")
+                    as.person("Alberto Magi"),
                     as.person("Ruggero de Maria"),
                     as.person("Piergiuseppe Pelicci"),
                     as.person("Luca Mazzarella")
