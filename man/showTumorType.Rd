@@ -26,7 +26,7 @@ have a different source and could not be included in the list.
 Giorgio Melloni, Alessandro Guida
 }
 \seealso{
-\code{\link[cgdsr]{getCancerStudies}} \code{\link{getAlterations}} \code{\link{showCancerStudy}}
+\code{\link[cgdsr]{cgdsr-getCancerStudies}} \code{\link{getAlterations}} \code{\link{showCancerStudy}}
 }
 \examples{
 myTumTypes <- showTumorType()
