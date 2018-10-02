@@ -89,17 +89,20 @@
     # uniprot_can$prot_len <- nchar(uniprot_can$AMINO_SEQ)
     # Here we use just the latest version of ensembl because the REST API for proteins works in gchr38
     # We have to manually revert the positions to hg19 with annotationhub
-    ensembl=biomaRt::useMart(host=myhost , biomart="ENSEMBL_MART_ENSEMBL" , dataset="hsapiens_gene_ensembl")
+    ensembl <- biomaRt::useMart(host=myhost , biomart="ENSEMBL_MART_ENSEMBL" , dataset="hsapiens_gene_ensembl")
+    ensemblold <- biomaRt::useMart(host="feb2014.archive.ensembl.org" 
+                                , biomart="ENSEMBL_MART_ENSEMBL" 
+                                , dataset="hsapiens_gene_ensembl")
     # Retrieve proteins in biomart
     # We only want genes which are listed in HGNC
     # We only want proteins that are in uniprot
-    bm <- biomaRt::getBM(mart=ensembl, values = genes
+    bm <- biomaRt::getBM(mart=ensemblold, values = genes
              ,filters = "hgnc_symbol"
              ,attributes = c(
                  "peptide"
                  # ,"peptide_location"
-                 #,"uniprot_swissprot"
-                 ,"uniprotswissprot"
+                 ,"uniprot_swissprot"
+                 #,"uniprotswissprot"
                  ,"ensembl_gene_id"
                  ,"ensembl_peptide_id"
                  ,"hgnc_symbol"
@@ -107,12 +110,12 @@
                  # ,"cds_length"
                  # ,"chromosome_name"
                  )
-            ) %>% 
-            split(. , .$hgnc_symbol) %>%
+            )
+      bm_split <- split(bm , bm$hgnc_symbol) %>%
             lapply(. , function(x) {
                     x$prot_len <- nchar(x$peptide) - 1
                     out <- x[ x$ensembl_gene_id %in% hgnc_query[ , 'ensembl_gene_id'] , ]
-                    out <- out[out$uniprotswissprot!="" , ]
+                    out <- out[out$uniprot_swissprot!="" , ]
                     if(nrow(out)==0)
                         stop("you look for a gene with no uniprot entry")
                     else
@@ -130,7 +133,7 @@
     #                     , function(i) adist(bm_uniprot[i,"AMINO_SEQ"] 
     #                                         , bm_uniprot[i,"peptide"]) 
     #                     )
-    bm_uniprot_split <- split(bm , bm$hgnc_symbol) %>%
+    bm_uniprot_split <- split(bm_split , bm_split$hgnc_symbol) %>%
                         lapply(. , function(x) {
                             if(nrow(x)==1){
                                 return(x)
@@ -147,8 +150,8 @@
                             }) %>% sapply(. , function(x) x[ , "ensembl_peptide_id"])
     #hub <- AnnotationHub::AnnotationHub()
     #chain <- AnnotationHub::query(hub, 'hg38ToHg19')[[1]]
-    hg38Rest <- "http://rest.ensembl.org/map/translation/"
-    hg19Rest <- "http://grch37.rest.ensembl.org/map/translation/"
+    hg38Rest <- "https://rest.ensembl.org/map/translation/"
+    hg19Rest <- "https://grch37.rest.ensembl.org/map/translation/"
     ranges_bedstyle <- bplapply(genes , function(gene) {
                         gene_df <- panel_aa[ panel_aa$gene_symbol==gene, ]
                         df <- lapply(unique(gene_df$mutation_specification) , function(x) {
