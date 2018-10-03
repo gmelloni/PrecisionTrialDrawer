@@ -143,3 +143,4 @@ cpFreq(cpObj , alterationType="fusions" , fusions.specs="byfusionpair")
 # Now calculate mutation freq by gene using 90\% of luad and 10\% of brca samples
 cpFreq(cpObj , alterationType="mutations", tumor.freqs=c(brca=0.9 , luad=0.1))
 }
+

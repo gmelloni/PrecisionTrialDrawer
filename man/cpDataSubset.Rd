@@ -41,8 +41,8 @@ Giorgio Melloni , Alessandro Guida
 }
 \examples{
 # Load example CancerPanel object
-data(cpObj)
+data(cpObj2)
 # Show slot dataSubset
-str( cpDataSubset(cpObj) )
+str( cpDataSubset(cpObj2) )
 }
 

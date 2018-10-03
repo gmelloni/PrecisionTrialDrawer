@@ -140,28 +140,4 @@ data(cpObj)
 coveragePlot(cpObj , alterationType=c("mutations" , "copynumber") 
           , grouping=c("tumor_type" , "drug")
           , maxNumAlt=5)
-# Report data used in the plot above
-coveragePlot(cpObj , alterationType=c("mutations" , "copynumber") 
-          , grouping=c("tumor_type" , "drug")
-          , maxNumAlt=5
-          , noPlot=TRUE)
-
-# Observe the effect of alterationType.agg on frequencies
-coveragePlot(cpObj , alterationType=c("mutations" , "copynumber") 
-            , grouping=c("alteration_id")
-            , noPlot=FALSE)
-coveragePlot(cpObj , alterationType=c("mutations" , "copynumber") 
-            , grouping=c("alteration_id")
-            , noPlot=FALSE
-            , alterationType.agg = FALSE)
-# Use tumor.weights. Create a design with 40 random luad samples and 10 brca
-coveragePlot(cpObj , alterationType=c("mutations" , "copynumber" , "fusions") 
-          , grouping=NA
-          , maxNumAlt=5
-          , tumor.weights = c(brca=10 , luad=40))
-# Use tumor.freqs. Calculate frequencies with 90\% weight to luad samples and 10\% to brca
-coveragePlot(cpObj , alterationType=c("mutations" , "copynumber" , "fusions") 
-          , grouping=NA
-          , maxNumAlt=5
-          , tumor.freqs = c(brca=0.1 , luad=0.9))
 }

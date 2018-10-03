@@ -134,12 +134,6 @@ coverageStackPlot(cpObj , alterationType=c("mutations" , "copynumber")
           , var="drug"
           , grouping="gene_symbol"
           , tumor_type="brca")
-# Report data used in the plot above
-coverageStackPlot(cpObj , alterationType=c("mutations" , "copynumber") 
-          , var="drug"
-          , grouping="gene_symbol"
-          , tumor_type="brca"
-          , noPlot=TRUE)
 # Show an interactive version of the plot
 # Save the html code first
 myHtmlPlot <- coverageStackPlot(cpObj 
@@ -151,12 +145,4 @@ myHtmlPlot <- coverageStackPlot(cpObj
           , html=TRUE)
 # Plot the code above
 plot(myHtmlPlot)
-# Use tumor.weights. Create a design with 40 random luad samples and 10 brca
-coverageStackPlot(cpObj , alterationType=c("mutations" , "copynumber" , "fusions") 
-          , var="drug"
-          , tumor.weights = c(brca=10 , luad=40))
-# Use tumor.freqs. Calculate frequencies with 90\% weight to luad samples and 10\% to brca
-coverageStackPlot(cpObj , alterationType=c("mutations" , "copynumber" , "fusions") 
-          , var="drug"
-          , tumor.freqs = c(brca=0.1 , luad=0.9))
 }

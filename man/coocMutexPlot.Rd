@@ -165,7 +165,7 @@ Giorgio Melloni, Alessandro Guida
 # Load example CancerPanel object
 data(cpObj)
 # Plot cooccurence and mutual exclusivity between pairs of genes by tumor type
-coocMutexPlot(cpObj 
+coocMutexPlot(cpObj
               , var="gene_symbol" 
               , grouping="tumor_type" 
               , alterationType="mutations")

@@ -133,7 +133,6 @@ Giorgio Melloni , Alessandro Guida
 \examples{
 # Load the panel example
 data(panelexample)
-# Create a CancerPanel object
-mypanel <- newCancerPanel(panelexample , canonicalTranscript=FALSE)
+# Create a CancerPanel object for the first 3 lines
+mypanel <- newCancerPanel(panelexample[1:3 , ] , canonicalTranscript=FALSE)
 }
-

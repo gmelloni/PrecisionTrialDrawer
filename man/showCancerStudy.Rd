@@ -18,10 +18,13 @@ that can be passed to the method getAlterations.
 }
 \details{
 This method is a wrapper around \code{\link[cgdsr]{getCancerStudies}} 
-and show all the cancer studies included in the cBioPortal. If you specify the tumor_type, follow 
+and show all the cancer studies included in the cBioPortal. 
+If you specify the tumor_type, follow 
 the list of \code{showTumorType}.
-Even though the cancer studies are present, it doesn't mean that there are data for every alteration. 
-A tumor type could have mutation data but not copynumber or viceversa. Furthermore, fusion data 
+Even though the cancer studies are present, 
+it doesn't mean that there are data for every alteration. 
+A tumor type could have mutation data but not copynumber 
+or viceversa. Furthermore, fusion data 
 have a different source and could not be included in the list.
 }
 \author{

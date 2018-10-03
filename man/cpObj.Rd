@@ -5,7 +5,7 @@
 Example of a cancer panel
 }
 \description{
-A data frame containing a cancer panel data.frame to create a CancerPanel object 
+A CancerPanel object used in PrecisionTrailDrawer
 }
 \usage{
 data(cpObj)

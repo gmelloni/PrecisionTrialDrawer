@@ -17,9 +17,12 @@ involved in a particular tumor type.
 }
 \details{
 This method is a wrapper around \code{\link[cgdsr]{getCancerStudies}} 
-and show all the barcodes for the tumor types included in the cBioPortal. 
-Even though the tumor types are present, it doesn't mean that there are data for every alteration. 
-A tumor type could have mutation data but not copynumber or viceversa. Furthermore, fusion data 
+and show all the barcodes for the tumor 
+types included in the cBioPortal. 
+Even though the tumor types are present, 
+it doesn't mean that there are data for every alteration. 
+A tumor type could have mutation data but not copynumber or viceversa. 
+Furthermore, fusion data 
 have a different source and could not be included in the list.
 }
 \author{

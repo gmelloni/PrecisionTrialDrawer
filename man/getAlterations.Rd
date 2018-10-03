@@ -61,8 +61,8 @@ Giorgio Melloni , Alessandro Guida
 }
 \examples{
 #Load panelexample
-data(cpObj)
-# Retrieve data from lung adenocarcinoma
-cpObj <- getAlterations(cpObj , tumor_type=c("luad"))
+data(cpObj2)
+# Retrieve data from AML
+cpObj <- getAlterations(cpObj2 , tumor_type=c("laml"))
 }
 
