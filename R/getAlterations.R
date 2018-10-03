@@ -11,7 +11,8 @@
   if(!all(names(repos) %in% c( "fusions", "mutations",  "copynumber", "expression"))) {
     stop("repos is not correctly formatted. There are alteration types missing in the list")
   }
-  if(!all(sapply(repos , function(x) names(x)) %in% c("data" , "Samples"))) {
+  reposNames <- lapply(repos , function(x) names(x))
+  if(!all(vapply( reposNames , function(k) identical(k , c("data" , "Samples")) , logical(1)))) {
     stop("Each alteration type should contain two elements named data and Samples")
   }
   kColnamesIndataFull <- list(
@@ -61,7 +62,7 @@
         stop(paste("In data," , i , ", Samples is not a list"))
       }
       
-      if(!all(sapply(repos[[i]]$Samples , class) == "character")) {
+      if(!all(vapply(repos[[i]]$Samples , class , character(1)) == "character")) {
         stop(paste("some sample names in" , i , "are not character vectors"))
       }
 
@@ -137,7 +138,7 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                 # object@dataFull[[i]]['Freq'] <- list(NULL)
             }
         }
-        object@arguments$tumor_type <- sapply(object@dataFull , function(x) {
+        object@arguments$tumor_type <- lapply(object@dataFull , function(x) {
                                         if(!is.null(x$Samples)) names(x$Samples)
                                         }) %>% 
                                         unlist %>% 
@@ -205,7 +206,7 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
         object@arguments$tumor_type <- derived_tumor_type
         # object@arguments$tumor_study <- showCancerStudy()[ , 1]
     } else {
-        derived_tumor_type <- unname(unique(sapply(tumor_type, function(x) strsplit(x , "_")[[1]][1])))
+        derived_tumor_type <- unname(unique(vapply(tumor_type, function(x) strsplit(x , "_")[[1]][1] , character(1))))
         object@arguments$tumor_type <- derived_tumor_type
         # object@arguments$tumor_study <- tumor_study
     }
@@ -264,8 +265,7 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
     #-----------------------------------------------------------------------------
     if(any(object@arguments$panel$alteration=="SNV")) {
         #check if all the tumor_type selected are available
-      availability <- .checkDataAvailability(tumor_type=tumor_type , genProfile="mutations$") %>% 
-                        sapply(. , length)
+      availability <- .checkDataAvailability(tumor_type=tumor_type , genProfile="mutations$") %>% lengths
         #in case there is one missing
         if(all(availability==0)){
             message("\nSorry, no mutation data available for the specified tumor types or cancer studies...")
@@ -285,7 +285,7 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
               #split gene list in blocks of gene_block elements
                 myGenesBlocks <- .subsetter(mutgenes , gene_block)
                 message("Too many genes. We subset data retrieval in" %++% length(myGenesBlocks) %++% "blocks of" %++% gene_block %++% "genes each")
-                gmOut <- lapply(1:length(myGenesBlocks) , function(x){
+                gmOut <- lapply(seq_len(length(myGenesBlocks)) , function(x){
                             geneblock <- myGenesBlocks[[x]]
                             .getMutations(geneblock , tumor_type=tumor_type , block=x)
                         })
@@ -297,11 +297,11 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                 if(!is.null(gmOut2)){
                     tumor_type_vec <- unique(gmOut2$genetic_profile_id) %>% 
                                     strsplit(. , "_") %>%
-                                    sapply(., '[' , 1)
+                                    vapply(., '[' , character(1) , 1)
                     names(tumor_type_vec) <- unique(gmOut2$genetic_profile_id)
                     gmOut2$tumor_type <- tumor_type_vec[gmOut2$genetic_profile_id]
                     tumor_type_vec2_names <- names(gmOut[[1]])
-                    tumor_type_vec2 <- strsplit(tumor_type_vec2_names , "_") %>% sapply(. , '[' , 1)
+                    tumor_type_vec2 <- strsplit(tumor_type_vec2_names , "_") %>% vapply(. , '[' , character(1) , 1)
                     samples_mut <- lapply(unique(tumor_type_vec2) , function(tum) {
                                     # browser()
                                     tum <- tumor_type_vec2_names[tumor_type_vec2==tum]
@@ -315,11 +315,11 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                 if(!is.null(gmOut2)){
                     tumor_type_vec <- unique(gmOut2$genetic_profile_id) %>% 
                                     strsplit(. , "_") %>%
-                                    sapply(., '[' , 1)
+                                    vapply(., '[' , character(1) , 1)
                     names(tumor_type_vec) <- unique(gmOut2$genetic_profile_id)
                     gmOut2$tumor_type <- tumor_type_vec[gmOut2$genetic_profile_id]
                     tumor_type_vec2_names <- names(gmOut)
-                    tumor_type_vec2 <- strsplit(tumor_type_vec2_names , "_") %>% sapply(. , '[' , 1)
+                    tumor_type_vec2 <- strsplit(tumor_type_vec2_names , "_") %>% vapply(. , '[' , character(1) , 1)
                     samples_mut <- lapply(unique(tumor_type_vec2) , function(tum) {
                                     # browser()
                                     tum <- tumor_type_vec2_names[tumor_type_vec2==tum]
@@ -349,8 +349,8 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                 knotTransc <- c("3'UTR", "3'Flank", "5'UTR", "5'Flank"
                                 , "IGR", "Intron", "RNA", "Targeted_Region")
                 knonsynonymous <- setdiff(ktcga_types , c("Silent" , knotTransc))
-                kmiss_type <- ktcga_types[1:3]
-                ktrunc_type <- ktcga_types[4:9]
+                kmiss_type <- ktcga_types[c(1,2,3)]
+                ktrunc_type <- ktcga_types[c(4,5,6,7,8,9)]
                 mutation_type <- mutation_type[1]
                 if(mutation_type=="all_nonsynonymous")
                   gmOut2 <- gmOut2[ gmOut2$mutation_type %in% knonsynonymous , ]
@@ -380,7 +380,7 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                                             ,values=nochr
                                             ,filters="hgnc_symbol"
                                             ,attributes=c("hgnc_symbol","chromosome_name"))
-                    Chr_df <- Chr_df[ Chr_df$chromosome_name %in% c(1:23 , "X" , "M" , "MT" , "Y") , ] %>% unique
+                    Chr_df <- Chr_df[ Chr_df$chromosome_name %in% c(seq_len(23) , "X" , "M" , "MT" , "Y") , ] %>% unique
                     if(any(nochr %notin% Chr_df$hgnc_symbol)){
                         genesout <- setdiff(nochr , Chr_df$hgnc_symbol)
                         stop("Problem retrieving chr name from biomart in" %++% paste(genesout , collapse=", "))
@@ -412,9 +412,9 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                 # Correct TCGA samples name (revert TCGA-11-1234-01 to TCGA-11-1234)
                 gmOut2$case_id <- as.character(gmOut2$case_id)
                 gmOut2$case_id[ grep("^TCGA-" , gmOut2$case_id) ] <- gmOut2$case_id[ grep("^TCGA-" , gmOut2$case_id) ] %>%
-                                                                    strsplit(. , "-") %>%
-                                                                    sapply(. , function(x) paste(x[1:3] , collapse="-")) %>%
-                                                                    unlist
+                                                  strsplit(. , "-") %>%
+                                                  vapply(. , function(x) paste(x[seq_len(3)] , collapse="-") , character(1)) %>%
+                                                  unlist
                 # Correct gene names. If cgdsr put them upper case, revert them to their original case
                 if(any(mutgenes_translator$original!=mutgenes_translator$upper)){
                   mutgenes_translator <- mutgenes_translator[ mutgenes_translator$original!=mutgenes_translator$upper , , drop=FALSE]
@@ -424,12 +424,13 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                                                             , warn_missing = FALSE)
                 }
                 samples_mut <- lapply(samples_mut , function(x) {
-                                if(is.null(x[1]))
+                                if(is.null(x[1])){
                                     return(x)
+                                }
                                 x[grep("^TCGA-" , x)] <- x[grep("^TCGA-" , x)] %>%
-                                                            strsplit(. , "-") %>%
-                                                            sapply(. , function(x) paste(x[1:3] , collapse="-")) %>%
-                                                            unlist
+                                                    strsplit(. , "-") %>%
+                                                    vapply(. , function(x) paste(x[seq_len(3)] , collapse="-") , character(1)) %>%
+                                                    unlist
                                 return(unique(x))
                                 })
                 names(samples_mut) <- unique(tumor_type_vec2)
@@ -461,7 +462,7 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
     # The data come in a different form as patients on rows and genes on columns
     # To uniform the output to mutations, we have to melt this matrix
     if(any(object@arguments$panel$alteration=="CNA")) {
-        availability <- .checkDataAvailability(tumor_type=tumor_type , genProfile="gistic|cna$") %>% sapply(. , length)
+        availability <- .checkDataAvailability(tumor_type=tumor_type , genProfile="gistic|cna$") %>% lengths
         if(all(availability==0)){
             message("\nSorry, no copy number alteration data available for the specified tumor types...")
             object@dataFull$copynumber <- list(data=NULL 
@@ -479,7 +480,7 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
             if(length(cnagenes)>100) {
                 myGenesBlocks_cna <- .subsetter(cnagenes , gene_block)
                 message("Too many genes. We subset data retrieval in" %++% length(myGenesBlocks_cna) %++% "blocks of" %++% gene_block %++% "genes each")
-                gcOut <- lapply(1:length(myGenesBlocks_cna) , function(x){
+                gcOut <- lapply(seq_len(length(myGenesBlocks_cna)) , function(x){
                             geneblock <- myGenesBlocks_cna[[x]]
                             tobereturned <- .getCNA(geneblock , tumor_type=tumor_type , block=x)
                             return(tobereturned)
@@ -502,11 +503,11 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                 gcOut_melt <- as.data.frame(rbindlist(gcOut_melt)) %>% .changeFactor(.)
                 tumor_type_vec <- unique(gcOut_melt$genetic_profile_id) %>% 
                                     strsplit(. , "_") %>%
-                                    sapply(., '[' , 1)
+                                    vapply(., '[' , character(1) , 1)
                 names(tumor_type_vec) <- unique(gcOut_melt$genetic_profile_id)
                 gcOut_melt$tumor_type <- tumor_type_vec[gcOut_melt$genetic_profile_id]
                 tumor_type_vec2_names <- names(gcOut[[1]])
-                tumor_type_vec2 <- strsplit(tumor_type_vec2_names , "_") %>% sapply(. , '[' , 1)
+                tumor_type_vec2 <- strsplit(tumor_type_vec2_names , "_") %>% vapply(. , '[' , character(1) , 1)
                 samples_cna <- lapply(unique(tumor_type_vec2) , function(tum) {
                                 # browser()
                                 tum <- tumor_type_vec2_names[tumor_type_vec2==tum]
@@ -530,11 +531,11 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                 
                 tumor_type_vec <- unique(gcOut2$genetic_profile_id) %>% 
                                     strsplit(. , "_") %>%
-                                    sapply(., '[' , 1)
+                                    vapply(., '[' , character(1) , 1)
                 names(tumor_type_vec) <- unique(gcOut2$genetic_profile_id)
                 gcOut_melt$tumor_type <- tumor_type_vec[gcOut2$genetic_profile_id]
                 tumor_type_vec2_names <- names(gcOut)
-                tumor_type_vec2 <- strsplit(tumor_type_vec2_names , "_") %>% sapply(. , '[' , 1)
+                tumor_type_vec2 <- strsplit(tumor_type_vec2_names , "_") %>% vapply(., '[' , character(1) , 1)
                 samples_cna <- lapply(unique(tumor_type_vec2) , function(tum) {
                                 # browser()
                                 tum <- tumor_type_vec2_names[tumor_type_vec2==tum]
@@ -546,14 +547,14 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
             gcOut_melt$case_id <- as.character(gcOut_melt$case_id)
             gcOut_melt$case_id[grep("^TCGA-" , gcOut_melt$case_id)] <- gcOut_melt$case_id[grep("^TCGA-" , gcOut_melt$case_id)] %>%
                                                                 strsplit(. , "-") %>%
-                                                                sapply(. , function(x) paste(x[1:3] , collapse="-")) %>%
+                                                                vapply(. , function(x) paste(x[seq_len(3)] , collapse="-") , character(1)) %>%
                                                                 unlist
             samples_cna <- lapply(samples_cna , function(x) {
                             if(is.null(x[1]))
                                 return(x)
                             x[grep("^TCGA-" , x)] <- x[grep("^TCGA-" , x)] %>%
                                                         strsplit(. , "-") %>%
-                                                        sapply(. , function(x) paste(x[1:3] , collapse="-")) %>%
+                                                        vapply(. , function(x) paste(x[seq_len(3)] , collapse="-") , character(1)) %>%
                                                         unlist
                             return(unique(x))
                             })
@@ -621,8 +622,7 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
     # Let's deal with Expression. Expression comes exactly as CNA
     # To uniform the output to mutations, we have to melt this matrix
     if(any(object@arguments$panel$alteration=="expression")) {
-        availability <- .checkDataAvailability(tumor_type=tumor_type , genProfile="_rna_seq_v2_mrna_median_Zscores$") %>% 
-                        sapply(. , length)
+        availability <- .checkDataAvailability(tumor_type=tumor_type , genProfile="_rna_seq_v2_mrna_median_Zscores$") %>% lengths
         if(all(availability==0)){
             message("\nSorry, no expression data available for the specified tumor types...")
             object@dataFull$expression <- list(data=NULL 
@@ -640,7 +640,7 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
             if(length(exprgenes)>100) {
                 myGenesBlocks_expr <- .subsetter(exprgenes , gene_block)
                 message("Too many genes. We subset data retrieval in" %++% length(myGenesBlocks_expr) %++% "blocks of" %++% gene_block %++% "genes each")
-                geOut <- lapply(1:length(myGenesBlocks_expr) , function(x){
+                geOut <- lapply(seq_len(length(myGenesBlocks_expr)) , function(x){
                             geneblock <- myGenesBlocks_expr[[x]]
                             tobereturned <- .getExpression(geneblock , tumor_type=tumor_type , block=x)
                             return(tobereturned)
@@ -663,11 +663,11 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                 geOut_melt <- as.data.frame(rbindlist(geOut_melt)) %>% .changeFactor(.)
                 tumor_type_vec <- unique(geOut_melt$genetic_profile_id) %>% 
                                     strsplit(. , "_") %>%
-                                    sapply(., '[' , 1)
+                                    vapply(., '[' , character(1) , 1)
                 names(tumor_type_vec) <- unique(geOut_melt$genetic_profile_id)
                 geOut_melt$tumor_type <- tumor_type_vec[geOut_melt$genetic_profile_id]
                 tumor_type_vec2_names <- names(geOut[[1]])
-                tumor_type_vec2 <- strsplit(tumor_type_vec2_names , "_") %>% sapply(. , '[' , 1)
+                tumor_type_vec2 <- strsplit(tumor_type_vec2_names , "_") %>% vapply(., '[' , character(1) , 1)
                 samples_expr <- lapply(unique(tumor_type_vec2) , function(tum) {
                                 # browser()
                                 tum <- tumor_type_vec2_names[tumor_type_vec2==tum]
@@ -690,11 +690,11 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                                     ,factorsAsStrings=FALSE) %>% .changeFactor(.)
                 tumor_type_vec <- unique(geOut2$genetic_profile_id) %>% 
                                     strsplit(. , "_") %>%
-                                    sapply(., '[' , 1)
+                                    vapply(., '[' , character(1) , 1)
                 names(tumor_type_vec) <- unique(geOut2$genetic_profile_id)
                 geOut2$tumor_type <- tumor_type_vec[geOut2$genetic_profile_id]
                 tumor_type_vec2_names <- names(geOut)
-                tumor_type_vec2 <- strsplit(tumor_type_vec2_names , "_") %>% sapply(. , '[' , 1)
+                tumor_type_vec2 <- strsplit(tumor_type_vec2_names , "_") %>% vapply(., '[' , character(1) , 1)
                 samples_expr <- lapply(unique(tumor_type_vec2) , function(tum) {
                                 # browser()
                                 tum <- tumor_type_vec2_names[tumor_type_vec2==tum]
@@ -706,14 +706,14 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
             geOut_melt$case_id <- as.character(geOut_melt$case_id)
             geOut_melt$case_id[grep("^TCGA-" , geOut_melt$case_id)] <- geOut_melt$case_id[grep("^TCGA-" , geOut_melt$case_id)] %>%
                                                                 strsplit(. , "-") %>%
-                                                                sapply(. , function(x) paste(x[1:3] , collapse="-")) %>%
+                                                                vapply(. , function(x) paste(x[seq_len(3)] , collapse="-") , character(1)) %>%
                                                                 unlist
             samples_expr <- lapply(samples_expr , function(x) {
                                 if(is.null(x[1]))
                                         return(x)
                                 x[grep("^TCGA-" , x)] <- x[grep("^TCGA-" , x)] %>%
                                                     strsplit(. , "-") %>%
-                                                    sapply(. , function(x) paste(x[1:3] , collapse="-")) %>%
+                                                    vapply(. , function(x) paste(x[seq_len(3)] , collapse="-") , character(1)) %>%
                                                     unlist
                                 return(unique(x))
                             })

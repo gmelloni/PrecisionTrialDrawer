@@ -81,9 +81,9 @@ setMethod('subsetAlterations', 'CancerPanel', function(object
           colnames(out)[colnames(out)=="FusionPair"] <- "gene_symbol"
           return(out)
         }) %>% do.call("rbind" , .)
-      fus_subset$alteration_id <- paste("fus" , 1:nrow(fus_subset) , sep="_")
+      fus_subset$alteration_id <- paste("fus" , seq_len(nrow(fus_subset)) , sep="_")
       if(nrow(excluded_full)>0){
-        for( i in 1:nrow(excluded_full) ){
+        for( i in seq_len(nrow(excluded_full)) ){
           samp <- excluded_full$case_id[i]
           drug <- excluded_full$drug[i]
           group <- excluded_full$group[i]
@@ -92,7 +92,7 @@ setMethod('subsetAlterations', 'CancerPanel', function(object
         }
       }
       if(!is.null(druggability_full)){
-        for( i in 1:nrow(druggability_full)){
+        for( i in seq_len(nrow(druggability_full))){
           drug <- druggability_full$drug[i]
           group <- druggability_full$group[i]
           tum_type <- druggability_full$tumor_type[i]
@@ -117,7 +117,7 @@ setMethod('subsetAlterations', 'CancerPanel', function(object
         muts_subset <- .subsetMutations(panel=panel , muts_full=muts_full , rs_df=rs_df)
     # Exclusion
         if(nrow(excluded_full)>0){
-            for( i in 1:nrow(excluded_full) ){
+            for( i in seq_len(nrow(excluded_full) )){
              samp <- excluded_full$case_id[i]
                drug <- excluded_full$drug[i]
                group <- excluded_full$group[i]
@@ -126,7 +126,7 @@ setMethod('subsetAlterations', 'CancerPanel', function(object
           }
         }
         if(!is.null(druggability_full)){
-          for( i in 1:nrow(druggability_full)){
+          for( i in seq_len(nrow(druggability_full))){
             drug <- druggability_full$drug[i]
             group <- druggability_full$group[i]
             tum_type <- druggability_full$tumor_type[i]
@@ -148,7 +148,7 @@ setMethod('subsetAlterations', 'CancerPanel', function(object
       cna_full <- object@dataFull$copynumber$data
             cna_subset <- .subsetCNA(panel=panel , cna_full=cna_full )
             if(nrow(excluded_full)>0){
-              for( i in 1:nrow(excluded_full) ){
+              for( i in seq_len(nrow(excluded_full) )){
                 samp <- excluded_full$case_id[i]
                 drug <- excluded_full$drug[i]
                 group <- excluded_full$group[i]
@@ -157,7 +157,7 @@ setMethod('subsetAlterations', 'CancerPanel', function(object
               }
             }
             if(!is.null(druggability_full)){
-              for( i in 1:nrow(druggability_full)){
+              for( i in seq_len(nrow(druggability_full))){
                 drug <- druggability_full$drug[i]
                 group <- druggability_full$group[i]
                 tum_type <- druggability_full$tumor_type[i]
@@ -179,7 +179,7 @@ setMethod('subsetAlterations', 'CancerPanel', function(object
             expr_full <- object@dataFull$expression$data
                 expr_subset <- .subsetExpression(panel=panel , expr_full=expr_full)
                 if(nrow(excluded_full)>0){
-                  for( i in 1:nrow(excluded_full) ){
+                  for( i in seq_len(nrow(excluded_full) )){
                     samp <- excluded_full$case_id[i]
                     drug <- excluded_full$drug[i]
                     group <- excluded_full$group[i]
@@ -188,7 +188,7 @@ setMethod('subsetAlterations', 'CancerPanel', function(object
                   }
                 }
                 if(!is.null(druggability_full)){
-                  for( i in 1:nrow(druggability_full)){
+                  for( i in seq_len(nrow(druggability_full))){
                     drug <- druggability_full$drug[i]
                     group <- druggability_full$group[i]
                     tum_type <- druggability_full$tumor_type[i]

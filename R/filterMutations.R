@@ -19,7 +19,7 @@
     if(! all(grepl("^chr" , bed[ , 1])))
         stop("first column must be in the format chr1-chr22,chrX,chrY,chrM or chrMT")
     # chr must be chrX format
-    if( ! all(bed[,1] %in% paste0("chr" , c(1:22 , "X" , "M" , "MT" , "Y"))) )
+    if( ! all(bed[,1] %in% paste0("chr" , c(seq_len(22) , "X" , "M" , "MT" , "Y"))) )
         stop("chr name not in chr1-chr22,chrX,chrY,chrM or chrMT")
     # check start end
     if( !all( bed[,2] < bed[,3]) )
@@ -115,7 +115,7 @@ setMethod('filterMutations', 'CancerPanel'
         mutsGR <- data.frame(chr = mutsGR[ , 1] , start = as.integer(mutsGR[ , 2])-1L , end = as.integer(mutsGR[ , 2]) )
         mutsGR <- GenomicRanges::makeGRangesFromDataFrame(mutsGR)
         IDX <- GenomicRanges::findOverlaps(bedGR , mutsGR) %>% S4Vectors::subjectHits(.)
-        IDXtruefalse <- 1:nrow(muts) %in% IDX
+        IDXtruefalse <- seq_len(nrow(muts)) %in% IDX
         if(mode == "exclude"){
             muts <- muts[ !IDXtruefalse ,  ]
         } else {

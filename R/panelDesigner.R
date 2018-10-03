@@ -47,21 +47,21 @@ setMethod('panelDesigner', 'CancerPanel', function(object
     toBeRanged <- rbind(full_gene_ranges , target_intervals)
     toBeRanged$chr <- paste0("chr" , toBeRanged$chr)
     width <- toBeRanged$end - toBeRanged$start
-    toBeRanged$start <- sapply(1:nrow(toBeRanged) , function(i) {
+    toBeRanged$start <- vapply(seq_len(nrow(toBeRanged)) , function(i) {
                                     if(width[i]>=padding_range) 
                                         toBeRanged$start[i]
                                     else
                                         toBeRanged$start[i] - round((padding_range - width[i])/2)
-                                    })
-    toBeRanged$end <- sapply(1:nrow(toBeRanged) , function(i) {
+                                    } , numeric(1))
+    toBeRanged$end <- vapply(seq_len(nrow(toBeRanged)) , function(i) {
                                     if(width[i]>=padding_range)
                                         toBeRanged$end[i]
                                     else
                                         toBeRanged$end[i] + round((padding_range - width[i])/2)
-                                    })
+                                    } , numeric(1))
     toBeRanged$Annotation <- rownames(toBeRanged) %>% 
                                 strsplit(. , "\\.") %>%
-                                sapply(. , '[' , 1) %>%
+                                vapply(. , '[' , character(1) , 1) %>%
                                 unlist
     toBeRanged2 <- GenomicRanges::makeGRangesFromDataFrame(toBeRanged , keep.extra.columns = TRUE)
     toBeRanged3 <- IRanges::reduce(toBeRanged2 , min.gapwidth=merge_window)
@@ -88,9 +88,9 @@ setMethod('panelDesigner', 'CancerPanel', function(object
       toBeRanged_final_rs <- toBeRanged_final
     } else {
       splitdbSNP_rs <- strsplit(dfRS$genomic_range , ":|-")
-      dfRS$chr <- paste("chr" , sapply(splitdbSNP_rs , '[' , 1) , sep="")
-      dfRS$startRS <- as.integer(sapply(splitdbSNP_rs , '[' , 2))
-      rs_region <- sapply(1:nrow(dfRS) , function(x) {
+      dfRS$chr <- paste("chr" , vapply(splitdbSNP_rs , '[' , character(1) , 1) , sep="")
+      dfRS$startRS <- as.integer(vapply(splitdbSNP_rs , '[' , character(1) , 2))
+      rs_region <- vapply(seq_len(nrow(dfRS)) , function(x) {
                         dfRS_row <- dfRS[x , , drop=FALSE]
                         toBeRanged_final_red <- toBeRanged_final[ toBeRanged_final$chr==dfRS_row$chr , , drop=FALSE]
                         out <- "none"
@@ -103,7 +103,7 @@ setMethod('panelDesigner', 'CancerPanel', function(object
                             }
                         }
                         return(out)
-                    })
+                    } , character(1))
       dfRS$bedRow <- rs_region
       dfRS_agg <- aggregate(rs ~ bedRow , dfRS , FUN=function(x) paste(x , collapse=";"))
       toBeRanged_final_rs <- merge(toBeRanged_final , dfRS_agg , by.x="row.names" , by.y="bedRow" , all.x=TRUE)

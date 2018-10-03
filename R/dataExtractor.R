@@ -50,7 +50,7 @@ setMethod('dataExtractor', 'CancerPanel', function(object , alterationType=c("co
         stop("dataSubset slot is empty. run subsetAlterations")
     }
     toBeBind <- object@dataSubset[alterationType]
-    checkDataExistance <- sapply(toBeBind , is.null)
+    checkDataExistance <- vapply(toBeBind , is.null , logical(1))
     if(any(checkDataExistance)){
         warning("No data for" %++% paste(names(toBeBind)[checkDataExistance] , collapse=", ") %+% ". They will be removed from alterationType")
         alterationType <- alterationType[!checkDataExistance]
@@ -109,7 +109,7 @@ setMethod('dataExtractor', 'CancerPanel', function(object , alterationType=c("co
     #-----------------------------------------
     # Uniquify if collapse options are set
     #-----------------------------------------
-    mydata$alteration_id <- strsplit(mydata$alteration_id , "_") %>% sapply(. , '[' , 1)
+    mydata$alteration_id <- strsplit(mydata$alteration_id , "_") %>% vapply(. , '[' , character(1) , 1)
     # Raise a warning if the tumor types present in the object differ from mydata$tumor_type
     if(is.null(tumor_type)){
         tum_type_diff <- setdiff(object@arguments$tumor_type , unique(mydata$tumor_type))
@@ -140,11 +140,11 @@ setMethod('dataExtractor', 'CancerPanel', function(object , alterationType=c("co
         mytums <- object@arguments$tumor_type
         sampSummary <-   lapply( allcombs , function(comb) {
           allsamps <- lapply( object@dataFull[comb] , '[[' , 'Samples')
-          sapply( mytums , function(tum) {
+          vapply( mytums , function(tum) {
               length(Reduce("intersect" , lapply(allsamps , '[[' , tum)))
-          })
+          } , numeric(1))
         }) %>% do.call("rbind" , .)
-        sampSummary <- cbind( Combinations = sapply( allcombs , function(x) paste(x , collapse=","))
+        sampSummary <- cbind( Combinations = vapply( allcombs , function(x) paste(x , collapse=",") , character(1))
                               , sampSummary)
         message(paste0(capture.output(sampSummary), collapse = "\n"))
         stop("No alteration to display for the selected tumor types and alteration types: check the output above to see what is available")

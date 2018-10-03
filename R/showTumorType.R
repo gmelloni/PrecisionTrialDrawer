@@ -32,10 +32,14 @@ showTumorType <- function() {
   #      2) trim unwanted spaces
   all_cancer_studies2 <- unique(
     data.frame(
-      Code=sapply(all_cancer_studies$cancer_study_id
-                  , function(x) strsplit(x , "_")[[1]][1])
-      , Full_Name=sapply(all_cancer_studies$name
-                         , function(x) .myTrimmer(strsplit(x , "\\(")[[1]][1]))
+      Code=vapply(all_cancer_studies$cancer_study_id
+                  , function(x) {
+                    strsplit(x , "_")[[1]][1]
+                  } , character(1))
+      , Full_Name=vapply(all_cancer_studies$name
+                         , function(x) {
+                           .myTrimmer(strsplit(x , "\\(")[[1]][1])
+                        } , character(1))
     )
   )
   
@@ -76,6 +80,6 @@ showCancerStudy <- function(tumor_type=NULL) {
     # transform the tumor_type entreis in a grep pattern
     # run a grep on all the entries using sapply
     # unlist and get the matches
-    all_cancer_studies[unlist(sapply(paste0("^" , tumor_type , "_")
+    all_cancer_studies[unlist(lapply(paste0("^" , tumor_type , "_")
                                     , function(x) grep(x, all_cancer_studies[,1]))),]
 }

@@ -184,10 +184,9 @@
     mut_aligned.split <- split(mut_aligned, mut_aligned[[splitCriterion]])
     mut_aligned.extended <- matrix(0, nrow=length(mut_aligned.split)
         , ncol=alignmentLength)
-    for(i in 1:length(mut_aligned.split)) {
-        tmp <- sapply(
+    for(i in seq_len(length(mut_aligned.split))) {
+        tmp <- lengths(
             split(mut_aligned.split[[i]]$Align, mut_aligned.split[[i]]$Align)
-            , length
             )
         if( length(tmp)>0 ) 
             mut_aligned.extended[i,as.numeric(names(tmp))] <- tmp
@@ -370,7 +369,7 @@
     } else {
 
         # if( is.null(windowlimits) )
-            windowlimits <- 1:nrow(object$alignment$df)
+            windowlimits <- seq_len(nrow(object$alignment$df))
         # if(is.null(conservation))
             conservation <- object$entropy$conservation_thr
         mean <- object$alignment$df$mean#[windowlimits]
@@ -396,8 +395,9 @@
             object$alignment$df$uTsh,
             object$alignment$df$profile*1.1
             ), na.rm=TRUE)
-        blackProfile <- sapply(1:length(profile), 
-            function(i) min(profile[i], upperThreshold[i]))
+        blackProfile <- vapply(seq_len(length(profile)),function(i) {
+          min(profile[i], upperThreshold[i])
+          } , numeric(1))
         orangeProfile <- profile - blackProfile
         mp <- barplot(rbind(blackProfile, orangeProfile), 
             col=c('black', 'orange'), ylim=c(0, max_y), ylab='Mutation density'
@@ -436,7 +436,7 @@
         if( is.null(splitLen) )
             splitLen <- ncol(object$mutations$aligned)
 
-        windowlimits <- 1:ncol(object$mutations$aligned)
+        windowlimits <- seq_len(ncol(object$mutations$aligned))
         windowlimitsSplit <- split(windowlimits, ceiling(windowlimits/splitLen))
 
         mode <- object$arguments$mode
@@ -453,8 +453,9 @@
         # } else if( mode == 'genes' ) {
             layoutMatrix <- as.matrix(c(1,1,1,1,3,2,2,2,2))
             multipleMat <- as.list(rep(NA), length(windowlimitsSplit))
-            for( i in 1:length(windowlimitsSplit) ) 
+            for( i in seq_len(length(windowlimitsSplit) )){ 
                 multipleMat[[i]] <- layoutMatrix+(max(layoutMatrix)*(i-1))
+            }
             layoutMatrix <- do.call('rbind', multipleMat)
             plotType <- 3
         # } else {
@@ -549,7 +550,7 @@
                 par(mar=c(0,0,0,0))
                 ## plot domains
                 if(nrow(domains)>0) {
-                    for( i in 1:nrow(domains) ) {
+                    for( i in seq_len(nrow(domains)) ) {
                         int <- intersect(domains$Envelope_Start[i]:domains$Envelope_End[i], windowlimits)
                         if( length(int)>0 ) {
                             domains$Envelope_Start[i] <- min(int)
@@ -558,7 +559,7 @@
                             domains <- domains[-i,]
                         }
                     }
-                    for (i in 1:nrow(domains)) {
+                    for(i in seq_len(nrow(domains))) {
                         xleft=as.numeric(domains[i , "Envelope_Start"])
                         xright=as.numeric(domains[i , "Envelope_End"])
                         ytop=0.05

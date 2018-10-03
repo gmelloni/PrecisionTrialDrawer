@@ -19,7 +19,7 @@
         viewport(layout.pos.row = x, layout.pos.col = y)
 
     # Make each plot, in the correct location
-    for (i in 1:numPlots) {
+    for(i in seq_len(numPlots)) {
         curRow = ceiling(i/plotCols)
         curCol = (i-1) %% plotCols + 1
         print(plots[[i]], vp = vplayout(curRow,  curCol))
@@ -32,13 +32,13 @@
 .coocMutEx <- function (mat , thresh = FALSE , prob = c("hyper" , "firth")) {
     prob <- prob[1]
     spp_site_mat <- t(mat)
-    spp_key <- data.frame(num = 1:nrow(spp_site_mat), spp = row.names(spp_site_mat))
+    spp_key <- data.frame(num = seq_len(nrow(spp_site_mat)), spp = row.names(spp_site_mat))
     spp_site_mat[spp_site_mat > 0] <- 1
     nsite <- ncol(spp_site_mat)
     nspp <- nrow(spp_site_mat)
     spp_pairs <- choose(nspp, 2)
     obs_cooccur <- prob_cooccur <- exp_cooccur <- matrix(nrow = spp_pairs, ncol = 3)
-    prob_occur <- incidence <- cbind(1:nspp, rowSums(spp_site_mat, na.rm = TRUE))
+    prob_occur <- incidence <- cbind(seq_len(nspp), rowSums(spp_site_mat, na.rm = TRUE))
     prob_occur[ , 2] <- prob_occur[ , 2]/nsite
     spp_pairs_mat <- t(combn(nspp,2))
     pairs_observations <- apply(spp_pairs_mat, 1, function(x) {
@@ -60,7 +60,7 @@
         exp_cooccur <- exp_cooccur[exp_cooccur[, 3] >= 1, ,drop=FALSE]
         # n_omitted <- n_pairs - nrow(prob_cooccur)
     }
-    output <- t(sapply(1:nrow(obs_cooccur) , function(row) {
+    output <- lapply(seq_len(nrow(obs_cooccur)) , function(row) {
         # browser()
         sp1 <- obs_cooccur[row, 1]
         sp2 <- obs_cooccur[row, 2]
@@ -128,7 +128,7 @@
         #     p_gt))
         # return(c(sp1, sp2, sp1_inc, sp2_inc, p_lt, p_gt))
         return(c(sp1, sp2, p_lt, p_gt))
-        }))
+        }) %>% do.call("rbind" , .)
     output <- as.data.frame(output)
     # colnames(output) <- c("sp1", "sp2", "sp1_inc", "sp2_inc", 
     #     "obs_cooccur", "prob_cooccur", "exp_cooccur", "pVal.MutEx", 
@@ -141,10 +141,10 @@
     # Substitute 0s with a very very small pvalue
     output$pVal.Cooc <- ifelse( output$pVal.Cooc==0 , 10^-100 , output$pVal.Cooc)
     output$pVal.MutEx <- ifelse( output$pVal.MutEx==0 , 10^-100 , output$pVal.MutEx)
-    sp1_name <- merge(x = data.frame(order = 1:length(output$sp1), 
+    sp1_name <- merge(x = data.frame(order = seq_len(length(output$sp1)), 
             sp1 = output$sp1), y = spp_key, by.x = "sp1", by.y = "num", 
             all.x = TRUE, sort = FALSE)
-    sp2_name <- merge(x = data.frame(order = 1:length(output$sp2), 
+    sp2_name <- merge(x = data.frame(order = seq_len(length(output$sp2)), 
             sp2 = output$sp2), y = spp_key, by.x = "sp2", by.y = "num", 
             all.x = TRUE, sort = FALSE)
     output$sp1_name <- sp1_name[with(sp1_name, order(order)), 
@@ -222,7 +222,7 @@
   mat <- matrix(0 , nrow=length(all_elements) , ncol=length(all_elements))
   dimnames(mat) <- list(all_elements, all_elements)
   co_tab$pVal.MutEx <- -co_tab$pVal.MutEx
-  for(i in 1:nrow(co_tab)){
+  for(i in seq_len(nrow(co_tab))){
     x <- co_tab[i , ,drop=TRUE]
     sp1 <- x[["sp1_name"]]
     sp2 <- x[["sp2_name"]]
@@ -459,7 +459,7 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
           return({
               n_plots <- length(mat_dist)
               par(mfrow=.mfrow(n_plots, ncolPlot))
-              for(i in 1:length(mat_dist)){
+              for(i in seq_len(length(mat_dist))){
           title <- grouping %+% ": " %+% names(mat_dist)[i]
           if(attributes(mat_dist[[i]])$Size>2){
                     plot(hclust( mat_dist[[i]]  , ...)
@@ -478,7 +478,7 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
     }
   }
   # Cooccurence 
-  cooc <- lapply(1:length(mat_split) , function(i) {
+  cooc <- lapply(seq_len(length(mat_split)) , function(i) {
             x <- mat_split[[i]]
             if(ncol(x)>1){
               out <- .coocMutEx(x , thresh=FALSE , prob=prob)
@@ -494,7 +494,7 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
     n_plots <- length(cooc)
     # Automatic detection of plot best layout
     plot_layout <- .mfrow(n_plots, ncolPlot)
-    all_melted <- lapply(1:length(cooc), function(i){
+    all_melted <- lapply(seq_len(length(cooc)), function(i){
       .coocMutEx_melter(cooc[[i]] , plotrandom=plotrandom , pvalthr=pvalthr)
     })
     minMax <- lapply(all_melted , function(melted_cormat) {
@@ -521,7 +521,7 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
     # print(minMax)
     # print(all_melted)
     # maxMelt <- max(melted_cormat$value , na.rm=TRUE)
-    all_plots <- lapply(1:length(all_melted) , function(i){
+    all_plots <- lapply(seq_len(length(all_melted)) , function(i){
                   if( is.na(grouping) && toupper(names(mydata_split)[i])=="NA" ){
                     title <- ""
                   } else {

@@ -23,8 +23,8 @@ setMethod('appendRepo', 'CancerPanel', function(object , repos){
   if(!all(names(repos) %in% c( "fusions", "mutations",  "copynumber", "expression"))){
     stop("repos is not correctly formatted. There are alteration types missing in the list")
   }
-  
-  if(!all(sapply(repos , function(x) names(x)) %in% c("data" , "Samples"))){
+  reposNames <- lapply(repos , function(x) names(x))
+  if(!all(vapply(reposNames , function(k) identical(k , c("data" , "Samples")) , logical(1)))){
     stop("Each alteration type should contain two elements named data and Samples")
   }
 
@@ -68,8 +68,8 @@ setMethod('appendRepo', 'CancerPanel', function(object , repos){
       if(!is.list(repos[[i]]$Samples)){
         stop(paste("In appending new data," , i , "Samples is not a list"))
       }
-      
-      if(!all(sapply(repos[[i]]$Samples , class) %in% c("character" , "NULL"))){
+      sampClass <- lapply(repos[[i]]$Samples , class)
+      if(!all(vapply(sampClass , function(k) k %in% c("character" , "NULL") , logical(1)))){
         stop(paste("some sample names in" , i , "are not character vectors"))
       }
       # This check is useless if we know it's a character vector already

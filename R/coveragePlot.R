@@ -17,7 +17,7 @@
     sampsTitle <- paste("Freqs:" 
                 , paste( paste(names(tumor.freqs) , round(tumor.freqs,3) , sep=" - ") , collapse=" , ")
                 )
-    for(i in 1:nrow(matToPlot)){
+    for(i in seq_len(nrow(matToPlot))){
         tabToPlot <- matToPlot[i , , drop=FALSE]
         cols <- if(i<=2){
                     myPalette(i)[i]
@@ -269,7 +269,7 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                     stop("Number of columns asked are more than plots to display")
             }
         }
-        for(i in 1:length(mydata_split)){
+        for(i in seq_len(length(mydata_split))){
             df <- mydata_split[[i]]
             df_name_split <- strsplit(names(mydata_split)[i] , ":") %>% unlist
             if(length(df_name_split)!=length(grouping)){
@@ -280,7 +280,7 @@ setMethod('coveragePlot', 'CancerPanel', function(object
             plottedDataNames <- c(plottedDataNames , myTitle)
             if(nrow(df)==0) {
                 tabToPlot <- rep(0 , maxNumAlt)
-                names(tabToPlot) <- 1:maxNumAlt
+                names(tabToPlot) <- seq_len(maxNumAlt)
                 if(i==1)
                     plottedData <- list(tabToPlot)
                 else
@@ -341,10 +341,10 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                             "\n(" %+% paste(tumTypes , collapse=", ") %+% ")"
                         )
             n_alts_bypat <- table(factor(df$case_id , levels=pats))
-            tabToPlot <- sapply(1:maxNumAlt , function(x) {
+            tabToPlot <- vapply(seq_len(maxNumAlt) , function(x) {
                                 length(n_alts_bypat[n_alts_bypat>=x])
-                            })
-            names(tabToPlot) <- 1:maxNumAlt
+                            } , numeric(1))
+            names(tabToPlot) <- seq_len(maxNumAlt)
             # Collect all the data to be plotted
             if(i==1)
                 plottedData <- list(tabToPlot)
@@ -421,7 +421,7 @@ setMethod('coveragePlot', 'CancerPanel', function(object
             } else {
                 # A lot of useless code but it is just for coherence
                 tabToPlot <- rep(0 , maxNumAlt)
-                names(tabToPlot) <- 1:maxNumAlt
+                names(tabToPlot) <- seq_len(maxNumAlt)
                 plottedData <- list(tabToPlot)
                 out <- do.call("rbind" , plottedData)
                 rownames(out) <- "noGrouping"
@@ -437,10 +437,10 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                             n_pats %++% 
                             "\n(" %+% paste(tumTypes , collapse=", ") %+% ")"
         n_alts_bypat <- table(factor(mydata$case_id , levels=pats))
-        tabToPlot <- sapply(1:maxNumAlt , function(x) {
+        tabToPlot <- vapply(seq_len(maxNumAlt) , function(x) {
                             length(n_alts_bypat[n_alts_bypat>=x])
-                        })
-        names(tabToPlot) <- 1:maxNumAlt
+                        } , numeric(1))
+        names(tabToPlot) <- seq_len(maxNumAlt)
         plottedData <- list(tabToPlot)
         if(!noPlot) {
             myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")), space="Lab")

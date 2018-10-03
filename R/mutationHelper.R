@@ -7,7 +7,7 @@
 {
     mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
     all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
-    all_cancer_studies$tumor_type <- sapply(strsplit(all_cancer_studies[,1] , "_") , '[' , 1)
+    all_cancer_studies$tumor_type <- vapply(strsplit(all_cancer_studies[,1] , "_") , '[' , character(1) , 1)
     if(tumor_type[1]=="all_tumors") {
         chosenTumors <- all_cancer_studies[,1]
     } else {
@@ -42,7 +42,7 @@
                  # message("\n")
                  return(df)
              })
-            geneticProfile <- geneticProfile[ ,c(1:2)]
+            geneticProfile <- geneticProfile[ ,c(1,2)]
             # select mutations
             # NEW APPROACH, we retrieve more
             sel <- grepl("mutations$" , geneticProfile$genetic_profile_id)
@@ -152,8 +152,8 @@
                             , c("drug", "gene_symbol" , "mutation_specification" ,"group")
                             ]
         mut_specs <- strsplit(panel_mut_1$mutation_specification , "-")
-        panel_mut_1$start <- sapply(mut_specs , function(x) as.numeric(x[1]))
-        panel_mut_1$end <- sapply(mut_specs , function(x) as.numeric(x[2]))
+        panel_mut_1$start <- vapply(mut_specs , function(x) as.numeric(x[1]) , numeric(1))
+        panel_mut_1$end <- vapply(mut_specs , function(x) as.numeric(x[2]) , numeric(1))
         panel_mut_1$mutation_specification <- NULL
         mut_data1 <- merge(muts_full , panel_mut_1 , all.y=TRUE , by="gene_symbol")
         if(any(!is.na(mut_data1$case_id))){
@@ -197,8 +197,8 @@
         )
         knotTransc <- c("3'UTR", "3'Flank", "5'UTR", "5'Flank"
                 ,"IGR1", "IGR", "Intron", "RNA", "Targeted_Region")
-        kmiss_type <- ktcga_types[1:3]
-        ktrunc_type <- ktcga_types[4:6]
+        kmiss_type <- ktcga_types[c(1,2,3)]
+        ktrunc_type <- ktcga_types[c(4,5,6)]
         panel_mut_3 <- panel[ panel$exact_alteration=="mutation_type" 
                             , c("drug", "gene_symbol" , "mutation_specification" ,"group")
                             ]
@@ -228,14 +228,14 @@
                                                     ,warn_missing=FALSE)
         }
         mut_specs2 <- strsplit(panel_mut_4$mutation_specification , "-|:")
-        panel_mut_4$start <- sapply(mut_specs2 , function(x) as.numeric(x[2]))
-        panel_mut_4$end <- sapply(mut_specs2 , function(x) as.numeric(x[3]))
+        panel_mut_4$start <- vapply(mut_specs2 , function(x) as.numeric(x[2]) , numeric(1))
+        panel_mut_4$end <- vapply(mut_specs2 , function(x) as.numeric(x[3]) , numeric(1))
         panel_mut_4$mutation_specification <- NULL
         mut_data4 <- merge(muts_full , panel_mut_4 , all.y=TRUE , by="gene_symbol")
         if(any(!is.na(mut_data4$case_id))){
             mut_data4 <- mut_data4[!is.na(mut_data4$case_id) , ]
             mut_data4$genomic_position_num <- strsplit(mut_data4$genomic_position , ":") %>%
-                                        sapply(. , '[' , 2) %>%
+                                        vapply(. , '[' , character(1) , 2) %>%
                                         as.numeric
             mut_data4 <- mut_data4[ mut_data4$genomic_position_num>=mut_data4$start & 
                                 mut_data4$genomic_position_num<=mut_data4$end , ] %>%
@@ -284,7 +284,7 @@
     muts_subset <- do.call("rbind" , list(mut_data1,mut_data2,mut_data3,mut_data4,mut_data5,mut_data6))
     muts_subset <- muts_subset[ , c("drug" , "group" , "gene_symbol" , "tumor_type" , "case_id","genomic_position")] %>% unique
     if(nrow(muts_subset)>0){
-      muts_subset$alteration_id <- paste0("mut_" , 1:nrow(muts_subset))
+      muts_subset$alteration_id <- paste0("mut_" , seq_len(nrow(muts_subset)))
     } else {
       muts_subset$alteration_id <- character(0)
     }

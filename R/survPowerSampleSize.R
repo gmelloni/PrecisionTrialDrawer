@@ -31,21 +31,21 @@
 .calPowerSamp <- function(finalTabFrac , sample.size , HR , HR0 , power , alpha , case.fraction , round.result , ber , fu , acc = NULL , side){
     # print(finalTabFrac)
     if(is.null(sample.size)){
-        for(i in 1:length(HR)){
+        for(i in seq_len(length(HR))){
             hr <- HR[i]
             hr0 <- HR0[i]
             beta <- 1-power
-            sample.size <- sapply(beta , function(x) {
+            sample.size <- lapply(beta , function(x) {
                     # ((qnorm(1-alpha/side)+qnorm(1-x))/(log(hr)-log(hr0)))^2/(case.fraction*(1-case.fraction)*p.event)
                     .surv2Samps(alpha = alpha , beta = x , hr = hr , hr0 = hr0 
                         , case.fraction = case.fraction , mode = "sample.size" , ber = ber , fu = fu , acc = acc , side=side)
                     }) %>% unlist
             sample.size <- if( round.result ) ceiling(sample.size) else sample.size
-            sample.size_recruit <- sapply(finalTabFrac , function(x) {
+            sample.size_recruit <- lapply(finalTabFrac , function(x) {
                 multiplier <- ifelse(x!=0 , 1/x , NA)
                 superSample <- if( round.result ) ceiling(sample.size*multiplier) else sample.size*multiplier
                 return(superSample)
-                }) %>% as.matrix
+                })  %>% do.call("cbind" , .)
             if(i==1){
                 toBePlot <- data.frame("Var" = rep(names(finalTabFrac) 
                                             , rep(length(sample.size) , length(names(finalTabFrac))))
@@ -70,21 +70,21 @@
     }
     if(is.null(power)){
         sample.size_recruit <- sample.size
-        sample.size <- sapply(finalTabFrac , function(x) {
+        sample.size <- lapply(finalTabFrac , function(x) {
                 multiplier <- ifelse(x!=0 , x , NA)
                 superSample <- sample.size_recruit*multiplier
                 superSample <- if( round.result ) ceiling(superSample) else superSample
                 return(superSample)
-                }) %>% as.matrix
-        for(i in 1:length(HR)){
+                } ) %>% do.call("cbind" , .)
+        for(i in seq_len(length(HR))){
             hr <- HR[i]
             hr0 <- HR0[i]
-            power <- sapply(as.vector(sample.size) , function(x) {
+            power <- lapply(as.vector(sample.size) , function(x) {
                 # z <- (log(hr)-log(hr0))*sqrt(x*case.fraction*(1-case.fraction)*p.event)
                 # pnorm(z - qnorm(1-alpha/side)) + pnorm( -z - qnorm(1-alpha/side))
                 .surv2Samps(alpha = alpha , sample.size = x , hr = hr , hr0 = hr0 
                     , case.fraction = case.fraction , mode = "power" , ber=ber , fu=fu , acc=acc , side=side)
-            })
+            }) %>% unlist
             # print(power)
             beta <- 1 - power
             if(i==1){
@@ -230,10 +230,10 @@ setMethod('survPowerSampleSize', 'CancerPanel', function(object
     }
     # Sanity check for power and sample.size
     optionalParam <- list(power=power , sample.size=sample.size )
-    if(all(sapply(optionalParam , is.null))) {
+    if(all(vapply(optionalParam , is.null , logical(1)))) {
         stop("power and sample.size cannot be both NULL")
     }
-    if(all(!sapply(optionalParam , is.null))) {
+    if(all(!vapply(optionalParam , is.null , logical(1)))) {
         stop("power and sample.size cannot be both set")
     }
     if(!is.null(power)){
@@ -400,7 +400,8 @@ setMethod('survPowerSampleSize', 'CancerPanel', function(object
                 return(finalTabFracTum)
             })
             # print(str(survRecurse))
-            survRecurseWeighted <- .mergeThemAll(survRecurse[!sapply(survRecurse , is.null)] , by="Var" , all=TRUE)
+            survRecurseWeighted <- .mergeThemAll(survRecurse[!vapply(survRecurse , is.null,logical(1))] 
+                                                 , by="Var" , all=TRUE)
             rownames(survRecurseWeighted) <- survRecurseWeighted$Var
             survRecurseWeighted$Var <- NULL
             survRecurseWeighted_vec <- rowSums(survRecurseWeighted , na.rm=TRUE)
@@ -422,7 +423,7 @@ setMethod('survPowerSampleSize', 'CancerPanel', function(object
                                 ,HR0 = rep(HR0 , length(power))
                                 , Power = lapply( power , function(x) rep(x , length(HR))) %>% unlist
                                 , stringsAsFactors = FALSE)
-        priorTrial <- lapply(1:nrow(powerHRMat) , function(row) {
+        priorTrial <- lapply(seq_len(nrow(powerHRMat)) , function(row) {
             HR <- powerHRMat[row , "HazardRatio"]
             HR0 <- powerHRMat[row , "HR0"]
             power <- powerHRMat[row , "Power"]
@@ -451,12 +452,12 @@ setMethod('survPowerSampleSize', 'CancerPanel', function(object
             colnames(matProb) <- colnames(matSamps) <- colnames(matSampsAssigned) <- names(priority.trial_frac)
             # This matrix represents the order of j to follow after the recruitment
             matForOrder <- diag(1 , nrow=k , ncol=k)
-            for(i in 1:nrow(matForOrder)){
+            for(i in seq_len(nrow(matForOrder))){
                 matForOrder[ i , which(matForOrder[i,]!=1)] <- 2:k
             }
             # i start a new run of Screening, j take care of the discarded, to check if they can fit into another drug
-            colsAndRows <- 1:k
-            for(i in 1:k){
+            colsAndRows <- seq_len(k)
+            for(i in seq_len(k)){
                 # If all drugs have reached TSS, stop Screening
                 if(all(colSums(matSampsAssigned)>=TSS)){
                     break
@@ -554,8 +555,8 @@ setMethod('survPowerSampleSize', 'CancerPanel', function(object
             } else {
                 toBePlot <- powerHRMat
                 toBePlot$Var <- "Priority Design"
-                toBePlot$ScreeningSampleSize <- sapply(priorTrial , function(x) x[[1]][ "Screened", "Total"])
-                toBePlot$EligibleSampleSize <- sapply(priorTrial , function(x) x[[1]][ "Eligible", "Total"])
+                toBePlot$ScreeningSampleSize <- vapply(priorTrial , function(x) x[[1]][ "Screened", "Total"] , numeric(1))
+                toBePlot$EligibleSampleSize <- vapply(priorTrial , function(x) x[[1]][ "Eligible", "Total"] , numeric(1))
                 toBePlot$Beta <- 1 - toBePlot$Power
                 toBePlot <- toBePlot[ , c("Var","ScreeningSampleSize","EligibleSampleSize","Beta","Power","HazardRatio")]
             }
@@ -563,7 +564,7 @@ setMethod('survPowerSampleSize', 'CancerPanel', function(object
         } else {
             toBePlot <- powerHRMat
             toBePlot$Var <- "Priority Design"
-            toBePlot$ScreeningSampleSize <- sapply(priorTrial , function(x) x[[1]][ "Screened", "Total"])
+            toBePlot$ScreeningSampleSize <- vapply(priorTrial , function(x) x[[1]][ "Screened", "Total"] , numeric(1))
             toBePlot$HazardRatio <- as.character(toBePlot$HazardRatio)
         }
     }

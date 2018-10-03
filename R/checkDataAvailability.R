@@ -22,7 +22,7 @@
     #get cbioportal datasets
     mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
     all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
-    all_cancer_studies$tumor_type <- sapply(strsplit(all_cancer_studies[,1] , "_") , '[' , 1)
+    all_cancer_studies$tumor_type <- vapply(strsplit(all_cancer_studies[,1] , "_") , '[' , character(1) , 1)
     
   #-----------------------------------------------------------------------------
   # FIND WHAT TUMOR INFO REQUIRED
@@ -47,7 +47,7 @@
   # if(genProfile %in% c("cna$" , "_rna_seq_v2_mrna_median_Zscores$" , "mutations$")){
       out_double <- lapply(chosenTumors , function(i)
           {
-          geneticProfile <- cgdsr::getGeneticProfiles(mycgds, i)[ ,c(1:2)]
+          geneticProfile <- cgdsr::getGeneticProfiles(mycgds, i)[ ,c(1,2)]
           geneticProfile <- grep(genProfile , geneticProfile$genetic_profile_id 
                               , value=TRUE , ignore.case=TRUE)
           })

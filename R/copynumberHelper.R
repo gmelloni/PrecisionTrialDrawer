@@ -7,7 +7,7 @@
                     ,block=NULL) {
     mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
     all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
-    all_cancer_studies$tumor_type <- sapply(strsplit(all_cancer_studies[,1] , "_") , '[' , 1)
+    all_cancer_studies$tumor_type <- vapply(strsplit(all_cancer_studies[,1] , "_") , '[' , character(1) , 1)
     if(tumor_type[1]=="all_tumors") {
         chosenTumors <- all_cancer_studies[,1]
     } else {
@@ -35,7 +35,7 @@
                  return(df)
                 #df <- read.table(url, skip = 0, header = TRUE, as.is = TRUE, sep = "\t", quote = "")
              })
-            geneticProfile <- geneticProfile[ ,c(1:2)]
+            geneticProfile <- geneticProfile[ ,c(1,2)]
             geneticProfileID <- grep("gistic" , geneticProfile$genetic_profile_id
                                 , value=TRUE , ignore.case=TRUE)
             if(length(geneticProfileID)==0){
@@ -112,7 +112,7 @@
                     unique %>% 
                     .[ , c("drug" , "group" , "gene_symbol" , "tumor_type" , "case_id")]
     if(nrow(cna_subset)>0){
-      cna_subset$alteration_id <- paste0("cna_" , 1:nrow(cna_subset))
+      cna_subset$alteration_id <- paste0("cna_" , seq_len(nrow(cna_subset)))
     } else {
       cna_subset$alteration_id <- character(0)
     }

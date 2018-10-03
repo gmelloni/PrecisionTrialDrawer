@@ -10,8 +10,8 @@
 {
     full_gene_specs <- c("amplification" , "deletion" , "up" , "down" , "" 
                         , "mutation_type" , "exact_fusion" , "gene_fusion")
-    #Cycle through the panel and get the variation lenght based on the choise
-    variation_length <- sapply(1:nrow(panel) , function(x) {
+    #Cycle through the panel and get the variation lenght based on the choice
+    variation_length <- vapply(seq_len(nrow(panel)) , function(x) {
                                 # browse alteration
                                 target <- panel[x , "exact_alteration"]
                                 
@@ -64,7 +64,7 @@
                                 } else {
                                   stop("Mutation Specification is not correct at panel line" %++% x)
                                 }
-                            })
+                            } , numeric(1))
     panel$variation_len <- as.integer(variation_length)
     return(panel)
 }

@@ -38,7 +38,7 @@
                 if(nrow(df)==1){
                     return(df)
                 } else {
-                    df2 <- df[ as.character(df$chr_name) %in% c(1:22 , "X" , "Y" , "M" , "MT") , , drop=FALSE]
+                    df2 <- df[ as.character(df$chr_name) %in% c(seq_len(22) , "X" , "Y" , "M" , "MT") , , drop=FALSE]
                     if(nrow(df2)==1){
                         return(df2)
                     } else if(nrow(df2)==0){
@@ -134,20 +134,21 @@
     #                                         , bm_uniprot[i,"peptide"]) 
     #                     )
     bm_uniprot_split <- split(bm_split , bm_split$hgnc_symbol) %>%
-                        lapply(. , function(x) {
-                            if(nrow(x)==1){
-                                return(x)
-                            } else {
-                                # return the longest protein
-                                # TODO: adopt a thing similar to canonical transcript
-                                out <- out[ out$prot_len == max(out$prot_len , na.rm=TRUE) , ]
-                                # out <- x[ x$Edit==min(x$Edit) , ]
-                                if(nrow(out)>1)
-                                    return(out[1 , , drop=FALSE])
-                                else
-                                    return(out)
-                            }
-                            }) %>% sapply(. , function(x) x[ , "ensembl_peptide_id"])
+                lapply(. , function(x) {
+                    if(nrow(x)==1){
+                        return(x)
+                    } else {
+                        # return the longest protein
+                        # TODO: adopt a thing similar to canonical transcript
+                        out <- out[ out$prot_len == max(out$prot_len , na.rm=TRUE) , ]
+                        if(nrow(out)>1){
+                          return(out[1 , , drop=FALSE])
+                        } else {
+                          return(out)
+                        }
+                    }
+                }) %>% 
+      vapply(. , function(x) x[ , "ensembl_peptide_id"] , character(1))
     #hub <- AnnotationHub::AnnotationHub()
     #chain <- AnnotationHub::query(hub, 'hg38ToHg19')[[1]]
     hg38Rest <- "https://rest.ensembl.org/map/translation/"
@@ -216,7 +217,10 @@
     if(any(panel_gn$exact_alteration=="genomic_variant")){
         gv <- panel_gn[panel_gn$exact_alteration=="genomic_variant" , "mutation_specification"]
         gv <- data.frame(gv=gv 
-                        , genomic_range=strsplit(gv , ":") %>% sapply(. , function(x) paste(x[1] , paste(x[2] , x[2] , sep="-") , sep=":"))
+                        , genomic_range=strsplit(gv , ":") %>% 
+                              vapply(. , function(x) {
+                                paste(x[1] , paste(x[2] , x[2] , sep="-") , sep=":")
+                                }, character(1))
                         , stringsAsFactors=FALSE
                         )
         panel_gn$mutation_specification <- .mapvalues(panel_gn$mutation_specification , gv$gv , gv$genomic_range)
@@ -296,7 +300,7 @@
                 , mart=ensembl)
   #clean up attribute fetching only the tsl number
   dframe_att$transcript_tsl <- strsplit(dframe_att$transcript_tsl , " ") %>% 
-    sapply(. , '[' , 1) %>%
+    vapply(. , '[' , character(1) , 1) %>%
     sub("^tsl" , "" , .)
   dframe_att$transcript_tsl <- suppressWarnings(as.numeric(dframe_att$transcript_tsl))
   # Substitute NA transcript tsl with the highest number of tsl
@@ -341,7 +345,7 @@
   # Remove genes with no canonical chromosome (if possible)
   # Keep only the genes with a cds_length (if possible)
   # If no cds_length available, raise a warning and use the exon length instead
-  chrs <- c(1:22 , "X" , "Y" , "MT" , "M")
+  chrs <- c(seq_len(22) , "X" , "Y" , "MT" , "M")
   dframe_merge <- lapply(dframe_merge , function(x) {
       # Check that the gene is mapped to a chromosome if possible
       x_chr <- x[ as.character(x$chromosome_name) %in% chrs , ]
@@ -386,7 +390,7 @@
   # 4) Gene with the highest TSL (transcript support level)
   # 5) The ENSTid with lower number
   if(canonicalTranscript){
-    chrs <- c(1:22 , "X" , "Y" , "MT" , "M")
+    chrs <- c(seq_len(22) , "X" , "Y" , "MT" , "M")
     dframe_merge <- lapply(dframe_merge , function(x) {
       # Check that the gene is mapped to a chromosome if possible
       x_chr <- x[ as.character(x$chromosome_name) %in% chrs , ]

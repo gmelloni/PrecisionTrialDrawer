@@ -238,29 +238,28 @@ setMethod('saturationPlot', 'CancerPanel', function(object
     #       }
     #     })
     # } else {
-        .spacing <- function(df , sum.all.feature){
-            if(sum.all.feature){
-                   out <- aggregate(as.formula(paste("variation_len~" , adding)) , df , sum)
-                # return(lapply(names(panel_transition_split) , function(x) out))
-             } else {
-                   df$full <- ifelse(df$alteration %in% c("CNA" , "fusion" , "expression") , "yes" , 
-                          ifelse(df$exact_alteration=="" , "yes" , "no"))
-                genefull <- unique(df$gene_symbol[df$full=="yes"])
-                df_small <- df[ , unique(c(adding , "gene_symbol" , "variation_len" , "full"))]
-                # If I ask for a full gene in CNA and some mutations, remove the mutations when counting length
-                df_small2 <- df_small[ !(df_small$gene_symbol %in% genefull & df_small$full=="no") , ]
-                df_small2 <- unique(df_small2)
-                out <- aggregate(as.formula(paste("variation_len~" , adding)) , df_small2 , sum)
-               # return(lapply(names(panel_transition_split) , function(x) out))
-            }
-            return(out)
+    .spacing <- function(df , sum.all.feature){
+        if(sum.all.feature){
+            out <- aggregate(as.formula(paste("variation_len~" , adding)) , df , sum)
+        } else {
+            df$full <- ifelse(df$alteration %in% c("CNA" , "fusion" , "expression") , "yes" , 
+            ifelse(df$exact_alteration=="" , "yes" , "no"))
+            genefull <- unique(df$gene_symbol[df$full=="yes"])
+            df_small <- df[ , unique(c(adding , "gene_symbol" , "variation_len" , "full"))]
+            # If I ask for a full gene in CNA and some mutations, remove the mutations when counting length
+            df_small2 <- df_small[ !(df_small$gene_symbol %in% genefull & df_small$full=="no") , ]
+            df_small2 <- unique(df_small2)
+            out <- aggregate(as.formula(paste("variation_len~" , adding)) , df_small2 , sum)
+            # return(lapply(names(panel_transition_split) , function(x) out))
         }
-        # panel_agg <- .spacing(panel_transition , sum.all.feature)
-        panel_agg <- lapply( panel_transition_split , function(x) .spacing(x , sum.all.feature))
+      return(out)
+    }
+    # panel_agg <- .spacing(panel_transition , sum.all.feature)
+    panel_agg <- lapply( panel_transition_split , function(x) .spacing(x , sum.all.feature))
     # }
     names(panel_agg) <- names(panel_transition_split)
     # Cast the splitted data by the adding variable
-    caster <- lapply(1:length(mydata_split) , function(i) {
+    caster <- lapply(seq_len(length(mydata_split)) , function(i) {
         # browser()
         z <- names(mydata_split)[i]
         x <- mydata_split[[i]]
@@ -284,7 +283,7 @@ setMethod('saturationPlot', 'CancerPanel', function(object
             subVec2 <- paste0("__",gene_fusions)
             searchPattern <- paste( c(subVec2 , subVec) , collapse="|")
             # df$gene_symbol2 <- sub(searchPattern , "" , df$gene_symbol)
-            x_cast_colnames2 <- str_extract(x_cast_colnames , searchPattern) %>% sub("__" , "" , .)
+            x_cast_colnames2 <- stringr::str_extract(x_cast_colnames , searchPattern) %>% sub("__" , "" , .)
             x_cast_colnames2[is.na(x_cast_colnames2)] <- x_cast_colnames[is.na(x_cast_colnames2)]
             space <- panel_agg[[z]][ match(x_cast_colnames2 , panel_agg[[z]][,adding]), 'variation_len']
             space <- ifelse(is.na(space) , min(space , na.rm=TRUE) , space)
@@ -336,7 +335,9 @@ setMethod('saturationPlot', 'CancerPanel', function(object
             x_cast <- x_cast[ , len_df[ , adding] , drop=FALSE]
             df <- data.frame(adding_var=len_df[ , adding] , stringsAsFactors=FALSE)
         }
-        x_cast2 <- sapply(1:ncol(x_cast), function(i) rowSums(x_cast[,1:i,drop=FALSE]))
+        x_cast2 <- lapply(seq_len(ncol(x_cast)), function(i) {
+          rowSums(x_cast[,seq_len(i),drop=FALSE])
+        }) %>% do.call("cbind" , .)
         # create the dataset to plot
         df <- rename(df, c("adding_var" = adding))
         df$grouping <- z
@@ -356,11 +357,11 @@ setMethod('saturationPlot', 'CancerPanel', function(object
     mydata_melt$grouping <- factor(mydata_melt$grouping , levels=unique(mydata_melt$grouping))
     
     labels <- c( levels(mydata_melt$grouping) )
-    mylabel <- sapply(1:length(caster) , function(x) {
+    mylabel <- vapply(seq_len(length(caster)) , function(x) {
                     "Missing" %++% adding %++% "in '" %++% 
                     names(mydata_split)[x] %+% "' :" %++% 
                     caster[[x]][[2]][1] %+% "/" %+% caster[[x]][[2]][2]
-                    })
+                    } , character(1))
     if(noPlot){
         return(mydata_melt)
     } else {

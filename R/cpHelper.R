@@ -26,7 +26,7 @@
     print("Expected colnames: ")
     print(expected_colnames)
     print("Provided colnames: ")
-    print(colnames(panel)[1:5])
+    print(colnames(panel)[seq_len(5)])
     stop('The druggability panel dataframe is malformed.')
   }
   
@@ -88,7 +88,7 @@
   # The include rules cannot have conflicting groups (by drug)
   if( any( panel$in_out == "include" ) ){
     panelSub <- panel[ panel$in_out == "include" , c("drug" , "group") , drop=FALSE] %>% unique
-    rulesPos <- sapply( unique(panelSub$drug) , function(x) nrow(unique(panelSub[ panelSub$drug==x , ])) ) 
+    rulesPos <- vapply( unique(panelSub$drug) , function(x) nrow(unique(panelSub[ panelSub$drug==x , ])) , numeric(1))
     if(any(rulesPos != 1)){
       stop(paste("Panel druggability has conflicting include rules in the group column."
            , "Multiple include lines must have the same group entry for each drug" , sep="\n"))
@@ -196,7 +196,7 @@
     print("Expected colnames: ")
     print(expected_colnames)
     print("Provided colnames: ")
-    print(colnames(panel)[1:5])
+    print(colnames(panel)[seq_len(5)])
     stop('The rules panel dataframe is malformed')
   }
   

@@ -37,8 +37,8 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
   knotTransc <- c("3'UTR", "3'Flank", "5'UTR", "5'Flank"
                   , "IGR", "Intron", "RNA", "Targeted_Region")
   knonsynonymous <- setdiff(ktcga_types , c("Silent" , knotTransc))
-  kmiss_type <- ktcga_types[1:3]
-  ktrunc_type <- ktcga_types[4:9]
+  kmiss_type <- ktcga_types[c(1,2,3)]
+  ktrunc_type <- ktcga_types[c(4,5,6,7,8,9)]
   panel <- object@arguments$panel
   # Is it possible to select all SNV genes?
   genes <- panel[ panel$alteration=="SNV" &
@@ -48,7 +48,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
     stop("There are no genes in the panel reqeusted for SNV")
   }
   tumor_type <- object@dataFull$mutations$Samples
-  tumor_type <-  names(tumor_type)[!sapply(tumor_type , is.null)]
+  tumor_type <-  names(tumor_type)[!vapply(tumor_type , is.null , logical(1))]
   if(length(tumor_type)==0){
     stop("No tumor types available for mutations in this Cancer Panel object")
   }
@@ -266,7 +266,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
           myoutputlist$regions <- NULL
         } else {
           mydf <- lmObjEntropy()$alignment$df
-          aminos <- 1:nrow(mydf)
+          aminos <- seq_len(nrow(mydf))
           signAminos <- aminos[which(mydf[[input$metric]]<=0.05)]
           if(length(signAminos)==0){
             # return(NULL)
@@ -276,39 +276,39 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
             out <- data.frame(
                     Gene_Symbol=rep(lmObjEntropy()$arguments$genes , length(signAminosGroups))
                     # , Region=names(signAminosGroups) 
-                    , Span=sapply(signAminosGroups , function(x) {
+                    , Span=vapply(signAminosGroups , function(x) {
                           if(length(x)==1){
                             return(paste(as.character(x) , as.character(x) , sep="-"))
                           } else {
                             return(paste(x[1] , x[length(x)] , sep="-"))
                           }
-                          })
-                    , Region_Width_In_bp=sapply(signAminosGroups , function(x) {
+                      } , character(1))
+                    , Region_Width_In_bp=vapply(signAminosGroups , function(x) {
                           if(length(x)==1){
                             return(3)
                           } else {
                             span <- x[length(x)] - x[1] + 1
                             return(span*3)
                           }
-                      })
+                      } , numeric(1))
                     , stringsAsFactors=FALSE)
             # Calculate the percentage of aminoacids covered by each region
-            Span_Percentage=sapply(signAminosGroups , function(x) {
+            Span_Percentage=vapply(signAminosGroups , function(x) {
                           if(length(x)==1){
                             (1/length(aminos))*100
                           } else {
                             span <- x[length(x)] - x[1] + 1
                             (span/length(aminos))*100
                           }
-                      })
+                      } , numeric(1))
             out$Span_Percentage <- paste0(format(round(Span_Percentage , 2), nsmall=2) , "%")
             # Calculate the percentage of mutations caught by the region
             mymuts <- lmObjEntropy()$mutations$data
-            coveredMutations <- sapply(signAminosGroups , function(x) {
+            coveredMutations <- vapply(signAminosGroups , function(x) {
                                   regionMuts <- nrow(mymuts[ mymuts$Amino_Acid_Position %in% x , ])
                                   perc <- 100*(regionMuts/nrow(mymuts))
                                   return(perc)
-                            })
+                            } , numeric(1))
             out$Percentage_Of_Covered_Mutations <- paste0(format(round(coveredMutations , 2), nsmall=2) , "%")
             # totalRow <- c(Gene_Symbol=lmObjEntropy()$arguments$genes 
             #             # , Region="Total"
@@ -534,7 +534,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
           # Assign a different color for each domain name
           myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")), space="Lab")
           domains$Colors <- factor(domains$Pfam_Name) %>% as.numeric %>% myPalette(max(.))[.]
-          for (i in 1:nrow(domains)) {
+          for(i in seq_len(nrow(domains))) {
             xleft=as.numeric(domains[i , "Envelope_Start"])
             xright=as.numeric(domains[i , "Envelope_End"])
             ytop=0.05
@@ -585,7 +585,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
         }
         # mut_aligned <- lmObjEntropy()$mutations$aligned
         mut_aligned <- mut_aligned_df()[[1]]
-        mut_aligned_df <- data.frame(Position=1:ncol(mut_aligned)
+        mut_aligned_df <- data.frame(Position=seq_len(ncol(mut_aligned))
                                     , Mutations=mut_aligned[ 1 , , drop=TRUE])
         mut_aligned_df <- mut_aligned_df[ mut_aligned_df$Mutations!=0 , ]
         # mut_aligned <- mut_aligned_df()[[1]]
@@ -635,7 +635,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
           return(NULL)
         }
         mut_aligned <- mut_aligned_df()[[1]]
-        mut_aligned_df <- data.frame(Position=1:ncol(mut_aligned)
+        mut_aligned_df <- data.frame(Position=seq_len(ncol(mut_aligned))
                                     , Mutations=mut_aligned[ 1 , , drop=TRUE])
         start <- ifelse(floor(input$plot_brush$xmin)<1 , 1 , floor(input$plot_brush$xmin))
         end <- ifelse(ceiling(input$plot_brush$xmax)>nrow(mut_aligned_df) 
@@ -673,7 +673,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
               # print(as.character(tmp$Span))
               # print(str(tomerge))
               spantmp <- strsplit(as.character(tmp$Span) , "-") %>% unlist %>% as.integer
-              for(i in 1:nrow(tomerge)){
+              for(i in seq_len(nrow(tomerge))){
                 myspan <- as.character(tomerge[i , "Span"])
                 intervalAmino <- strsplit(myspan , "-") %>% unlist %>% as.integer
                 intervalAmino <- intervalAmino[1]:intervalAmino[2]
@@ -704,7 +704,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
               # print(as.character(tmp$Span))
               # print(str(tomerge))
               spantmp <- strsplit(as.character(tmp$Span) , "-") %>% unlist %>% as.integer
-              for(i in 1:nrow(tomerge)){
+              for(i in seq_len(nrow(tomerge))){
                 myspan <- as.character(tomerge[i , "Span"])
                 intervalAmino <- strsplit(myspan , "-") %>% unlist %>% as.integer
                 intervalAmino <- intervalAmino[1]:intervalAmino[2]
@@ -771,8 +771,8 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
             } else {
               finalRegionSelected <- myregion$compoundRegion
               splitregions <- strsplit(finalRegionSelected$Span , "-")
-              finalRegionSelected$start <- as.integer(sapply(splitregions , '[' , 1))
-              finalRegionSelected$end <- as.integer(sapply(splitregions , '[' , 2))
+              finalRegionSelected$start <- as.integer(vapply(splitregions , '[' , character(1) , 1))
+              finalRegionSelected$end <- as.integer(vapply(splitregions , '[' , character(1) , 2))
               finalRegionSelectedsplit <- split(finalRegionSelected , finalRegionSelected$Gene_Symbol)
               reducer <- lapply(finalRegionSelectedsplit , function(df){
                               myir <- IRanges(df$start , df$end)
@@ -808,8 +808,8 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
             } else {
               finalRegionSelected <- myregion$compoundRegion
               splitregions <- strsplit(finalRegionSelected$Span , "-")
-              finalRegionSelected$start <- as.integer(sapply(splitregions , '[' , 1))
-              finalRegionSelected$end <- as.integer(sapply(splitregions , '[' , 2))
+              finalRegionSelected$start <- as.integer(vapply(splitregions , '[' , character(1) , 1))
+              finalRegionSelected$end <- as.integer(vapply(splitregions , '[' , character(1) , 2))
               finalRegionSelectedsplit <- split(finalRegionSelected , finalRegionSelected$Gene_Symbol)
               reducer <- lapply(finalRegionSelectedsplit , function(df){
                               myir <- IRanges(df$start , df$end)

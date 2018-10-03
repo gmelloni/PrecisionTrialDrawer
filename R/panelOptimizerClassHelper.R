@@ -58,7 +58,7 @@
                 official$Alias <- rep(x, nrow(official))
                 return(official)
                 })
-            if( all(sapply(notOfficial, nrow)==1)) {
+            if( all(vapply(notOfficial, nrow , numeric(1))==1)) {
                 out <- do.call("rbind", notOfficial)
                 message("These Genes were reverted to their official Gene Symbol:")
                 print(out)
@@ -75,7 +75,7 @@
                 # return(droplevels( unique(out[, c(1, 2)]) ) )
             } else {
                 message("There is an ambiguity with some aliases:")
-                bad_alias_2 <- sapply(notOfficial, length)!=1
+                bad_alias_2 <- lengths(notOfficial)!=1
                 bad_alias_3 <- do.call("rbind", notOfficial[bad_alias_2])
                 print( bad_alias_3 )
                 message("Choose a correct Gene Symbol and start over :(")
@@ -113,8 +113,8 @@
     aln <- data.frame(Gene_Symbol=rep(genesData[, 'Gene_Symbol'], len)
                    , Protein=rep(genesData[, 'UNIPROT'])
                    , Entrez=rep(genesData[, 'Entrez'])
-                   , Align=1:len
-                   , Ref=1:len
+                   , Align=seq_len(len)
+                   , Ref=seq_len(len)
                 )
     see_aln <- NULL
     score <- NA
@@ -124,8 +124,8 @@
         , Entrez=rep(genesData[ , 'Entrez'])
         , Envelope_Start=rep(genesData[ , 'Envelope_Start'])
         , Envelope_End=rep(genesData[ , 'Envelope_End'] , len)
-        , Align=1:len
-        , Ref=1:len
+        , Align=seq_len(len)
+        , Ref=seq_len(len)
         )
     score <- NA
     return(list(ALIGNMENT=aln, SCORE=score, CLUSTAL=see_aln))
@@ -226,7 +226,7 @@
         d <- density(positions, from=1, to=nPos, n=nPos)
     } else {
         if( bw==0 ) {
-            d <- list(x=1:nPos, y=profile, bw=0)
+            d <- list(x=seq_len(nPos), y=profile, bw=0)
         } else {
             d <- density(positions, bw=bw, from=1, to=nPos, n=nPos)
         }
@@ -268,10 +268,10 @@
     center=median, variability=.MAD)
 {
     if(is.null(weights)) weights <- rep(1/len , len)
-    boots <- sapply(1:nboot, function(i) {
-        d <- density(sample(1:len, nmut, replace=TRUE , prob=weights), bw=bw, from=1, to=len, n=len)
+    boots <- vapply(seq_len(nboot), function(i) {
+        d <- density(sample(seq_len(len), nmut, replace=TRUE , prob=weights), bw=bw, from=1, to=len, n=len)
         .shannon(d)
-        })
+        } , numeric(1))
     return(list(center=center(boots), variability=variability(boots), max=max(boots)))
 }
 
@@ -279,13 +279,13 @@
     center=median, variability=.MAD)
 {
     if(is.null(weights)) weights <- rep(1/len , len)
-    boots <- sapply(1:nboot, function(i) {
-        positions <- sample(1:len, nmut, replace=TRUE , prob=weights)
+    boots <- vapply(seq_len(nboot), function(i) {
+        positions <- sample(seq_len(len), nmut, replace=TRUE , prob=weights)
         t <- table(positions)
         profile <- rep(0, len)
         profile[as.numeric(names(t))] <- t
         .profileEntropy(profile, bw=bw, norm=FALSE)
-        })
+        } , numeric(1))
     return(list(center=center(boots), variability=variability(boots), max=max(boots)))
 }
 
@@ -308,10 +308,12 @@
             center=center, variability=variability))
     outReal <- do.call('cbind',outReal)
     polynomialModel <- function(x, par) {
-        sapply( x
-            , function(x_i)
-                sum(sapply(1:length(par), function(i) 
-                    if(is.na(par[i])) 0 else x_i^(i-1) * par[i] )))
+        vapply( x
+            , function(x_i){
+                sum(vapply(seq_len(length(par)), function(i) {
+                    if(is.na(par[i])) 0 else x_i^(i-1) * par[i] 
+                    } , numeric(1)))
+            } , numeric(1))
     }
     pn.optim.aic <- function( tpts , experiment, variance=NULL ) {
         if( length(experiment) < 2 ) return(NA)
@@ -319,7 +321,7 @@
             model <- lm( experiment~poly( tpts , i , raw=TRUE ) )
             return(list(par=model$coeff, value=AIC(model)))
         }
-        sapply(1:min(30,length(tpts)-1), polyOrderChisq)
+        vapply(seq_len(min(30,length(tpts)-1)), polyOrderChisq , numeric(1))
     }
     pnout <- pn.optim.aic(nMutInt, unlist(outReal[1,]), 1)
     degree <- min(which.min(unlist(pnout[2,])))
@@ -362,15 +364,15 @@
         center <- mean
         variability <- sd
     }
-    boots <- lapply(1:nboot, function(i) {
+    boots <- lapply(seq_len(nboot), function(i) {
         # density(sample(1:geneLen, nMut, replace=TRUE , prob=weights), bw=bw, from=1, to=geneLen, n=geneLen)
-        positions <- sample(1:geneLen, nMut, replace=TRUE , prob=weights)
+        positions <- sample(seq_len(geneLen), nMut, replace=TRUE , prob=weights)
         t <- table(positions)
         profile <- rep(0, geneLen)
         profile[as.numeric(names(t))] <- t
         .profileDensity(profile, bw=bw)
         })
-    nullDensities <- sapply(boots, '[[', 'y')
+    nullDensities <- lapply(boots, '[[', 'y') %>% unlist
     # calulate parameters for the gamma distribution
     mu <- apply(nullDensities, 1, center)
     s <- apply(nullDensities, 1, variability)

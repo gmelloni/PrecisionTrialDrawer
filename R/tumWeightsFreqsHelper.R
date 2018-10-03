@@ -108,7 +108,7 @@
                 newsamp <- paste(sampWeights_all[!dups] , counter , sep="____")
                 if(counter==0){
                     # sampWeights_allNewNames <- c(sampWeights_allNewNames , newsamp)
-                    sampWeights_allNewNames[1:length(newsamp)] <- newsamp
+                    sampWeights_allNewNames[seq_len(length(newsamp))] <- newsamp
                 } else {
                     # sampWeights_allNewNames <- c(sampWeights_allNewNames , newsamp)
                     firstNA <- which.max(is.na(sampWeights_allNewNames))
@@ -122,13 +122,13 @@
                 firstNA <- which.max(is.na(sampWeights_allNewNames))
                 sampWeights_allNewNames[firstNA:(firstNA+length(sampWeights_all)-1)] <- sampWeights_all
             }
-            out <- strsplit(sampWeights_allNewNames , "____") %>% sapply(. , '[' , 1)
+            out <- strsplit(sampWeights_allNewNames , "____") %>% vapply(. , '[' , character(1) , 1)
             names(out) <- sampWeights_allNewNames
             return(out)
         })
         # names(sampWeights_New) <- names(sampWeights)
         sampWeights_New_all <- unlist(unname(sampWeights_New))
-        mydata <- lapply( 1:length(sampWeights_New_all) , function(x) {
+        mydata <- lapply( seq_len(length(sampWeights_New_all)) , function(x) {
             oldSamp <- sampWeights_New_all[x]
             if(is.null(oldSamp)){
                 return(NULL)
@@ -143,7 +143,7 @@
         # }) %>% do.call("rbind" , .)
         })
         mydata <- as.data.frame(data.table::rbindlist(mydata) , stringsAsFactors = FALSE)
-        rownames(mydata) <- 1:nrow(mydata)
+        rownames(mydata) <- seq_len(nrow(mydata))
         mysamples <- lapply(sampWeights_New , names)
         names(mysamples) <- names(tumor.weights)
         mysamples$all_tumors <- unname(unlist(mysamples))

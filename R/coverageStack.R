@@ -287,7 +287,7 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
         myDataForTotal <- unique(mydata[ , c(var , "case_id")])
         myTotal <- table( factor(myDataForTotal[ , var] , levels=sort(varLevels)) )
         names(myTotal) <- paste("Total" , names(myTotal))
-        for(i in 1:ncol(mytab)){
+        for(i in seq_len(ncol(mytab))){
             if(i==1){
                 finalTab <- cbind(c(mytab[ , i] , 0) 
                             ,c(rep(0 , length(mytab[ , i])), myTotal[i] )
@@ -298,7 +298,7 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
             }
         }
     rownames(finalTab)[nrow(finalTab)] <- "Total"
-    colnames(finalTab) <- sapply(1:length(myTotal) , function(x) {
+    colnames(finalTab) <- lapply(seq_len(length(myTotal)) , function(x) {
                             c(colnames(mytab)[x] , names(myTotal)[x])
                             }) %>% unlist
     } else {
@@ -307,13 +307,13 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
         rownames(finalTab) <- "noGrouping"
     }
     if(noPlot){
-        return(list(plottedTable=finalTab , Samples=sapply(mysamples , length)))
+        return(list(plottedTable=finalTab , Samples=lengths(mysamples)))
     } else {
         if(!html){
             myTitle <- "Number of covered samples:" %++% var %++% "BY" %++% grouping
             alts <- "Data Type:" %++% paste(alterationType , collapse=", ")
             tums <- unique(names(mysamples)[names(mysamples)!="all_tumors"])
-            samps <- "Samples:" %++% paste( tums %+% "=" %+% sapply(mysamples[tums] , length) , collapse=" ")
+            samps <- "Samples:" %++% paste( tums %+% "=" %+% lengths(mysamples[tums]) , collapse=" ")
             myTitle <- paste(myTitle , alts , samps , sep="\n")
             # set cex for labels and numbers on top of bars
             mycextext <- if(ncol(finalTab)>20){
@@ -336,18 +336,18 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
             if(var!="tumor_type"){
                 perc <- paste0(100*(round(colSums(finalTab)/length(mysamples$all_tumors) , 3)) , "%")
             } else {
-                Samples <- sapply(mysamples , length)
+                Samples <- lengths(mysamples)
                 if(is.na(grouping)){
-                    perc <- sapply(1:ncol(finalTab) , function(x) {
+                    perc <- vapply(seq_len(ncol(finalTab)) , function(x) {
                                 # browser()
                                 tum <- colnames(finalTab)[x]
                                 paste0(100*(round(sum(finalTab[ , x])/Samples[tum] , 3)) , "%")
-                        })
+                        } , character(1))
                 } else {
-                    perc <- sapply(1:ncol(finalTab) , function(x) {
+                    perc <- vapply(seq_len(ncol(finalTab)) , function(x) {
                                 tum <- sub("Total " , "" , colnames(finalTab)[x])
                                 paste0(100*(round(sum(finalTab[ , x])/Samples[tum] , 3)) , "%")
-                        })
+                        } , character(1))
                 }
             }
             # add percentage on top of bars
@@ -415,7 +415,7 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
             myTitle <- "Number of covered samples:" %++% var %++% "BY" %++% grouping
             alts <- "Data Type:" %++% paste(alterationType , collapse=", ")
             tums <- unique(names(mysamples)[names(mysamples)!="all_tumors"])
-            samps <- "Samples:" %++% paste( tums %+% "=" %+% sapply(mysamples[tums] , length) , collapse=" ")
+            samps <- "Samples:" %++% paste( tums %+% "=" %+% lengths(mysamples[tums]) , collapse=" ")
             myTitle <- paste(myTitle , alts , samps , sep="\n")
             finalTab2 <- as.data.frame(t(finalTab))
             sampLen <- length(mysamples$all_tumors)
@@ -432,7 +432,7 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
                 # In case there is no grouping variable, the "Total" column doesn't exist
                 noTotalRowNames <- grep("^Total" , rownames(finalTab2) , invert=TRUE , value=TRUE)
                 if(nrow(finalTab2)==length(noTotalRowNames)){
-                    sampTum <- sapply(mysamples , length)[noTotalRowNames]
+                    sampTum <- lengths(mysamples)[noTotalRowNames]
                     finalTab2_tooltip <- lapply(colnames(finalTab2) , function(x) {
                             mynum <- round((finalTab2[ , x]/sampTum)*100 , 2)
                             out <- paste(x , paste0(mynum , "%") , sep=": ")
@@ -442,7 +442,7 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
                             })
                     names(finalTab2_tooltip) <- colnames(finalTab2)
                 } else {
-                    sampTum <- sapply(mysamples , length)[noTotalRowNames]
+                    sampTum <- lengths(mysamples)[noTotalRowNames]
                     sampLenTum <- rep(sampTum , rep(2 , length(sampTum)))
                     finalTab2_tooltip <- lapply(colnames(finalTab2) , function(x) {
                                 mynum <- round((finalTab2[ , x]/sampLenTum)*100 , 2)
@@ -455,7 +455,7 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
                 }
             }
             finalTab3 <- data.frame(Var=row.names(finalTab2))
-            for(i in 1:ncol(finalTab2)){
+            for(i in seq_len(ncol(finalTab2))){
                 nameofthecol <- colnames(finalTab2)[i]
                 finalTab3[ , nameofthecol] <- finalTab2[ , nameofthecol]
                 finalTab3[ , paste(nameofthecol , ".html.tooltip" , sep="")] <- paste(paste("Column:" , row.names(finalTab2)) 

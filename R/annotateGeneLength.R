@@ -126,7 +126,7 @@
       return(x)
     }
     x$transcript_tsl <- strsplit(x$transcript_tsl , " ") %>% 
-      sapply(. , '[' , 1) %>%
+      vapply(. , '[' , character(1) , 1 ) %>%
       sub("^tsl" , "" , .)
     x$transcript_tsl <- suppressWarnings(as.numeric(x$transcript_tsl))
     # Substitute NA transcript tsl with the highest number of tsl
@@ -143,7 +143,7 @@
   # Remove genes with no canonical chromosome (if possible)
   # Keep only the genes with a cds_length (if possible)
   # If no cds_length available, raise a warning and use the exon length instead
-  chrs <- c(1:22 , "X" , "Y" , "MT" , "M")
+  chrs <- c(seq_len(22) , "X" , "Y" , "MT" , "M")
   dframe_merge <- lapply(dframe_merge , function(x) {
     # Check that the gene is mapped to a chromosome if possible
     x_chr <- x[ as.character(x$chromosome_name) %in% chrs , ]
@@ -187,7 +187,7 @@
   # 4) Gene with the highest TSL (transcript support level)
   # 5) The ENSTid with lower number
   if(canonicalTranscript){
-    chrs <- c(1:22 , "X" , "Y" , "MT" , "M")
+    chrs <- c(seq_len(22) , "X" , "Y" , "MT" , "M")
     dframe_merge <- lapply(dframe_merge , function(x) {
       # Check that the gene is mapped to a chromosome if possible
       # for(x in dframe_merge){

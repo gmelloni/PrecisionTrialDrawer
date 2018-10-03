@@ -36,11 +36,11 @@ setMethod('show', 'CancerPanel', function(object) {
         mytums <- object@arguments$tumor_type
         sampSummary <-   lapply( allcombs , function(comb) {
         allsamps <- lapply( object@dataFull[comb] , '[[' , 'Samples')
-          sapply( mytums , function(tum) {
+          vapply( mytums , function(tum) {
             length(Reduce("intersect" , lapply(allsamps , '[[' , tum)))
-          })
+          } , numeric(1))
         }) %>% do.call("rbind" , .)
-        sampSummary <- cbind( Combinations = sapply( allcombs , function(x) paste(x , collapse=","))
+        sampSummary <- cbind( Combinations = vapply( allcombs , function(x) paste(x , collapse=",") , character(1))
                             , sampSummary)
         message("\nThe number of samples for each combination of alteration types is as follow:")
         message(paste0(capture.output(sampSummary), collapse = "\n"))

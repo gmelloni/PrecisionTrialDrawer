@@ -57,7 +57,7 @@ if(getRversion() >= "2.15.1"){
   if("INDEXVARTOBEDESTROYED" %in% colnames(df1)| "INDEXVARTOBEDESTROYED" %in% colnames(df2)){
     stop("There should not be any column of df1 with the name INDEXVARTOBEDESTROYED")
   }
-  df1$INDEXVARTOBEDESTROYED <- 1:nrow(df1)
+  df1$INDEXVARTOBEDESTROYED <- seq_len(nrow(df1))
   out <- merge(x=df1 , y=df2 , ...)
   out <- out[ order(out$INDEXVARTOBEDESTROYED , na.last=TRUE) , ]
   out$INDEXVARTOBEDESTROYED <- NULL
@@ -114,7 +114,7 @@ if(getRversion() >= "2.15.1"){
   }
   mydiff <- diff(v)
   mysplit <- c(1 , rep(NA , length(mydiff)))
-  for( i in 1:length(mydiff)) {
+  for( i in seq_len(length(mydiff))) {
     if(mydiff[i]==1){
       mysplit[i+1] <- mysplit[i]
     } else {

@@ -7,7 +7,7 @@
 {
     mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
     all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
-    all_cancer_studies$tumor_type <- sapply(strsplit(all_cancer_studies[,1] , "_") , '[' , 1)
+    all_cancer_studies$tumor_type <- vapply(strsplit(all_cancer_studies[,1] , "_") , '[' , character(1) , 1)
     if(tumor_type[1]=="all_tumors") {
         chosenTumors <- all_cancer_studies[,1]
     } else {
@@ -35,7 +35,7 @@
                  return(df)
                 #df <- read.table(url, skip = 0, header = TRUE, as.is = TRUE, sep = "\t", quote = "")
              })
-            geneticProfile <- geneticProfile[ ,c(1:2)]
+            geneticProfile <- geneticProfile[ ,c(1,2)]
             # First choice RNAseq data, if not available use microarray
             if(any(grepl("_rna_seq_v2_mrna_median_Zscores$" , geneticProfile$genetic_profile_id))) {
                 geneticProfile <- grep("_rna_seq_v2_mrna_median_Zscores$" , geneticProfile$genetic_profile_id 
@@ -116,7 +116,7 @@
                     unique %>% 
                     .[ , c("drug" , "group" , "gene_symbol" , "tumor_type" , "case_id")]
     if(nrow(expr_subset)>0){
-      expr_subset$alteration_id <- paste0("expr_" , 1:nrow(expr_subset))
+      expr_subset$alteration_id <- paste0("expr_" , seq_len(nrow(expr_subset)))
     } else {
       expr_subset$alteration_id <- character(0)
     }

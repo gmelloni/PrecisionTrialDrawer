@@ -146,7 +146,7 @@ setMethod('cpFreq', 'CancerPanel', function(object
                 return(out)
             })
         names(FreqRecurse) <- names(tumor.freqs)
-        notNull <- !sapply(FreqRecurse , is.null)
+        notNull <- !vapply(FreqRecurse , is.null , logical(1))
         FreqRecurse <- FreqRecurse[notNull]
         tumor.freqs <- tumor.freqs[notNull]
         if(alterationType=="mutations"){
