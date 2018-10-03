@@ -15,7 +15,8 @@
             stop("Number of columns asked are more than plots to display")
     }
     sampsTitle <- paste("Freqs:" 
-                , paste( paste(names(tumor.freqs) , round(tumor.freqs,3) , sep=" - ") , collapse=" , ")
+                , paste( paste(names(tumor.freqs) , round(tumor.freqs,3) 
+                    , sep=" - ") , collapse=" , ")
                 )
     for(i in seq_len(nrow(matToPlot))){
         tabToPlot <- matToPlot[i , , drop=FALSE]
@@ -48,7 +49,9 @@
                 )}
             , error=function(e) {
                 if(e$message=="figure margins too large")
-                    stop("Too many plots to display. Reduce the margins or better, redirect the output to a pdf/png file")
+                    stop(paste("Too many plots to display. ",
+                        "Reduce the margins or better,",
+                        " redirect the output to a pdf/png file"))
                 else
                     stop(e)
             }
@@ -71,48 +74,54 @@
 # Barplot of number of samples covered by at least 1, at least 2 etc.
 # This barplot can be customized including:
     # custom data type (muts, expr, cna)
-    # custom subset of the data (by drug, by group, by gene, by data type , by tumor and by nothing)
+    # custom subset of the data 
+        # (by drug, by group, by gene, by data type , by tumor and by nothing)
     # set the maximum number of alteration to display
     # if you don't want the plot, you get the data
 setGeneric('coveragePlot', function(object
-                                    , alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
-                                    , grouping=c(NA , "drug" , "group" , "gene_symbol" , "alteration_id" , "tumor_type")
-                                    , tumor_type=NULL
-                                    , alterationType.agg=TRUE
-                                    , collapseMutationByGene=TRUE
-                                    , collapseByGene=FALSE
-                                    , tumor.weights=NULL
-                                    , tumor.freqs=NULL
-                                    , maxNumAlt=10
-                                    , colNum=NULL
-                                    , cex.main="auto"
-                                    , noPlot=FALSE) {
+    , alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
+    , grouping=c(NA , "drug" , "group" , "gene_symbol" 
+        , "alteration_id" , "tumor_type")
+    , tumor_type=NULL
+    , alterationType.agg=TRUE
+    , collapseMutationByGene=TRUE
+    , collapseByGene=FALSE
+    , tumor.weights=NULL
+    , tumor.freqs=NULL
+    , maxNumAlt=10
+    , colNum=NULL
+    , cex.main="auto"
+    , noPlot=FALSE) {
     standardGeneric('coveragePlot')
     })
 setMethod('coveragePlot', 'CancerPanel', function(object
-                                    , alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
-                                    , grouping=c(NA , "drug" , "group" , "gene_symbol" , "alteration_id" , "tumor_type")
-                                    , tumor_type=NULL
-                                    , alterationType.agg=TRUE
-                                    , collapseMutationByGene=TRUE
-                                    , collapseByGene=FALSE
-                                    , tumor.weights=NULL
-                                    , tumor.freqs=NULL
-                                    , maxNumAlt=10
-                                    , colNum=NULL
-                                    , cex.main="auto"
-                                    , noPlot=FALSE)
+    , alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
+    , grouping=c(NA , "drug" , "group" , "gene_symbol" 
+        , "alteration_id" , "tumor_type")
+    , tumor_type=NULL
+    , alterationType.agg=TRUE
+    , collapseMutationByGene=TRUE
+    , collapseByGene=FALSE
+    , tumor.weights=NULL
+    , tumor.freqs=NULL
+    , maxNumAlt=10
+    , colNum=NULL
+    , cex.main="auto"
+    , noPlot=FALSE)
 {
     # Checks
-    possibleAlterations <- c("copynumber" , "expression" , "mutations" , "fusions")
-    possibleGrouping <- c(NA , "drug" , "group" , "gene_symbol" , "alteration_id" , "tumor_type")
+    possibleAlterations <- c("copynumber" , "expression" 
+        , "mutations" , "fusions")
+    possibleGrouping <- c(NA , "drug" , "group" 
+        , "gene_symbol" , "alteration_id" , "tumor_type")
     # collapseByGene is more stringent than collapseMutationByGene
     # If the first is set, the other one should not be evaluated
     if(collapseByGene & collapseMutationByGene){
         collapseMutationByGene <- FALSE
     }
     if(any(alterationType %notin% possibleAlterations)){
-        stop("alterationType can only be one or more of the following" %++% paste(possibleAlterations , collapse=", "))
+        stop("alterationType can only be one or more of the following" %++% 
+            paste(possibleAlterations , collapse=", "))
     }
     if( length(grouping)>1 & any(is.na(grouping)) ){
         # stop("You cannot choose grouping NA and another grouping factor")
@@ -120,10 +129,12 @@ setMethod('coveragePlot', 'CancerPanel', function(object
     }
     if(!any(is.na(grouping))){
         if(any(grouping %notin% possibleGrouping))
-            stop("grouping can only be one of the following:" %++% paste(possibleGrouping , collapse=", "))
+            stop("grouping can only be one of the following:" %++% 
+                paste(possibleGrouping , collapse=", "))
     }
     if(("alteration_id" %in% grouping) & collapseByGene){
-        warning("If 'alteration_id' is in grouping variables, you cannot collapse by gene. The option was set to FALSE")
+        warning(paste("If 'alteration_id' is in grouping variables,",
+            " you cannot collapse by gene. The option was set to FALSE"))
         collapseByGene <- FALSE
     }
     if(is.null(alterationType.agg)){
@@ -162,18 +173,23 @@ setMethod('coveragePlot', 'CancerPanel', function(object
     # Check tumor.weights consistency
     # tumor.freqs is a named vector of integers: e.g. c(brca=100 , luad=1000)
     if(!is.null(tumor.weights)){
-        .tumor.weights.standardCheck(tumor.weights , tumor.freqs , object , tumor_type)
+        .tumor.weights.standardCheck(tumor.weights 
+            , tumor.freqs , object , tumor_type)
         if(!alterationType.agg){
-            warning("if tumor.weights are in use, alterationType.agg is set to the default TRUE")
+            warning(paste("if tumor.weights are in use,",
+                " alterationType.agg is set to the default TRUE"))
             alterationType.agg <- TRUE
         }
     }
     # Check tumor.freqs consistency
-    # tumor.freqs is a named vector of 0-1 coefficient that sum to 1: e.g. c(brca=0.1 , luad=0.9)
+    # tumor.freqs is a named vector of 0-1 coefficient that sum to 1
+    # e.g. c(brca=0.1 , luad=0.9)
     if(!is.null(tumor.freqs)){
-        .tumor.freqs.standardCheck(tumor.weights , tumor.freqs , object , tumor_type)
+        .tumor.freqs.standardCheck(tumor.weights 
+            , tumor.freqs , object , tumor_type)
         if("tumor_type" %in% grouping){
-            stop("If you use tumor.freqs, tumor_type cannot be in grouping parameter")
+            stop(paste("If you use tumor.freqs,",
+                " tumor_type cannot be in grouping parameter"))
         }
     }
 
@@ -182,15 +198,18 @@ setMethod('coveragePlot', 'CancerPanel', function(object
     #----------------------------
 
     myenv <- new.env()
-    dataExtractor(object=object , alterationType=alterationType , tumor_type=tumor_type 
-            , collapseMutationByGene=collapseMutationByGene , collapseByGene=collapseByGene 
+    dataExtractor(object=object 
+        , alterationType=alterationType , tumor_type=tumor_type 
+            , collapseMutationByGene=collapseMutationByGene 
+            , collapseByGene=collapseByGene 
             , myenv=myenv , tumor.weights=tumor.weights)
     mydata <- get("mydata" , envir=myenv)
     mysamples <- get("mysamples" , envir=myenv)
     tum_type_diff <- get("tum_type_diff" , envir=myenv)
     rm(myenv)
 
-    # If tumor.freqs is set, we basically run this method in recursive mode for each tumor type
+    # If tumor.freqs is set, 
+    # we basically run this method in recursive mode for each tumor type
     # and then aggregate everything
     if(!is.null(tumor.freqs)){
         covRecurse <- lapply(names(tumor.freqs) , function(tum){
@@ -216,7 +235,8 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                 if(nrow(out$plottedTable)==1){
                     out2 <- (out$plottedTable/out$Samples)*tumor.freqs[tum]
                 } else {
-                    out2 <- apply(out$plottedTable , 2 , function(x) as.matrix(x)/out$Samples ) * tumor.freqs[tum]
+                    out2 <- apply(out$plottedTable , 2 , function(x) {
+                        as.matrix(x)/out$Samples} ) * tumor.freqs[tum]
                 }
                 rownames(out2) <- rownames(out$plotted)
                 return(out2)
@@ -242,20 +262,24 @@ setMethod('coveragePlot', 'CancerPanel', function(object
         if(noPlot){
             return( list(plottedTable=matToPlot , Samples=NULL) )
         } else {
-            return(.tumorFreqPlotter(matToPlot , colNum , cex.main , tumor.freqs))
+            return(.tumorFreqPlotter(matToPlot 
+                , colNum , cex.main , tumor.freqs))
         }
 
     }
-    #Save current global e graphic options before modifying them and restore them upon exiting
+    # Save current global e graphic options before 
+    # modifying them and restore them upon exiting
     opar <- par("mfrow" , "mar")
     on.exit(par(opar))
     if(!any(is.na(grouping))) {
-        splitterVar <- apply(mydata[ , grouping , drop=FALSE] , 1 , function(x) paste(x , collapse=":"))
+        splitterVar <- apply(mydata[ , grouping , drop=FALSE] 
+            , 1 , function(x) paste(x , collapse=":"))
         mydata_split <- split(mydata , splitterVar)
         plottedDataNames <- c()
         n_pats_vec <- c()        
         if(!noPlot){
-            myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")), space="Lab")
+            myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral"))
+                , space="Lab")
             n_plots <- length(mydata_split)
             used_colors <- c()
             if(is.null(colNum)){
@@ -266,7 +290,7 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                 if(colNum <= n_plots)
                     par(mfrow=c( ceiling(n_plots/colNum) , colNum))
                 else
-                    stop("Number of columns asked are more than plots to display")
+                    stop("Number of columns are more than plots to display")
             }
         }
         for(i in seq_len(length(mydata_split))){
@@ -276,7 +300,8 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                 df_name_split <- c(df_name_split , "NA")
             }
             df_name_split[df_name_split==""] <- "NA"
-            myTitle <- paste(paste(grouping , df_name_split , sep=": ") , collapse="  ") #%>% toupper
+            myTitle <- paste(paste(grouping , df_name_split , sep=": ") 
+                , collapse="  ") #%>% toupper
             plottedDataNames <- c(plottedDataNames , myTitle)
             if(nrow(df)==0) {
                 tabToPlot <- rep(0 , maxNumAlt)
@@ -287,18 +312,22 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                     plottedData <- c(plottedData , list(tabToPlot))
                 if(!noPlot){
                     par(mar = c(0,0,0,0))
-                    plot(c(0, 1), c(0, 1), ann = FALSE, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
-                    text(x = 0.5, y = 0.5, paste(myTitle %++% "\n", "No alterations to show"), 
+                    plot(c(0, 1), c(0, 1), ann = FALSE
+                        , bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
+                    text(x = 0.5, y = 0.5
+                        , paste(myTitle %++% "\n", "No alterations to show"), 
                                 cex = 1.6, col = "black")
                 }
                 next
             }
             ########### PAY ATTENTION:
-            # If "tumor_type" is in grouping, the reference set of samples must be the one of the tumor type
+            # If "tumor_type" is in grouping, 
+            # the reference set of samples must be the one of the tumor type
             # If "alteration_id" is in grouping, we have to choose:
                 # only the samples of the specific alterationType/tumor_type
-                # the samples tested for ALL alterationTypes with data on the specific alteration_id
-                # e.g. if brca was tested on 3000 pats for mutations and 1000 for cna
+                # the samples tested for ALL alterationTypes 
+                    # with data on the specific alteration_id
+                # if brca was tested on 3000 pats for mutations and 1000 for cna
                     # alterationType.agg=TRUE -> common samples btw muts and cna
                     # alterationType.agg=FALSE -> 3000 for mut, 1000 for cna
             if("tumor_type" %in% grouping){
@@ -308,26 +337,29 @@ setMethod('coveragePlot', 'CancerPanel', function(object
             }
             if("tumor_type" %in% grouping & !"alteration_id" %in% grouping){
                 pats <- mysamples[tumTypes] %>% unlist %>% unique
-            } else if("tumor_type" %in% grouping & "alteration_id" %in% grouping){
+            } else if(all(c("tumor_type","alteration_id") %in% grouping)){
                 if(alterationType.agg){
                     pats <- mysamples[tumTypes] %>% unlist %>% unique
                 } else {
                     altID <- df_name_split[grouping=="alteration_id"]
                     altID <- .mapvalues(from=c("mut" , "cna" , "fus" , "expr") 
-                                    , to=c("mutations" , "copynumber" , "fusions" , "expression")
-                                    , altID
-                                    , warn_missing=FALSE)
+                        , to=c("mutations" , "copynumber" 
+                            , "fusions" , "expression")
+                        , altID
+                        , warn_missing=FALSE)
                     pats <- object@dataFull[[altID]]$Samples[[tumTypes]]
                 }
-            } else if(!"tumor_type" %in% grouping & "alteration_id" %in% grouping){
+            } else if(!"tumor_type" %in% grouping & 
+                "alteration_id" %in% grouping){
                 if(alterationType.agg){
                     pats <- mysamples$all_tumors
                 } else {
                     altID <- df_name_split[grouping=="alteration_id"]
                     altID <- .mapvalues(from=c("mut" , "cna" , "fus" , "expr") 
-                                    , to=c("mutations" , "copynumber" , "fusions" , "expression")
-                                    , altID
-                                    , warn_missing=FALSE)
+                        , to=c("mutations" , "copynumber" 
+                            , "fusions" , "expression")
+                        , altID
+                        , warn_missing=FALSE)
                     pats <- unlist(object@dataFull[[altID]]$Samples) %>% unique
                 }
             } else {
@@ -351,7 +383,8 @@ setMethod('coveragePlot', 'CancerPanel', function(object
             else
                 plottedData <- c(plottedData , list(tabToPlot))
             if(!noPlot){
-                stat1 <- paste0(round(mean(n_alts_bypat),3) %++% "\u00b1" %++% round(sd(n_alts_bypat),3)
+                stat1 <- paste0(round(mean(n_alts_bypat),3) %++% 
+                    "\u00b1" %++% round(sd(n_alts_bypat),3)
                                 , " alterations per sample" 
                                  )
                 myTitle <- c(myTitle 
@@ -387,7 +420,9 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                         )}
                     , error=function(e) {
                         if(e$message=="figure margins too large")
-                            stop("Too many plots to display. Reduce the margins or better, redirect the output to a pdf/png file")
+                            stop(paste0("Too many plots to display. ",
+                                    "Reduce the margins or better, ",
+                                    "redirect the output to a pdf/png file"))
                         else
                             stop(e)
                     }
@@ -415,8 +450,10 @@ setMethod('coveragePlot', 'CancerPanel', function(object
         if(nrow(mydata)==0) {
             if(!noPlot){
                 par(mar = c(0,0,0,0) , mfrow=c(1,1))
-                plot(c(0, 1), c(0, 1), ann = FALSE, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
-                text(x = 0.5, y = 0.5, paste(myTitle %++% "\n", "No alterations to show"), 
+                plot(c(0, 1), c(0, 1), ann = FALSE, bty = 'n'
+                    , type = 'n', xaxt = 'n', yaxt = 'n')
+                text(x = 0.5, y = 0.5
+                    , paste(myTitle %++% "\n", "No alterations to show"), 
                             cex = 1.6, col = "black")
             } else {
                 # A lot of useless code but it is just for coherence
@@ -443,8 +480,10 @@ setMethod('coveragePlot', 'CancerPanel', function(object
         names(tabToPlot) <- seq_len(maxNumAlt)
         plottedData <- list(tabToPlot)
         if(!noPlot) {
-            myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")), space="Lab")
-            stat1 <- paste0(round(mean(n_alts_bypat),3) %++% "\u00b1" %++% round(sd(n_alts_bypat),3)
+            myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral"))
+                , space="Lab")
+            stat1 <- paste0(round(mean(n_alts_bypat),3) %++% 
+                "\u00b1" %++% round(sd(n_alts_bypat),3)
                             , "alterations per sample" 
                             )
             myTitle <- c(myTitle 

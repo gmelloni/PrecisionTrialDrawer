@@ -45,13 +45,15 @@ newCancerPanel <- function(panel , rules=NULL
     # druggability is scorporated and contain only the cases in which an 
     # entire drug is excluded/included from certain tumor types
     druggabilityWhich <- which( apply(panel[ , c("gene_symbol" , "alteration" 
-                                                 , "exact_alteration", "mutation_specification") 
-                                             , drop=FALSE] 
-                                      , 1 , function(x) all( x == "")))
+                                , "exact_alteration", "mutation_specification") 
+                                , drop=FALSE] 
+                                , 1 , function(x) all( x == "")))
     if(length(druggabilityWhich)>0){
       # If there are druggability rules, perform check
-      druggability <- rules[ druggabilityWhich , c("drug" , "group" , "tumor_type" , "in_out"), drop=FALSE]
-      druggability_full <- .druggabilityCheck(druggability , tumor_type = object@arguments$tumor_type)
+      druggability <- rules[ druggabilityWhich 
+      , c("drug" , "group" , "tumor_type" , "in_out"), drop=FALSE]
+      druggability_full <- .druggabilityCheck(druggability 
+        , tumor_type = object@arguments$tumor_type)
       exclude <- rules[ -druggabilityWhich , , drop=FALSE]
     } else {
       exclude <- rules
@@ -59,7 +61,8 @@ newCancerPanel <- function(panel , rules=NULL
     # Check on exclude panel (the one with 8 columns)
     if(! is.null(exclude)){
       if(nrow(exclude)!=0){
-        exclude <- .panelCheck(exclude , comparison_panel=panel , tumor_type=NULL)
+        exclude <- .panelCheck(exclude 
+          , comparison_panel=panel , tumor_type=NULL)
       }
     }
   }
@@ -68,7 +71,8 @@ newCancerPanel <- function(panel , rules=NULL
   # ------------------------------------------------
   object <- new('CancerPanel')
   message("Calculating panel size...")
-  # A precse estimate of space can be calculate but during simple panel construction
+  # A precse estimate of space can be 
+  # calculate but during simple panel construction
   # we calculate a variation-wise genomic length
   
   #get gene fusions and seperate the gene names
@@ -78,17 +82,20 @@ newCancerPanel <- function(panel , rules=NULL
   # Fetch/Calculate feature size
   # ------------------------------------------------
   # get genomic space for the genes of interest
-  ann_genes <- .annotateGeneLength(genes=all_genes , canonicalTranscript=canonicalTranscript , myhost=myhost)
+  ann_genes <- .annotateGeneLength(genes=all_genes 
+    , canonicalTranscript=canonicalTranscript , myhost=myhost)
   # If we have selected an alteration, correct the size of the feature based 
   # on the selection made.
-  panel <- .annotateVariationLength(panel , gene_length=ann_genes , utr=utr , padding_length=padding_length)
+  panel <- .annotateVariationLength(panel 
+    , gene_length=ann_genes , utr=utr , padding_length=padding_length)
     
   # ------------------------------------------------
   # Fetch RS coordinates 
   # ------------------------------------------------
   #If we have RS ids, fetch it
   if(any(panel$exact_alteration=="dbSNP_rs")){
-      rs <- unique(panel[ panel$exact_alteration=="dbSNP_rs" , "mutation_specification"])
+      rs <- unique(panel[ panel$exact_alteration=="dbSNP_rs" 
+        , "mutation_specification"])
       #get genomic position from each RS id
       rs_df <- .rsToGenomicPosition(rs)
   } else {
@@ -101,8 +108,10 @@ newCancerPanel <- function(panel , rules=NULL
   # ------------------------------------------------
   # distinguish between "gene_fusions" and "exact_fusion"
   if(any(panel$alteration=="fusion")){
-      panel[ panel$alteration=="fusion" & grepl("__" , panel$gene_symbol) , "exact_alteration"] <- "exact_fusion"
-      panel[ panel$alteration=="fusion" & !grepl("__" , panel$gene_symbol) , "exact_alteration"] <- "gene_fusion"
+      panel[ panel$alteration=="fusion" & 
+        grepl("__" , panel$gene_symbol) , "exact_alteration"] <- "exact_fusion"
+      panel[ panel$alteration=="fusion" & 
+        !grepl("__" , panel$gene_symbol) , "exact_alteration"] <- "gene_fusion"
   }
   
   ##################################################
@@ -112,7 +121,8 @@ newCancerPanel <- function(panel , rules=NULL
   object@arguments$dbSNP_rs <- rs_df
   object@arguments$panel <- panel
   object@arguments$drugs <- panel$drug[ panel$drug!="" ] %>% unique
-  object@arguments$options <- list(padding_length=padding_length , utr=utr , canonicalTranscript=canonicalTranscript)
+  object@arguments$options <- list(padding_length=padding_length 
+    , utr=utr , canonicalTranscript=canonicalTranscript)
   if(is.null(rules)){
     object@arguments['rules'] <- list(NULL)
   } else {

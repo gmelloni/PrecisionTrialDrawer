@@ -1,25 +1,27 @@
-################################################################################
+###############################################################################
 # This function gets the length of all the transcripts
 # INPUT:
 #   gene names list
 # Option:
 #   - canonicalTranscript
-#       If TRUE, than it goes through a selection to find the canonical transcript
-#       If FALSE, than it merges the possible isoform of the transcripts
+#    If TRUE, than it goes through a selection to find the canonical transcript
+#    If FALSE, than it merges the possible isoform of the transcripts
 # OUTPUT:
 # a series of genes and transcripts length 
-.annotateGeneLength <- function(genes , canonicalTranscript=TRUE , myhost="www.ensembl.org") {
+.annotateGeneLength <- function(genes 
+                                , canonicalTranscript=TRUE 
+                                , myhost="www.ensembl.org") {
   
   ########################################
   #Initial safe check
   if(length(genes)==0){
-    stop("Submitted gene list is empty")
+  stop("Submitted gene list is empty")
   }
   if(any(genes=="")){
-    stop("Submitted gene list contains empty gene names")
+  stop("Submitted gene list contains empty gene names")
   }    
   if(any(genes==" ")){
-    stop("Submitted gene list contains empty strings instead of gene names: \" \" ")
+  stop("Gene list contains empty strings instead of gene names: \" \" ")
   }
   
   
@@ -28,7 +30,8 @@
   # ---------------------------------------
   # Why 2 marts?
   # measures are taken from archived version because it is still hg19
-  # attributes like transcript tsl and transcript source can only be found in the most recent versions
+  # attributes like transcript tsl and transcript source 
+  # can only be found in the most recent versions
   message("Connecting to ensembl biomart...")
   ensembl=biomaRt::useMart(host=myhost
                            , biomart="ENSEMBL_MART_ENSEMBL" 
@@ -53,7 +56,8 @@
   #Check for missing genes symbols in the query results
   if(any(genes %notin% dframe$hgnc_symbol)){
     genesNotFound <- setdiff(unique(genes) , unique(dframe$hgnc_symbol))
-    errorMex <- "The following gene symbols were not found:" %++% paste(genesNotFound , collapse=", ")
+    errorMex <- "The following gene symbols were not found:" %++% 
+      paste(genesNotFound , collapse=", ")
     stop(errorMex)
   }
   
@@ -73,17 +77,6 @@
   , filters=c("ensembl_transcript_id")
   , values=dframe[["ensembl_transcript_id"]]
   , mart=ensembl)
-  # DEPRECATED - tsl adjustment was moved after merging
-  # #clean up attribute fetching only the tsl number
-  # dframe_att$transcript_tsl <- strsplit(dframe_att$transcript_tsl , " ") %>% 
-  #   sapply(. , '[' , 1) %>%
-  #   sub("^tsl" , "" , .)
-  # dframe_att$transcript_tsl <- suppressWarnings(as.numeric(dframe_att$transcript_tsl))
-  # # Substitute NA transcript tsl with the highest number of tsl
-  # tsl_max <- ifelse( is.na(max(dframe_att$transcript_tsl , na.rm=TRUE)) 
-  #                    , 1 
-  #                    , max(dframe_att$transcript_tsl , na.rm=TRUE))
-  # dframe_att$transcript_tsl[is.na(dframe_att$transcript_tsl)] <- tsl_max
   # ---------------------------------------
   # Get transcript lengths running a new Biomart query (on the archive mart) 
   # starting from the very first BM query
@@ -108,9 +101,10 @@
   # merge the results from the queries
   # the priority is given to hg19. If there is no attribute it is not important
   dframe2 <- merge(dframe_len , dframe_att , all.x=TRUE)
-  # merge the latest dataframe with the very first biomart query and discard all 
+  # merge the latest dataframe with the 
+  # very first biomart query and discard all 
   # regions with CDS length as NA value
-  dframe_merge <- merge(dframe , dframe2 , all.x=TRUE) # %>% .[!is.na(.$cds_length) , ]
+  dframe_merge <- merge(dframe , dframe2 , all.x=TRUE)
   # split dataframe for each gene name. This df will provide us all possible 
   # transcripts for each gene
   dframe_merge <- split(dframe_merge , dframe_merge$hgnc_symbol)
@@ -163,12 +157,13 @@
       x$genomic_coding_start <- x$exon_chrom_start
       x$genomic_coding_end <- x$exon_chrom_end
       fakecds_length <- split(x , x$ensembl_transcript_id) %>%
-        lapply(. , function(transcript){
-          cds_length <- transcript$genomic_coding_end - transcript$genomic_coding_start
+        lapply(. , function(trans){
+          cds_length <- trans$genomic_coding_end - trans$genomic_coding_start
           cds_length <- sum(cds_length , na.rm=TRUE)
-          return(data.frame(ensembl_transcript_id=unique(transcript$ensembl_transcript_id)
-                            ,fakecds_length=cds_length
-                            ,stringsAsFactors=FALSE))
+          return(data.frame(
+                  ensembl_transcript_id=unique(trans$ensembl_transcript_id)
+                  ,fakecds_length=cds_length
+                  ,stringsAsFactors=FALSE))
         }) %>% do.call("rbind" , .)
       x <- merge(x , fakecds_length , all.x=TRUE)
       x$cds_length <- x$fakecds_length
@@ -201,7 +196,8 @@
         x <- x[ !is.na(x$cds_length) , , drop=FALSE]
       }
       # Select transcript with longest cds 
-      chosenTransc <- unique(x[ x$cds_length==max(x$cds_length , na.rm=TRUE) , "ensembl_transcript_id"])
+      chosenTransc <- unique(x[ x$cds_length==max(x$cds_length , na.rm=TRUE) 
+                                , "ensembl_transcript_id"])
       # return it if the selection was successful and return ONLY 1 transcript
       if(length(chosenTransc)==1 & !is.na(chosenTransc[1])){
         return(x[x$ensembl_transcript_id==chosenTransc , ,drop=FALSE])
@@ -209,7 +205,8 @@
         # select all the remaining transcripts
         longest <- x[x$ensembl_transcript_id %in% chosenTransc , ]
         # select transcripts from havana and in case is only one, return it
-        havana <- longest[ longest$transcript_source %in% c("ensembl_havana" , "havana") , , drop=FALSE]
+        havana <- longest[ longest$transcript_source %in% 
+                             c("ensembl_havana" , "havana") , , drop=FALSE]
         if(length(unique(havana$ensembl_transcript_id))==1){
           return(havana)
         } else {
@@ -217,14 +214,23 @@
           if(nrow(havana)!=0){
             # 2 or more havana transcripts:
             # choose the best tsl support among the havana transcripts
-            tsl <- havana[ havana$transcript_tsl %in% min(havana$transcript_tsl , na.rm=TRUE) ,  , drop=FALSE]
-            lastChance <- tsl[ tsl$ensembl_transcript_id==sort(unique(tsl$ensembl_transcript_id))[1] ,  , drop=FALSE]
+            tsl <- havana[ havana$transcript_tsl %in% 
+                             min(havana$transcript_tsl , na.rm=TRUE) 
+                           ,  , drop=FALSE]
+            lastChance <- tsl[ 
+              tsl$ensembl_transcript_id==
+                sort(unique(tsl$ensembl_transcript_id))[1] 
+              ,  , drop=FALSE]
             return(lastChance)
           } else {
             # 0 havana transcripts: 
             # choose the best tsl support among the longest transcripts
-            tsl <- longest[ longest$transcript_tsl %in% min(longest$transcript_tsl , na.rm=TRUE) ,  , drop=FALSE]
-            lastChance <- tsl[ tsl$ensembl_transcript_id==sort(unique(tsl$ensembl_transcript_id))[1] ,  , drop=FALSE]
+            tsl <- longest[ longest$transcript_tsl %in% 
+                              min(longest$transcript_tsl , na.rm=TRUE) 
+                            ,  , drop=FALSE]
+            lastChance <- tsl[ tsl$ensembl_transcript_id==
+                                 sort(unique(tsl$ensembl_transcript_id))[1] 
+                               ,  , drop=FALSE]
             return(lastChance)
           }
         }
@@ -234,25 +240,24 @@
   #########################################
   # TRANSCRIPT OPTION2: MERGE all TRANSCRIPTs
   # ---------------------------------------
-  # In case we don't select one transcript, we have to collapse all exons of all transcripts
+  # In case we don't select one transcript
+  # we have to collapse all exons of all transcripts
   codingIR <- lapply(dframe_merge 
-                     , function(df) { #for each gene
-                       # mynum <- 0
-                       # for(df in dframe_merge){
-                       #   mynum <- mynum+1
-                       df <- df[ !is.na(df$genomic_coding_start) , ] #rm NAs
-                       ir <- IRanges(start=df$genomic_coding_start , end=df$genomic_coding_end)
-                       ir <- reduce(ir , min.gapwidth=1L) #merge transcripts
-                       out <- data.frame(gene_symbol=unique(df$hgnc_symbol)
-                                         , cds_len=sum(ir@width)
-                                         , stringsAsFactors=FALSE)
-                     }
-  ) %>% do.call("rbind" , .)
+                     , function(df) {
+                df <- df[ !is.na(df$genomic_coding_start) , ] #rm NAs
+                ir <- IRanges(start=df$genomic_coding_start 
+                              , end=df$genomic_coding_end)
+                ir <- reduce(ir , min.gapwidth=1L) #merge transcripts
+                out <- data.frame(gene_symbol=unique(df$hgnc_symbol)
+                    , cds_len=sum(ir@width)
+                    , stringsAsFactors=FALSE)
+  }) %>% do.call("rbind" , .)
   # for the UTRs
   codingUTRIR <- lapply(dframe_merge 
                         , function(df) {
                           df <- df[ !is.na(df$exon_chrom_start) , ]
-                          ir <- IRanges(start=df$exon_chrom_start , end=df$exon_chrom_end) #Select UTS too here
+                          ir <- IRanges(start=df$exon_chrom_start 
+                                  , end=df$exon_chrom_end) #Select UTS too here
                           ir <- reduce(ir , min.gapwidth=1L)
                           out <- data.frame(gene_symbol=unique(df$hgnc_symbol)
                                             , cds_and_utr_len=sum(ir@width)

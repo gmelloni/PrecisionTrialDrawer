@@ -9,7 +9,7 @@
     numPlots = length(plots)
 
     # Make the panel
-    plotCols = plot_layout[2]                          # Number of columns of plots
+    plotCols = plot_layout[2] # Number of columns of plots
     plotRows = plot_layout[1] # Number of rows needed, calculated from # of cols
 
     # Set up the page
@@ -24,7 +24,7 @@
         curCol = (i-1) %% plotCols + 1
         print(plots[[i]], vp = vplayout(curRow,  curCol))
     }
-  }
+}
 
 # Given a casted matrix, calculated pvalue for cooccurence
 # and pvalue for mutual exclusivity with montercarlo or fisher test
@@ -32,13 +32,16 @@
 .coocMutEx <- function (mat , thresh = FALSE , prob = c("hyper" , "firth")) {
     prob <- prob[1]
     spp_site_mat <- t(mat)
-    spp_key <- data.frame(num = seq_len(nrow(spp_site_mat)), spp = row.names(spp_site_mat))
+    spp_key <- data.frame(num = seq_len(nrow(spp_site_mat))
+      , spp = row.names(spp_site_mat))
     spp_site_mat[spp_site_mat > 0] <- 1
     nsite <- ncol(spp_site_mat)
     nspp <- nrow(spp_site_mat)
     spp_pairs <- choose(nspp, 2)
-    obs_cooccur <- prob_cooccur <- exp_cooccur <- matrix(nrow = spp_pairs, ncol = 3)
-    prob_occur <- incidence <- cbind(seq_len(nspp), rowSums(spp_site_mat, na.rm = TRUE))
+    obs_cooccur <- prob_cooccur <- exp_cooccur <- 
+        matrix(nrow = spp_pairs, ncol = 3)
+    prob_occur <- incidence <- cbind(seq_len(nspp)
+      , rowSums(spp_site_mat, na.rm = TRUE))
     prob_occur[ , 2] <- prob_occur[ , 2]/nsite
     spp_pairs_mat <- t(combn(nspp,2))
     pairs_observations <- apply(spp_pairs_mat, 1, function(x) {
@@ -80,33 +83,18 @@
                     fisher.test(. , alternative = "greater")
             p_gt <- p_gt$p.value
         }
-        # if (prob == "comb") {
-        #     coprob <- function(max_inc,j,min_inc,nsite){
-        #         as.numeric(round(choose(max_inc,j) * 
-        #           choose(nsite - max_inc, min_inc - j),0) / 
-        #             round(choose(nsite,min_inc),0))
-        #     }
-        #     ix1 <- (sp1_inc + sp2_inc) <= (nsite + 0:nsite) 
-        #     ix2 <- 0:nsite <= min_inc
-        #     prob_share_site[ix1 & ix2] <- coprob(max_inc = max_inc, 
-        #             j = (0:nsite)[ix1 & ix2], min_inc = min_inc, nsite = nsite)
-        #     ix <- 0:nsite <= obs_cooccur[row, 3]
-        #     p_lt <- sum(prob_share_site[ix])
-        #     ix <- (0:nsite >= obs_cooccur[row, 3])
-        #     p_gt <- sum(prob_share_site[ix])
-        # }
         if( prob == "firth"){
-          firth <- tryCatch({
-                    brglm::brglm( mat[ , sp1] ~ mat[, sp2] 
-                        , family = binomial("logit") 
-                        , method="brglm.fit")
-                    } , warning=function(w) {
-                          warning("Penalization couldn't reach convergence, using regular glm")
-                          firth <- brglm::brglm( mat[ , sp1] ~ mat[, sp2] 
-                            , family = binomial("logit") 
-                            , method="glm.fit")
-                          return(firth)
-                    })
+            firth <- tryCatch({
+            brglm::brglm( mat[ , sp1] ~ mat[, sp2] 
+                , family = binomial("logit") 
+                , method="brglm.fit")
+            } , warning=function(w) {
+            warning("No convergence, using regular glm")
+            firth <- brglm::brglm( mat[ , sp1] ~ mat[, sp2] 
+                , family = binomial("logit") 
+                , method="glm.fit")
+            return(firth)
+            })
           firthSum <- brglm::summary.brglm(firth)
           firthP <- firthSum$coefficients[2 , "Pr(>|z|)"]
           if(firthSum$coefficients[2 , "z value"]>=0){
@@ -117,30 +105,20 @@
             p_gt <- 1
           }
         }
-        # p_exactly_obs <- prob_share_site[max(which(ix))]
-        # p_lt <- round(p_lt, 5)
-        # p_gt <- round(p_gt, 5)
-        # p_exactly_obs <- round(p_exactly_obs, 5)
-        # prob_cooccur[row, 3] <- round(prob_cooccur[row, 3], 3)
-        # exp_cooccur[row, 3] <- round(exp_cooccur[row, 3], 1)
-        # return(c(sp1, sp2, sp1_inc, sp2_inc, obs_cooccur[row, 
-        #     3], prob_cooccur[row, 3], exp_cooccur[row, 3], p_lt, 
-        #     p_gt))
-        # return(c(sp1, sp2, sp1_inc, sp2_inc, p_lt, p_gt))
         return(c(sp1, sp2, p_lt, p_gt))
         }) %>% do.call("rbind" , .)
     output <- as.data.frame(output)
-    # colnames(output) <- c("sp1", "sp2", "sp1_inc", "sp2_inc", 
-    #     "obs_cooccur", "prob_cooccur", "exp_cooccur", "pVal.MutEx", 
-    #     "pVal.Cooc")
-    # colnames(output) <- c("sp1", "sp2", "sp1_inc", "sp2_inc", "pVal.MutEx", "pVal.Cooc")
     colnames(output) <- c("sp1", "sp2", "pVal.MutEx", "pVal.Cooc")
     # Substitue NaNs and NA with 1
-    output$pVal.Cooc <- ifelse( is.nan(output$pVal.Cooc) , 1 , output$pVal.Cooc)
-    output$pVal.MutEx <- ifelse( is.nan(output$pVal.MutEx) , 1 , output$pVal.MutEx)
+    output$pVal.Cooc <- ifelse(is.nan(output$pVal.Cooc) , 1 
+      , output$pVal.Cooc)
+    output$pVal.MutEx <- ifelse(is.nan(output$pVal.MutEx) , 1 
+      , output$pVal.MutEx)
     # Substitute 0s with a very very small pvalue
-    output$pVal.Cooc <- ifelse( output$pVal.Cooc==0 , 10^-100 , output$pVal.Cooc)
-    output$pVal.MutEx <- ifelse( output$pVal.MutEx==0 , 10^-100 , output$pVal.MutEx)
+    output$pVal.Cooc <- ifelse( output$pVal.Cooc==0 , 10^-100 
+      , output$pVal.Cooc)
+    output$pVal.MutEx <- ifelse( output$pVal.MutEx==0 , 10^-100 
+      , output$pVal.MutEx)
     sp1_name <- merge(x = data.frame(order = seq_len(length(output$sp1)), 
             sp1 = output$sp1), y = spp_key, by.x = "sp1", by.y = "num", 
             all.x = TRUE, sort = FALSE)
@@ -192,24 +170,30 @@
 # Plot a cool empty plot with title and text
 .emptyGGplot <- function(label , title){
   df <- data.frame()
-  empty <- ggplot(df) + geom_point() + xlim(0, 10) + ylim(0, 10) + xlab("") + ylab("") + 
-            theme(axis.line=element_blank(),
-              axis.text.x=element_blank(),
-              axis.text.y=element_blank(),
-              axis.ticks=element_blank(),
-              axis.title.x=element_blank(),
-              axis.title.y=element_blank(),
-              legend.position="none",
-              panel.background=element_blank(),
-              panel.border=element_blank(),
-              panel.grid.major=element_blank(),
-              panel.grid.minor=element_blank(),
-              plot.background=element_blank()) +
-            annotate("text"
-                    , label = label
-                    , x = 5, y = 5, size = 4, colour = "black") +
-            ggtitle(title) +
-            theme(plot.margin=unit(c(1,1,1,1), "cm"),legend.justification=c(1,0), legend.position=c(1,0))
+  empty <- ggplot(df) + 
+      geom_point() + 
+      xlim(0, 10) + 
+      ylim(0, 10) + 
+      xlab("") + 
+      ylab("") + 
+      theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        legend.position="none",
+        panel.background=element_blank(),
+        panel.border=element_blank(),
+        panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),
+        plot.background=element_blank()) +
+      annotate("text"
+              , label = label
+              , x = 5, y = 5, size = 4, colour = "black") +
+      ggtitle(title) +
+      theme(plot.margin=unit(c(1,1,1,1), "cm")
+        ,legend.justification=c(1,0), legend.position=c(1,0))
   return(empty)
 }
 
@@ -263,11 +247,13 @@
         #                       )
   #    )
   #}
-  melted_cormat$value <- ifelse(melted_cormat$value==0 , NA , melted_cormat$value)
+  melted_cormat$value <- ifelse(melted_cormat$value==0 , NA 
+    , melted_cormat$value)
   return(melted_cormat)
 }
 
-.plot_coocMutEx <- function(melted_cormat , title , minMelt , maxMelt , pvalthr){
+.plot_coocMutEx <- function(melted_cormat 
+  , title , minMelt , maxMelt , pvalthr){
   # minMelt <- min(melted_cormat$value , na.rm=TRUE)
   # maxMelt <- max(melted_cormat$value , na.rm=TRUE)
   log10pvalthr <- - log10(pvalthr)
@@ -275,114 +261,118 @@
   # Avoid complaints from check
   Var1=Var2=value=NULL
   ggheatmap <- ggplot(melted_cormat, aes(Var1, Var2)) + 
-              # geom_tile(aes(fill = factor(value,levels=c(-1,0,1))), colour ="white")+
-              # scale_fill_manual(values = c("#FFCC66","dark gray","light blue")
-              #               , name = ""
-              #               , labels = c("MutEx","random","Cooc")
-              #               ,drop=FALSE) +
-              geom_tile(aes(fill = value), colour ="white" )+
-              # scale_fill_discrete(name="p-value\nyellow cooc\nblue mutex" , na.value="dark gray" , labels = )
-              scale_fill_gradient2(space="Lab"
-                                ,low = "navy blue"
-                                ,na.value="dark gray"
-                                ,high="#FFCC66"
-                                ,midpoint=0
-                                ,mid="dark gray"
-                                # ,name="log10 Pvalue\nNegative MutEx\nPositive Cooc"
-                                ,name="p-value\nyellow cooc\nblue mutex"
-                                ,breaks=c(minMelt
-                                          # ,-log10pvalthr
-                                          , 0
-                                          # ,log10pvalthr
-                                          , maxMelt
-                                          )
-                                ,labels=c(paste("Lower mutex p:" , 
-                                            if(minMelt<=-log10pvalthr) prettyNum(10^minMelt , digits=3) else "no significance")
-                                          # , "MutEx Threshold"
-                                          , "Random" 
-                                          # , "Cooc Threshold"
-                                          , paste("Lower cooc p:" , 
-                                            if(maxMelt>=log10pvalthr) prettyNum(10^-maxMelt , digits=3) else "no significance")
-                                          )
-                                ,limits=c(minMelt,maxMelt)
-                                )+
+    geom_tile(aes(fill = value), colour ="white" )+
+    scale_fill_gradient2(space="Lab"
+        ,low = "navy blue"
+        ,na.value="dark gray"
+        ,high="#FFCC66"
+        ,midpoint=0
+        ,mid="dark gray"
+        # ,name="log10 Pvalue\nNegative MutEx\nPositive Cooc"
+        ,name="p-value\nyellow cooc\nblue mutex"
+        ,breaks=c(minMelt
+                  # ,-log10pvalthr
+                  , 0
+                  # ,log10pvalthr
+                  , maxMelt
+                  )
+        ,labels=c(paste("Lower mutex p:" , 
+          if(minMelt<=-log10pvalthr) {
+            prettyNum(10^minMelt , digits=3) 
+          } else {
+            "no significance"
+          })
+          # , "MutEx Threshold"
+          , "Random" 
+          # , "Cooc Threshold"
+          , paste("Lower cooc p:" , 
+            if(maxMelt>=log10pvalthr) {
+              prettyNum(10^-maxMelt , digits=3) 
+            } else {
+              "no significance"
+            })
+          )
+        ,limits=c(minMelt,maxMelt))+
               theme_minimal()+ # minimal theme
               xlab("") + ylab("") + 
               theme(axis.text.x = element_text(angle = 45, vjust = 1, 
                     size = 12, hjust = 1))+
               coord_fixed() +
-              # geom_point(data = fakedf, aes(size="Random", shape = NA), colour = "dark gray")+
-              # guides(size=guide_legend("Source", override.aes=list(shape=15, size = 10)))+
-              ggtitle(title) #+
-              #theme(plot.margin=unit(c(1,1,1,1), "cm"),legend.justification=c(1,0), legend.position=c(1,0))
-  return(ggheatmap)
+    ggtitle(title)
+    return(ggheatmap)
 }
 
 
 
 setGeneric('coocMutexPlot', function(object 
-                                  , var=c("drug","group","gene_symbol")
-                                  , alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
-                                  , grouping=c(NA , "drug" , "group" , "alteration_id" , "tumor_type")
-                                  , tumor_type=NULL
-                                  , collapseMutationByGene=FALSE
-                                  , collapseByGene=FALSE
-                                  , tumor.weights=NULL
-                                  , style=c("cooc" , "dendro")
-                                  , prob = c("hyper" , "firth")
-                                  , drop = FALSE
-                                  , noPlot=FALSE
-                                  , pvalthr=0.05
-                                  , plotrandom=TRUE
-                                  , ncolPlot =FALSE
-                                  , ...) {
+    , var=c("drug","group","gene_symbol")
+    , alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
+    , grouping=c(NA , "drug" , "group" , "alteration_id" , "tumor_type")
+    , tumor_type=NULL
+    , collapseMutationByGene=FALSE
+    , collapseByGene=FALSE
+    , tumor.weights=NULL
+    , style=c("cooc" , "dendro")
+    , prob = c("hyper" , "firth")
+    , drop = FALSE
+    , noPlot=FALSE
+    , pvalthr=0.05
+    , plotrandom=TRUE
+    , ncolPlot =FALSE
+    , ...) {
   standardGeneric('coocMutexPlot')
-  })
+})
 setMethod('coocMutexPlot', 'CancerPanel', function(object 
-                                  , var=c("drug","group","gene_symbol")
-                                  , alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
-                                  , grouping=c(NA , "drug" , "group" , "alteration_id" , "tumor_type")
-                                  , tumor_type=NULL
-                                  , collapseMutationByGene=FALSE
-                                  , collapseByGene=FALSE
-                                  , tumor.weights=NULL
-                                  , style=c("cooc" , "dendro")
-                                  , prob = c("hyper" , "firth")
-                                  , drop = FALSE
-                                  , noPlot=FALSE
-                                  , pvalthr=0.05
-                                  , plotrandom=TRUE
-                                  , ncolPlot =FALSE
-                                  , ...)
-{
+    , var=c("drug","group","gene_symbol")
+    , alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
+    , grouping=c(NA , "drug" , "group" , "alteration_id" , "tumor_type")
+    , tumor_type=NULL
+    , collapseMutationByGene=FALSE
+    , collapseByGene=FALSE
+    , tumor.weights=NULL
+    , style=c("cooc" , "dendro")
+    , prob = c("hyper" , "firth")
+    , drop = FALSE
+    , noPlot=FALSE
+    , pvalthr=0.05
+    , plotrandom=TRUE
+    , ncolPlot =FALSE
+    , ...){
   #-------------------------------
   # CHECK PARAMETER CONSISTENCY
   #-------------------------------
 
-  possibleAlterations <- c("copynumber" , "expression" , "mutations" , "fusions")
-  possibleGrouping <- c(NA , "drug" , "group" , "alteration_id" , "tumor_type")
+  possibleAlterations <- c("copynumber" , "expression" 
+    , "mutations" , "fusions")
+  possibleGrouping <- c(NA , "drug" , "group" 
+    , "alteration_id" , "tumor_type")
   possibleProb <- c("firth" , "hyper")
   possiblestyle <- c("cooc" , "dendro")
   prob <- prob[1]
   style <- style[1]
   if(style %notin% possiblestyle){
-    stop("style can only be one of the following" %++% paste(possiblestyle , collapse=", "))
+    stop("style can only be one of the following" %++% 
+      paste(possiblestyle , collapse=", "))
   }
   if( prob %notin% possibleProb){
-    stop("prob can only be one of the following" %++% paste(possibleProb , collapse=", "))
+    stop("prob can only be one of the following" %++% 
+      paste(possibleProb , collapse=", "))
   }
   if(any(alterationType %notin% possibleAlterations)){
-    stop("alterationType can only be one or more of the following" %++% paste(possibleAlterations , collapse=", "))
+    stop("alterationType can only be one or more of the following" %++% 
+      paste(possibleAlterations , collapse=", "))
   }
   if( length(grouping)>1 & any(is.na(grouping)) ){
     grouping <- NA
   }
   if(!any(is.na(grouping))){
     if(any(grouping %notin% possibleGrouping))
-      stop("grouping can only be one of the following:" %++% paste(possibleGrouping , collapse=", "))
+      stop("grouping can only be one of the following:" %++% 
+        paste(possibleGrouping , collapse=", "))
   }
   if(("alteration_id" %in% grouping) & length(alterationType)<2){
-    stop("If you select 'alteration_id' as grouping variable, you must select more than one alterationType")
+    stop(paste("If you select 'alteration_id' as grouping variable",
+      ", select more than one alterationType"))
   }
   if(!is.numeric(pvalthr)){
     stop("pvalthr must be a numeric value")
@@ -403,8 +393,10 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
   #----------------------------
 
   myenv <- new.env()
-  dataExtractor(object=object , alterationType=alterationType , tumor_type=tumor_type 
-            , collapseMutationByGene=collapseMutationByGene , collapseByGene=collapseByGene 
+  dataExtractor(object=object , alterationType=alterationType 
+            , tumor_type=tumor_type 
+            , collapseMutationByGene=collapseMutationByGene 
+            , collapseByGene=collapseByGene 
             , myenv=myenv , tumor.weights=tumor.weights)
   mydata <- get("mydata" , envir=myenv)
   mysamples <- get("mysamples" , envir=myenv)
@@ -424,9 +416,11 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
             # browser()
             tums <- unique(x$tumor_type)
             if(grouping %in% "tumor_type"){
-              x$case_id <- factor(x$case_id , levels=unique(unlist(mysamples[tums])))
+              x$case_id <- factor(x$case_id 
+                , levels=unique(unlist(mysamples[tums])))
             } else {
-              x$case_id <- factor(x$case_id , levels=unique(unlist(mysamples["all_tumors"])))
+              x$case_id <- factor(x$case_id 
+                , levels=unique(unlist(mysamples["all_tumors"])))
             }
             return(x)
     })
@@ -464,11 +458,12 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
           if(attributes(mat_dist[[i]])$Size>2){
                     plot(hclust( mat_dist[[i]]  , ...)
                         , xlab="" 
-              , main=title
-              )
+                        , main=title)
           } else {
-            plot(c(0, 1), c(0, 1), ann = FALSE, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
-            text(x = 0.5, y = 0.5, "Not enough elements\nto display\n(minimum 3)"
+            plot(c(0, 1), c(0, 1)
+                , ann = FALSE, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
+            text(x = 0.5, y = 0.5
+                , "Not enough elements\nto display\n(minimum 3)"
                 ,cex = 1, col = "black" , main=names(mydata_split)[i])
           }
               }
@@ -504,43 +499,42 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
       if(all(is.na(melted_cormat$value ))){
         return(NULL)
       } else {
-        return( c(min(melted_cormat$value , na.rm=TRUE)[1] , max(melted_cormat$value , na.rm=TRUE)[1]) )
+        return( c(min(melted_cormat$value , na.rm=TRUE)[1] 
+          , max(melted_cormat$value , na.rm=TRUE)[1]) )
       }
     })
 
-    minMelt <- tryCatch( min(unlist(lapply(minMax , '[' , 1)) , na.rm=TRUE) , error=function(e) return(NULL))
-    maxMelt <- tryCatch( max(unlist(lapply(minMax , '[' , 2)) , na.rm=TRUE) , error=function(e) return(NULL))
+    minMelt <- tryCatch( min(unlist(lapply(minMax , '[' , 1)) , na.rm=TRUE) 
+      , error=function(e) return(NULL))
+    maxMelt <- tryCatch( max(unlist(lapply(minMax , '[' , 2)) , na.rm=TRUE) 
+      , error=function(e) return(NULL))
     whichIsMax <- which.max(abs(c(minMelt, maxMelt)))
     if(whichIsMax==1){
       maxMelt <- - minMelt
     } else {
       minMelt <- - maxMelt
     }
-    # print(minMelt)
-    # print(maxMelt)
-    # print(minMax)
-    # print(all_melted)
-    # maxMelt <- max(melted_cormat$value , na.rm=TRUE)
     all_plots <- lapply(seq_len(length(all_melted)) , function(i){
-                  if( is.na(grouping) && toupper(names(mydata_split)[i])=="NA" ){
-                    title <- ""
-                  } else {
-                    title <- toupper(grouping) %+% ": " %+% toupper(names(mydata_split)[i])
-                  }
-                  if(!is.null(cooc[[i]])){
-                    if(all(is.na(all_melted[[i]]$value))){
-                      return(.emptyGGplot(label= "No Significant pairs", title=title))
-                    }
-                    out <- .plot_coocMutEx(all_melted[[i]] , title=title , minMelt=minMelt , maxMelt=maxMelt , pvalthr=pvalthr)
-                    # out <- .plot_coocMutEx(cooc[[i]] , title=title , pvalthr=pvalthr , plotrandom=plotrandom)
-                    # out <- out + theme(plot.margin=unit(c(1,1,1,1), "cm"),legend.justification=c(1,0), legend.position=c(1,0))
-                  } else {
-                    out <- .emptyGGplot(label= "MutEx and Cooc Analysis require at least 2 elements\nNo possible Mutex or Cooc Analysis"
-                              , title=title
-                              )
-                    # out <- out + theme(plot.margin=unit(c(1,1,1,1), "cm"),legend.justification=c(1,0), legend.position=c(1,0))
-                  }
-                  })
+        if( is.na(grouping) && toupper(names(mydata_split)[i])=="NA" ){
+            title <- ""
+        } else {
+            title <- toupper(grouping) %+% 
+                    ": " %+% 
+                    toupper(names(mydata_split)[i])
+        }
+        if(!is.null(cooc[[i]])){
+          if(all(is.na(all_melted[[i]]$value))){
+            return(.emptyGGplot(label= "No Significant pairs", title=title))
+          }
+          out <- .plot_coocMutEx(all_melted[[i]] 
+            , title=title , minMelt=minMelt , maxMelt=maxMelt , pvalthr=pvalthr)
+        } else {
+          out <- .emptyGGplot(
+            label= paste("MutEx and Cooc Analysis require at least 2 elements",
+                          "No possible Mutex or Cooc Analysis" , sep= "\n")
+                    , title=title)
+        }
+        })
     return(.multiplot(all_plots , plot_layout=plot_layout))
   }
 })
