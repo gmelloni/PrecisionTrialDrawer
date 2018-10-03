@@ -89,7 +89,7 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
           #           , min = 0 
           #           , max = 200
           #           , step = 0.05)
-          , helpText("Automatic bandwidth overwrites tha slider above")
+          , helpText("Automatic bandwidth overwrites the slider above")
           , radioButtons("autobw" , "Use Silverman's bandwidth"
                         , c("No" =  "No" , "Yes" = "Yes")
                         )
