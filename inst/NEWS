@@ -1,3 +1,20 @@
+### Version 0.99.5
+ADDITIONAL FUNCTIONS:
+***
+BUG FIXES:
+- reference to cgdsr code back into the manual
+
+### Version 0.99.4
+ADDITIONAL FUNCTIONS:
+- add smaller datasets for examples
+***
+BUG FIXES:
+- faster and shorter examples
+- better error handling for empty data
+- tiny typo
+- bug fix in panelOptimizer
+- some code cleanup
+
 ### Version 0.99.3
 ADDITIONAL FUNCTIONS:
 ***
