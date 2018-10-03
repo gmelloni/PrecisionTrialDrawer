@@ -10,20 +10,20 @@ we include at each step and how much space is occupied.
 }
 \usage{
 saturationPlot(object
-  , alterationType = c( "copynumber", "expression", "mutations", "fusions")
-  , grouping = c(NA, "drug", "group", "alteration_id", "tumor_type")
-  , adding = c( "alteration_id", "gene_symbol", "drug", "group")
-  , tumor_type = NULL
-  , y_measure = c( "mean", "absolute")
-  , adding.order=c( "absolute", "rate")
-	, sum.all.feature=FALSE
-	, collapseMutationByGene=TRUE
-	, collapseByGene=FALSE
-  , labelling=TRUE
-  , tumor.weights=NULL
-  , main=""
-  , legend=c("in" , "out")
-  , noPlot = FALSE)
+    , alterationType = c( "copynumber", "expression", "mutations", "fusions")
+    , grouping = c(NA, "drug", "group", "alteration_id", "tumor_type")
+    , adding = c( "alteration_id", "gene_symbol", "drug", "group")
+    , tumor_type = NULL
+    , y_measure = c( "mean", "absolute")
+    , adding.order=c( "absolute", "rate")
+    , sum.all.feature=FALSE
+    , collapseMutationByGene=TRUE
+    , collapseByGene=FALSE
+    , labelling=TRUE
+    , tumor.weights=NULL
+    , main=""
+    , legend=c("in" , "out")
+    , noPlot = FALSE)
 }
 \arguments{
   \item{object}{

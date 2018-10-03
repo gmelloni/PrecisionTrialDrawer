@@ -34,9 +34,9 @@ A vector of tumor_type names. The filter will be active only on the specified tu
 \details{
 filtered data.frame can come in three different formats:
 \enumerate{
-	\item{ "gene_symbol" , "amino_position"}{ Ex. BRAF 600}
-	\item{ "gene_symbol" , "amino_acid_change"}{ Ex. BRAF V600E}
-	\item{ "genomic_poistion"}{ Ex. 3:1234567:A,C}
+    \item{ "gene_symbol" , "amino_position"}{ Ex. BRAF 600}
+    \item{ "gene_symbol" , "amino_acid_change"}{ Ex. BRAF V600E}
+    \item{ "genomic_poistion"}{ Ex. 3:1234567:A,C}
 }
 
 bed file must be composed by 3 columns: chrN, start 0-base , end 1-base
@@ -62,7 +62,7 @@ Giorgio Melloni , Alessandro Guida
 data(cpObj)
 # Create a data.frame to filter
 myFilter <- data.frame(gene_symbol = c("BRAF" , "PIK3CA") 
-						, amino_position = c(600 , 118))
+    , amino_position = c(600 , 118))
 # Keep only myFilter mutations
 cpObjKeep <- filterMutations(cpObj , filtered = myFilter , mode = "keep")
 # Exclude myFilter mutations
@@ -70,8 +70,8 @@ cpObjExclude <- filterMutations(cpObj , filtered = myFilter , mode = "exclude")
 
 # Create a bed file
 myBed <- data.frame(chr = paste0("chr" , c(7 , 17)) 
-	, start = c(140534632 , 41244326) 
-	, end = c(140534732 , 41244426) , stringsAsFactors=FALSE)
+    , start = c(140534632 , 41244326) 
+    , end = c(140534732 , 41244426) , stringsAsFactors=FALSE)
 # Keep only myFilter mutations
 cpObjKeep <- filterMutations(cpObj , bed = myBed , mode = "keep")
 # Exclude myBed mutations

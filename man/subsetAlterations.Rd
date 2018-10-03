@@ -58,15 +58,15 @@ Giorgio Melloni, Alessandro Guida
 data(cpObj)
 # Launch subsetAlterations excluding certain patients from being considered actionable
 rules <- data.frame(
-	drug=c("Erlotinib" , "Erlotinib", "Erlotinib","Erlotinib","Olaparib")
-	, gene_symbol=c("EGFR" , "KRAS", "" , "", "")
-	, alteration=c("SNV" , "SNV", "" , "", "")
-	, exact_alteration=c("amino_acid_variant" , "", "" , "", "")
-	, mutation_specification=c("T790M" , "" , "" , "", "")
-	, group=c("Driver" , "Driver", "Driver" , "Driver", "Driver")
-	, tumor_type=c("luad" , "luad" , "luad" , "coadread","brca")
-	, in_out=c("exclude" , "exclude" , "include" , "include" , "include")
-	, stringsAsFactors = FALSE
+    drug=c("Erlotinib" , "Erlotinib", "Erlotinib","Erlotinib","Olaparib")
+    , gene_symbol=c("EGFR" , "KRAS", "" , "", "")
+    , alteration=c("SNV" , "SNV", "" , "", "")
+    , exact_alteration=c("amino_acid_variant" , "", "" , "", "")
+    , mutation_specification=c("T790M" , "" , "" , "", "")
+    , group=c("Driver" , "Driver", "Driver" , "Driver", "Driver")
+    , tumor_type=c("luad" , "luad" , "luad" , "coadread","brca")
+    , in_out=c("exclude" , "exclude" , "include" , "include" , "include")
+    , stringsAsFactors = FALSE
 )
 cpObj <- subsetAlterations(cpObj , rules = rules)
 # See the updated slot

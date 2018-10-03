@@ -30,6 +30,6 @@ Giorgio Melloni, Alessandro Guida
 data(cpObj)
 # Show the number of covered samples
 coveragePlot(cpObj 
-			, alterationType=c("mutations" , "copynumber") 
-			, grouping=c("group" , "tumor_type"))
+            , alterationType=c("mutations" , "copynumber") 
+            , grouping=c("group" , "tumor_type"))
 }

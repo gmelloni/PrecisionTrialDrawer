@@ -9,7 +9,7 @@ for sequencing
 }
 \usage{
 panelDesigner(object
-	, alterationType = c("copynumber", "expression", "mutations", "fusions")
+    , alterationType = c("copynumber", "expression", "mutations", "fusions")
     , padding_length = 100
     , merge_window = 50
     , utr = FALSE 
