@@ -311,7 +311,12 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                 }
             } else {
                 gmOut <- .getMutations(mutgenes , tumor_type=tumor_type , block=NULL)
-                gmOut2 <- as.data.frame(rbindlist(lapply(gmOut , '[[' , 1)))
+                gmOut2 <- as.data.frame(data.table::rbindlist(lapply(gmOut , '[[' , 1)))
+                if(is.data.frame(gmOut2)){
+                  if(nrow(gmOut2)==0){
+                    gmOut2 <- NULL
+                  }
+                }
                 if(!is.null(gmOut2)){
                     tumor_type_vec <- unique(gmOut2$genetic_profile_id) %>% 
                                     strsplit(. , "_") %>%
