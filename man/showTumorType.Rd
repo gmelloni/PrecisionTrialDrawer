@@ -16,7 +16,7 @@ aggregation of all the available sequenced data from all the studies
 involved in a particular tumor type.
 }
 \details{
-This method is a wrapper around \code{\link[cgdsr]{getCancerStudies}} 
+This method is a wrapper around \code{\link[cgdsr]{cgdsr-getCancerStudies}}
 and show all the barcodes for the tumor 
 types included in the cBioPortal. 
 Even though the tumor types are present, 
@@ -29,7 +29,7 @@ have a different source and could not be included in the list.
 Giorgio Melloni, Alessandro Guida
 }
 \seealso{
-\code{\link{getAlterations}} \code{\link{showCancerStudy}}
+\code{\link{getAlterations}} \code{\link{showCancerStudy}} \code{\link[cgdsr]{cgdsr-getCancerStudies}}
 }
 \examples{
 myTumTypes <- showTumorType()

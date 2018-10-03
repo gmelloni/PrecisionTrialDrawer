@@ -17,7 +17,7 @@ A named vector of all the cancer studies available in cgdsr package
 that can be passed to the method getAlterations.
 }
 \details{
-This method is a wrapper around \code{\link[cgdsr]{getCancerStudies}} 
+This method is a wrapper around \code{\link[cgdsr]{cgdsr-getCancerStudies}} 
 and show all the cancer studies included in the cBioPortal. 
 If you specify the tumor_type, follow 
 the list of \code{showTumorType}.
@@ -31,7 +31,7 @@ have a different source and could not be included in the list.
 Giorgio Melloni, Alessandro Guida
 }
 \seealso{
-\code{\link{getAlterations}} \code{\link{showTumorType}}
+\code{\link{getAlterations}} \code{\link{showTumorType}} \code{\link[cgdsr]{cgdsr-getCancerStudies}}
 }
 \examples{
 myCanStudies <- showCancerStudy()
