@@ -3,6 +3,7 @@
 data/.gitkeep
 inst/.gitkeep
 vignette/.gitkeep
+vignette/*.html
 ^.*\.Rproj$
 ^\.Rproj\.user$
 README.md
