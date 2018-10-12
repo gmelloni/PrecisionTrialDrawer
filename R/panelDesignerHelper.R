@@ -109,8 +109,7 @@
                  ,"ensembl_transcript_id"
                  # ,"cds_length"
                  # ,"chromosome_name"
-                 )
-            )
+                 ))
       bm_split <- split(bm , bm$hgnc_symbol) %>%
             lapply(. , function(x) {
                     x$prot_len <- nchar(x$peptide) - 1
@@ -140,7 +139,7 @@
                     } else {
                         # return the longest protein
                         # TODO: adopt a thing similar to canonical transcript
-                        out <- out[ out$prot_len == max(out$prot_len , na.rm=TRUE) , ]
+                        out <- x[ x$prot_len == max(x$prot_len , na.rm=TRUE) , , drop=FALSE]
                         if(nrow(out)>1){
                           return(out[1 , , drop=FALSE])
                         } else {
