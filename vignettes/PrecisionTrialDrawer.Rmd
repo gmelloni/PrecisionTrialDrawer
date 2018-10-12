@@ -87,12 +87,12 @@ Possible values for a cancer panel in columns alteration, **exact\_alteration** 
 
 |alteration |exact.alteration    |mutation_specification |
 |:----------|:-------------------|:----------------------|
-|CNA        |amplification       |NULL                   |
-|CNA        |deletion            |NULL                   |
-|expression |up                  |NULL                   |
-|expression |down                |NULL                   |
-|fusion     |NULL                |NULL                   |
-|SNV        |NULL                |NULL                   |
+|CNA        |amplification       |                       |
+|CNA        |deletion            |                       |
+|expression |up                  |                       |
+|expression |down                |                       |
+|fusion     |                    |                       |
+|SNV        |                    |                       |
 |SNV        |mutation_type       |missense               |
 |SNV        |mutation_type       |truncating             |
 |SNV        |amino_acid_position |300-300                |
@@ -229,7 +229,7 @@ coadread is not included but the rule can stay.
 Now that we have our panel, we want to test it against tumor samples. 
 We will choose two different cancer types among the available ones: 
 
-```{r chunk3, echo=TRUE , eval=TRUE , message=TRUE , warning=FALSE}
+```{r chunk3, echo=TRUE , eval=FALSE , message=TRUE , warning=FALSE}
 # Check available tumor types
 knitr::kable( head(showTumorType()) , row.names=FALSE)
 # Fetch data from breast cancer and lung adenocarcinoma samples
@@ -238,12 +238,23 @@ mypanel <- getAlterations(mypanel , tumor_type=c("brca" , "luad"))
 str( cpData(mypanel)$mutations , vec.len = 1)
 ```
 
-This method performs 3 tasks. Download available data from cBioportal and MD Anderson Fusion Portal 
-for every alteration type of the requested genes, retrieve the total number of samples for which data 
-are available within every alteration class and calculate a frequency matrix. 
+```{r chunk3_bis, echo=FALSE , eval=TRUE , message=TRUE , warning=FALSE}
+# Check available tumor types
+knitr::kable( head(showTumorType()) , row.names=FALSE)
+# Fetch data from breast cancer and lung adenocarcinoma samples
+data(cpObj)
+mypanel <- cpObj
+# See the updated slot dataFull for mutations
+str( cpData(mypanel)$mutations , vec.len = 1)
+rm(cpObj)
+```
 
-In case you are interested into downloading the population information for all 
-the tumor types, it is possible to assign "all_tumors" to the parameter 
+This method performs 2 tasks. Download data from cBioportal and MD Anderson Fusion Portal 
+for every alteration type for the requested genes and 
+retrieve the total number of samples for each available data type.
+
+In case you are interested into requesting data for every tumor type, 
+it is possible to assign "all_tumors" to the parameter 
 tumor_type ```getAlterations(mypanel , tumor_type="all_tumors")```
 
 ### Specify the cancer studies
@@ -256,12 +267,12 @@ the user more control over what dataset will be used to run the simulation.
 # Check available tumor types
 knitr::kable( showCancerStudy(c("brca","luad")) , row.names = FALSE )
 # Fetch data from breast cancer and lung adenocarcinoma samples
-mypanel_alternative <- getAlterations(mypanel , tumor_type=c("luad_tcga", "brca_tcga_pub"))
+mypanel_alternative <- getAlterations(mypanel 
+                        , tumor_type=c("luad_tcga_pan_can_atlas_2018"
+                                       , "brca_tcga_pan_can_atlas_2018"))
 ```
 
-
 At this point, the data are downloaded by gene, without looking for the exact alteration requested.
-
 If you want, you can always put your own data, as long as you respect the format for each alteration type. 
 
 ```{r chunk4, echo=TRUE , eval=TRUE , message=FALSE , warning=FALSE}
@@ -290,10 +301,31 @@ already according to the @dataFull slot format, you can append this dataset to a
 This allows to increase the sample size for those rare tumor_types that are not present in cBioPortal.
 
 ```{r append, echo=TRUE , eval=TRUE , message=FALSE , warning=FALSE}
-new_panel <- appendRepo(mypanel_toy , repos)
+# Add two mutations from two different samples for breast cancer
+newmutations <- data.frame(
+    entrez_gene_id=c(7157 , 7157)
+    ,gene_symbol=c("TP53" , "TP53")
+    ,case_id=c("new_samp1" , "new_samp2")
+    ,mutation_type=c("Nonsense_Mutation" , "Nonsense_Mutation")
+    ,amino_acid_change=c("R306*" , "Y126*")
+    ,genetic_profile_id=c("mynewbreaststudy" , "mynewbreaststudy")
+    ,tumor_type=c("brca" , "brca")
+    ,amino_position=c(306 , 126)
+    ,genomic_position=c("17:7577022:G,A" , "17:7578552:G,C")
+    ,stringsAsFactors=FALSE
+    )
+newsamples <- c("new_samp1" , "new_samp2")
+# A dataFull slot style list should look like this
+toBeAdded <- list(fusions=list(data=NULL , Samples=NULL)
+                 , mutations=list(data=newmutations , Samples=list(brca=newsamples))
+                 , copynumber=list(data=NULL , Samples=NULL)
+                 , expression=list(data=NULL , Samples=NULL)
+                 )
+new_panel <- appendRepo(mypanel_toy , toBeAdded)
 ```
 
-Furthermore, if you want to filter certain mutations or fusions from your dataset, you can use the methods `filterMutations` and 
+Furthermore, if you want to filter certain mutations or fusions from your dataset, 
+you can use the methods `filterMutations` and 
 `filterFusions`. The first method, can be used with specific mutations or using a bed file.
 
 ```{r filter, echo=TRUE , eval=TRUE , message=FALSE , warning=FALSE}
@@ -606,8 +638,8 @@ and could be excluded from a potential trial.
 On the other hand, lung samples are predominantly mutated in *KRAS* and *TP53* and since these two genes 
 are not targeted by any drug, the first "drug" category is indeed *no_drug*. 
 In addition, we can appreciate a very high coverage for LUAD samples, but the saturation 
-is reached at the point of Idelalisib/Olaparib and all other drugs increasing the coverage of 1-2%. Olaparib itself, 
-occupies almost 25 Kbases alone with its targets by being a drug that acts on the very long genes *BRCA1/2*.
+is reached at the point of Idelalisib/Olaparib and all other drugs increase the coverage of 1-2%. 
+Olaparib itself, occupies almost 25 Kbases alone with its targets *BRCA1/2*, which are very long genes.
 
 ## coocMutexPlot
 
@@ -649,13 +681,18 @@ coocMutexPlot(mypanel
 ```
 
 
-This plot represents significant mutual exclusivity and cooccurence between couples of drugs. In particular, it tests whether 
-all the alterations targeted by a drug tends to appear in different patients or together in the same set of patients. 
-For example, we can appreciate that Olaparib is mutual exclusive with Idelalisib, so the drugs are active on different set of patients. 
-This is particular useful to know for balancing a basket trial design. The more two drugs are mutual exclusive, the larger is the set of 
+This plot represents significant mutual exclusivity and cooccurence between 
+couples of drugs. In particular, it tests whether 
+all the alterations targeted by a drug tends to appear in different patients 
+or together in the same set of patients. 
+For example, we can appreciate that Olaparib is mutual exclusive with Idelalisib, 
+so the drugs are active on different set of patients. 
+This is particular useful to know for balancing a basket trial design. 
+The more two drugs are mutual exclusive, the larger is the set of 
 druggable patients.
 
-The very same plot, using genes instead of drugs, shows a mutual exclusivity on both *BRCA1* and *BRCA2* against *PIK3CA*.
+The very same plot, using genes instead of drugs, shows a mutual exclusivity 
+on both *BRCA1* and *BRCA2* against *PIK3CA*.
 
 
 ```{r plot7 , echo=TRUE , eval=TRUE , fig.height=10, fig.width=15}
@@ -669,8 +706,10 @@ coocMutexPlot(mypanel
              )
 ```
 
-Cooccurence and mutual exclusivity can also be seen from the prospective of similarity, rather than pair-wise mutex. For this purpose, 
-we developed an alternative style for the plot that exploits binary distance between occurrences of alterations between genes or drugs.
+Cooccurence and mutual exclusivity can also be seen from the 
+prospective of similarity, rather than pair-wise mutex. For this purpose, 
+we developed an alternative style for the plot that exploits binary 
+distance between occurrences of alterations between genes or drugs.
 
 ```{r plotDendro , echo=TRUE , eval=TRUE , fig.height=10, fig.width=15}
 # coocMutexPlot of drugs divided by tumor type
@@ -1143,12 +1182,12 @@ type and calculate the frequency. This is just 1 extraction, so the result could
 completely biased. We need to run a resampling simulation to answer our questions.
 
 ```{r basket5 , echo=TRUE , eval=TRUE }
-# Run cpFreq 100 times
-samplefreqsboot <- replicate( 100 
+# Run cpFreq 20 times
+samplefreqsboot <- replicate( 20 
                           , cpFreq(mypanel , alterationType = "mutations" 
                             , tumor.weights=c(brca=50 , luad=40)) 
                           , simplify=FALSE)
-# Extract PIK3CA frequency in the 100 runs
+# Extract PIK3CA frequency in the 20 runs
 pik3caboot <- sapply(samplefreqsboot , function(x) x[x$gene_symbol=="PIK3CA" , "freq"])
 ```
 
@@ -1214,7 +1253,7 @@ and we want to reach a power of 80%.
 # We want to know how many samples we will need under
   # HR = 2
   # power = 0.8
-survboot <- replicate( 100 
+survboot <- replicate( 20 
                     , survPowerSampleSize(mypanel 
                             , var="gene_symbol"
                             , alterationType = "mutations"
@@ -1268,11 +1307,17 @@ position and that is what **panelDesigner** is designed for.
 5. **canonicalTranscript**: decide weather to take only the canonical transcript or collapse the genomic ranges of any transcript.
 
 
-```{r chunk11 , echo=TRUE , eval=TRUE , message=FALSE}
+```{r chunk11 , echo=TRUE , eval=FALSE , message=FALSE}
 # Design our panel in full with no padding length and merge window equal to 100 bp
 mydesign <- panelDesigner(mypanel 
                         , padding_length=0 
                         , merge_window=100)
+```
+
+```{r chunk11_bis , echo=FALSE , eval=TRUE , message=FALSE}
+# Design our panel in full with no padding length and merge window equal to 100 bp
+data(cpDesign)
+mydesign <- cpDesign
 str(mydesign , vec.len=1)
 ```
 
