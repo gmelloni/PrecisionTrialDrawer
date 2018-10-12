@@ -1,3 +1,11 @@
+### Version 0.99.7
+ADDITIONAL FUNCTIONS:
+- Add a designed panel example
+- Even shorter example dataset
+***
+BUG FIXES:
+- Error in transforming aminoacid sequence to genomic
+
 ### Version 0.99.6
 ADDITIONAL FUNCTIONS:
 - Smaller example dataset
