@@ -2,15 +2,17 @@ context("Testing class Method - getAlterations()")
 ######################################################################
 
 #create fake test_panel for simple initial testing
-test_design <- data.frame(drug=""
-                         , gene_symbol="MAP2K1"
-                         , alteration="SNV"
-                         , exact_alteration=""
-                         , mutation_specification=""
-                         , group=""
-)
-
-test_panel <- newCancerPanel(test_design)
+# test_design <- data.frame(drug=""
+#                          , gene_symbol="MAP2K1"
+#                          , alteration="SNV"
+#                          , exact_alteration=""
+#                          , mutation_specification=""
+#                          , group=""
+# )
+# 
+# test_panel <- newCancerPanel(test_design)
+data(cpObj2)
+test_panel <- cpObj2
 
 ######################################################################
 # START TESTS

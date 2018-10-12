@@ -4,12 +4,19 @@ context("Testing appendRepo function")
 ###############################
 # Testing datasets
 # ----------------------------
-data(panelexample)
-mypanel <- newCancerPanel(panelexample)
-#data(cpObj)
-#mypanel_full <- cpObj
-repos_empty <- lapply(cpData(mypanel) , '[' , c('data' , 'Samples'))
-mypanel_full <- getAlterations(mypanel, tumor_type = "brca")
+#data(panelexample)
+#mypanel <- newCancerPanel(panelexample)
+
+data(cpObj)
+# Panel with data
+mypanel_full <- cpObj
+# Panel without data
+mypanel <- mypanel_full
+mypanel@dataFull <- list()
+mypanel@dataSubset <- list()
+# Empy data
+repos_empty <- list()
+#mypanel_full <- getAlterations(mypanel, tumor_type = "brca")
 #mypanel_full2 <- getAlterations(mypanel, tumor_type = "luad")
 repos_full <- lapply(cpData(mypanel_full) , '[' , c('data' , 'Samples'))
 
@@ -58,7 +65,7 @@ testthat::expect_warning(suppressMessages(appendRepo(mypanel_full , repos = mypa
 #check that the fusions data table is merged
 testthat::expect_equal(suppressMessages(suppressWarnings(
   nrow(appendRepo(mypanel_full , repos = mypanel_full@dataFull)@dataFull$fusion$data)))
-  , 1
+  , 6
   , label = "Check that the fusions are merged")
 
 
