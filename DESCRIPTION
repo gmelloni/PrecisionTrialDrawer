@@ -1,7 +1,7 @@
 Package: PrecisionTrialDrawer
 Type: Package
 Title: A Tool to Analyze and Design NGS Based Custom Gene Panels
-Version: 0.99.8
+Version: 0.99.9
 Date: 2018-10-01
 Author: Giorgio Melloni , Alessandro Guida
 Maintainer: Giorgio Melloni <melloni.giorgio@gmail.com>
@@ -48,8 +48,7 @@ Suggests:
     BiocStyle,
     knitr,
     rmarkdown,
-    dplyr,
-    testthat
+    dplyr
 VignetteBuilder: knitr
 biocViews: SomaticMutation, WholeGenome, Sequencing, DataImport, GeneExpression
 RoxygenNote: 6.1.0
