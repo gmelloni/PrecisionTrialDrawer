@@ -272,14 +272,6 @@ Giorgio Melloni, Alessandro Guida
 \examples{
 # Load example CancerPanel object
 data(cpObj)
-# Show the full design:
-# 3 pCase - pControl couples and 4 power levels
-propPowerSampleSize(cpObj 
-  , var = NA 
-  , pCase = c(0.7, 0.8 , 0.9)
-  , pControl = rep(0.5 , 3) 
-  , power = c(0.6 , 0.7 , 0.8 , 0.9) 
-  )
 # Show the study design by tumor type:
 # 3 pCase - pControl couples and 4 power levels
 # The full design is weighted using tumor.freqs
@@ -289,8 +281,7 @@ propPowerSampleSize(cpObj
   , pCase = c(0.7, 0.8 , 0.9)
   , pControl = rep(0.5 , 3) 
   , power=c(0.5 , 0.6 , 0.7 , 0.8 , 0.9)
-  , tumor.freqs = c(brca=0.1 , luad=0.9)
-  )
+  , tumor.freqs = c(brca=0.1 , luad=0.9))
 # Return power levels giving sample sizes at screening
 propPowerSampleSize(cpObj
   , var = NA 
@@ -298,14 +289,5 @@ propPowerSampleSize(cpObj
   , pControl = rep(0.5 , 3) 
   , sample.size=c(100 , 300 , 500 , 1000) 
   , noPlot=FALSE)
-# Design a priority trial to reach sufficient statistical power across drugs
-# Use 4 drugs and find the optimal sample size at screening
-propPowerSampleSize(cpObj , , var = "drug" 
-      , pCase = c(0.7, 0.8 , 0.9)
-      , pControl = rep(0.5 , 3) 
-      , power = c(0.7 , 0.8) 
-      , priority.trial = c("Idelalisib" , "Olaparib" 
-       , "Trastuzumab" , "Vandetanib")
-      , priority.trial.order = "optimal")
 }
 

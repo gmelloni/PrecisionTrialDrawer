@@ -170,15 +170,13 @@ Giorgio Melloni, Alessandro Guida
 \examples{
 # Load example CancerPanel object
 data(cpObj)
-
 # Plot the saturation of this panel by tumor type adding one drug at a time
 # Using mutations and copynumber data
 saturationPlot(cpObj 
     , alterationType=c( "mutations" , "copynumber")
     , adding="drug"
     , grouping="tumor_type"
-    , y_measure="absolute"
-    )
+    , y_measure="absolute")
 # Plot with no grouping giving more weight to lung cancer samples
 # Note that we ask for more samples than the availables in luad dataset
 # the code will recycle the samples to account for this forced disequilibrium
@@ -186,7 +184,6 @@ saturationPlot(cpObj
     , alterationType=c( "mutations" , "copynumber") 
     , adding="gene_symbol"
     , y_measure="mean"
-    , tumor.weights=c(brca=500 , luad=2000)
-    )
+    , tumor.weights=c(brca=500 , luad=2000))
 }
 

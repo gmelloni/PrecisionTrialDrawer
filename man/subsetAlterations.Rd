@@ -82,8 +82,7 @@ rules <- data.frame(
     , group=c("Driver" , "Driver", "Driver" , "Driver", "Driver")
     , tumor_type=c("luad" , "luad" , "luad" , "coadread","brca")
     , in_out=c("exclude" , "exclude" , "include" , "include" , "include")
-    , stringsAsFactors = FALSE
-)
+    , stringsAsFactors = FALSE)
 cpObj <- subsetAlterations(cpObj , rules = rules)
 # See the updated slot
 str(cpDataSubset(cpObj))

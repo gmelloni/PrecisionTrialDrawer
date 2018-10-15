@@ -294,18 +294,7 @@ data(cpObj)
 survPowerSampleSize(cpObj 
   , var = NA 
   , HR = c(1.5 , 1.7,  2, 3) 
-  , power = c(0.6 , 0.7 , 0.8 , 0.9) 
-  )
-# Show the study design by tumor type:
-# 3 hazard ratios and 4 power levels
-# The full design is weighted using tumor.freqs
-# The final sample size is composed by 90\% luad and 10\% brca
-survPowerSampleSize(cpObj 
-    , var = "tumor_type"
-    , HR = c(0.5 , 0.625 , 0.8)
-    , power=c(0.5 , 0.6 , 0.7 , 0.8 , 0.9)
-    , tumor.freqs = c(brca=0.1 , luad=0.9)
-    )
+  , power = c(0.6 , 0.7 , 0.8 , 0.9))
 # Design a priority trial to reach sufficient statistical power across drugs
 # Use 4 drugs and find the optimal sample size at screening
 survPowerSampleSize(cpObj , var = "drug" 

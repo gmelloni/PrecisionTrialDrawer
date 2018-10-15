@@ -287,17 +287,6 @@ survPowerSampleSize1Arm(cpObj
     , MED0 = 3
     , fu = 18
     , power=c(0.5 , 0.6 , 0.7 , 0.8 , 0.9)
-    , tumor.freqs = c(brca=0.1 , luad=0.9)
-    )
-# Design a priority trial to reach sufficient statistical power across drugs
-# Use 4 drugs and find the optimal sample size at screening
-survPowerSampleSize1Arm(cpObj 
-    , var = "drug" 
-    , MED1 = c(12 , 6 , 4)
-    , MED0 = 3
-    , fu = 18
-    , power = c(0.7 , 0.8) 
-    , priority.trial = c("Idelalisib" , "Olaparib" , "Trastuzumab" , "Vandetanib")  
-    , priority.trial.order = "optimal")
+    , tumor.freqs = c(brca=0.1 , luad=0.9))
 }
 

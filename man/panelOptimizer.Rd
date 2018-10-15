@@ -81,10 +81,10 @@ Giorgio Melloni, Alessandro Guida
 \code{\link[LowMACA]{entropy}} \code{\link[LowMACA]{lmPlot}}
 }
 \examples{
-# Load example CancerPanel object
-data(cpObj)
 ## Only run this example in interactive R sessions
 if (interactive()) {
+  # Load example CancerPanel object
+  data(cpObj)
   # Optimize the space on the shiny app. 
   # All changes mad on the app will be saved 
   newpanel <- panelOptimizer(cpObj)
