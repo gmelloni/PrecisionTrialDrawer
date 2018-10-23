@@ -20,14 +20,13 @@ setMethod('show', 'CancerPanel', function(object) {
         message("\n")
         for(i in c("mutations" , "copynumber" , "fusions" , "expression")){
             if(!is.null(object@dataFull[[i]]$data)){
-                message("The object contains" %++%
-                        i %++%
-                        "data for the tumor types:" %++%
-                        paste(sort(unique(object@dataFull[[i]]$data$tumor_type)) 
-                            , collapse=", ")
-                        )
+                message(paste("The object contains" ,
+                        i ,
+                        "data for the tumor types:" ,
+                        paste(sort(unique(object@dataFull[[i]]$data$tumor_type))
+                            , collapse=", ")))
             } else {
-                message("No" %++% i %++% "data")
+                message(paste("No" , i , "data"))
             }
         }
         alterationType <- c("copynumber" 

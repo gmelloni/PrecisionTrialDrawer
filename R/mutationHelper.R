@@ -35,7 +35,7 @@
                  url <- paste0(mycgds$.url, "webservice.do?cmd=getGeneticProfiles&&cancer_study_id=", i)
                  res <- httr::GET(url)
                  if(res$status_code!=200){
-                     stop("Problems with cBioPortal Connection at" %++% url)
+                     stop(paste("Problems with cBioPortal Connection at" , url))
                  }
                  df <- strsplit(httr::content(res) , "\n") %>% unlist %>% strsplit("\t")
                  df <- do.call("rbind" , df[-1]) %>% as.data.frame(stringsAsFactors=FALSE) %>% setNames(df[[1]])
@@ -57,7 +57,7 @@
                     url <- paste(mycgds$.url, "webservice.do?cmd=getCaseLists&cancer_study_id=", i, sep = "")
                     res <- httr::GET(url)
                     if(res$status_code!=200){
-                     stop("Problems with cBioPortal Connection at" %++% url)
+                     stop(paste("Problems with cBioPortal Connection at" , url))
                     }
                     df <- strsplit(httr::content(res) , "\n") %>% unlist %>% strsplit("\t")
                     df <- do.call("rbind" , df[-1]) %>% as.data.frame(stringsAsFactors=FALSE) %>% setNames(df[[1]])

@@ -297,11 +297,8 @@
 }
 
 .makeUniformModel <- function(mat, bw, nboot=1000, plotOUT=TRUE, 
-                              weights=NULL, center=median, variability=.MAD, parallelize=FALSE ) 
+                              weights=NULL, center=median, variability=.MAD) 
 {
-  if( parallelize ) {
-    applyfun <- mclapply
-  } else applyfun <- lapply
   geneLen <- ncol(mat)
   if( is.null(weights) ) weights <- rep(1/geneLen , geneLen)
   minNMut <- floor(sum(mat)/10)*10 #round to the upper ten
@@ -310,7 +307,7 @@
   maxNMut <- ifelse(maxNMut==0 , 1 , maxNMut)
   nMutInt <- unique(c(minNMut, maxNMut))
   if(length(nMutInt)==1) nMutInt <- c(nMutInt , nMutInt+1)
-  outReal <- applyfun(nMutInt, function(i) 
+  outReal <- lapply(nMutInt, function(i) 
     .sampleUnifEntropyL(geneLen, i, bw=bw, nboot=nboot , weights=weights,
                         center=center, variability=variability))
   outReal <- do.call('cbind',outReal)

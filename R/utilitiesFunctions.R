@@ -19,10 +19,6 @@ if(getRversion() >= "2.15.1"){
 }
 "%noteq%" <- Negate("%eq%")
 
-# Implementation of a '+' for strings like in python
-"%+%" <- function(a, b) paste0(a, b)
-"%++%" <- function(a, b) paste(a, b)
-
 #change all factor columns to character
 .changeFactor <- function(df) {
   for( i in colnames(df)){

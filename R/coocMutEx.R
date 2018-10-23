@@ -351,24 +351,24 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
   prob <- prob[1]
   style <- style[1]
   if(style %notin% possiblestyle){
-    stop("style can only be one of the following" %++% 
-      paste(possiblestyle , collapse=", "))
+    stop(paste("style can only be one of the following" , 
+      paste(possiblestyle , collapse=", ")))
   }
   if( prob %notin% possibleProb){
-    stop("prob can only be one of the following" %++% 
-      paste(possibleProb , collapse=", "))
+    stop(paste("prob can only be one of the following" ,
+      paste(possibleProb , collapse=", ")))
   }
   if(any(alterationType %notin% possibleAlterations)){
-    stop("alterationType can only be one or more of the following" %++% 
-      paste(possibleAlterations , collapse=", "))
+    stop(paste("alterationType can only be one or more of the following" ,
+      paste(possibleAlterations , collapse=", ")))
   }
   if( length(grouping)>1 & any(is.na(grouping)) ){
     grouping <- NA
   }
   if(!any(is.na(grouping))){
     if(any(grouping %notin% possibleGrouping))
-      stop("grouping can only be one of the following:" %++% 
-        paste(possibleGrouping , collapse=", "))
+      stop(paste("grouping can only be one of the following:" ,
+        paste(possibleGrouping , collapse=", ")))
   }
   if(("alteration_id" %in% grouping) & length(alterationType)<2){
     stop(paste("If you select 'alteration_id' as grouping variable",
@@ -392,16 +392,15 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
   # GRAB DATA AND SAMPLES
   #----------------------------
 
-  myenv <- new.env()
-  dataExtractor(object=object , alterationType=alterationType 
-            , tumor_type=tumor_type 
-            , collapseMutationByGene=collapseMutationByGene 
-            , collapseByGene=collapseByGene 
-            , myenv=myenv , tumor.weights=tumor.weights)
-  mydata <- get("mydata" , envir=myenv)
-  mysamples <- get("mysamples" , envir=myenv)
-  tum_type_diff <- get("tum_type_diff" , envir=myenv)
-  rm(myenv)
+  de <- dataExtractor(object=object , alterationType=alterationType 
+                      , tumor_type=tumor_type 
+                      , collapseMutationByGene=collapseMutationByGene 
+                      , collapseByGene=collapseByGene 
+                      , tumor.weights=tumor.weights)
+  mydata <- de$data
+  mysamples <- de$Samples
+  tum_type_diff <- de$tumor_not_present
+  rm(de)
   
   #----------------------------
   # RESHAPE DATA
@@ -454,7 +453,7 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
               n_plots <- length(mat_dist)
               par(mfrow=.mfrow(n_plots, ncolPlot))
               for(i in seq_len(length(mat_dist))){
-          title <- grouping %+% ": " %+% names(mat_dist)[i]
+          title <- paste0(grouping , ": " , names(mat_dist)[i])
           if(attributes(mat_dist[[i]])$Size>2){
                     plot(hclust( mat_dist[[i]]  , ...)
                         , xlab="" 
@@ -518,9 +517,8 @@ setMethod('coocMutexPlot', 'CancerPanel', function(object
         if( is.na(grouping) && toupper(names(mydata_split)[i])=="NA" ){
             title <- ""
         } else {
-            title <- toupper(grouping) %+% 
-                    ": " %+% 
-                    toupper(names(mydata_split)[i])
+            title <- paste0(toupper(grouping) , ": " , 
+                    toupper(names(mydata_split)[i]))
         }
         if(!is.null(cooc[[i]])){
           if(all(is.na(all_melted[[i]]$value))){

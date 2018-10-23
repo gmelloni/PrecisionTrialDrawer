@@ -310,23 +310,13 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
                                   return(perc)
                             } , numeric(1))
             out$Percentage_Of_Covered_Mutations <- paste0(format(round(coveredMutations , 2), nsmall=2) , "%")
-            # totalRow <- c(Gene_Symbol=lmObjEntropy()$arguments$genes 
-            #             # , Region="Total"
-            #             , Span="Identified LowMACA regions:" %++% nrow(out)
-            #             # , Span=paste(out$Span , collapse="|")
-            #             # , Span=NA
-            #             , Region_Width_In_bp=sum(out$Region_Width_In_bp)
-            #             , Span_Percentage=paste0(format(round(sum(Span_Percentage) , 2), nsmall=2) , "%")
-            #             , Percentage_Of_Covered_Mutations=paste0(format(round(sum(coveredMutations) , 2), nsmall=2) , "%")
-            #             )
-            # out <- rbind(totalRow , out)
-            totalSummary <- paste("Gene Symbol:" %++% lmObjEntropy()$arguments$genes %++% "-" %++% length(aminos) %++% "aminoacids"
-                              , "Identified LowMACA regions:" %++% nrow(out)
-                              , "Total bp:" %++% sum(out$Region_Width_In_bp)
-                              , "Percentage of the protein:" %++% paste0(format(round(sum(Span_Percentage) , 2), nsmall=2) , "%")
-                              , "Percentage of total mutations:" %++% paste0(format(round(sum(coveredMutations) , 2), nsmall=2) , "%")
-                              , sep="\n"
-                              )
+            totalSummary <- paste(
+              paste("Gene Symbol:" , lmObjEntropy()$arguments$genes, "-", length(aminos) , "aminoacids")
+              , paste("Identified LowMACA regions:" , nrow(out))
+              , paste("Total bp:" , sum(out$Region_Width_In_bp))
+              , paste("Percentage of the protein:" , paste0(format(round(sum(Span_Percentage) , 2), nsmall=2) , "%"))
+              , paste("Percentage of total mutations:" , paste0(format(round(sum(coveredMutations) , 2), nsmall=2) , "%"))
+              , sep="\n")
             myoutputlist$NoSignificanceText <- totalSummary
             # Update element regions in myoutputlist
             myoutputlist$regions <- out

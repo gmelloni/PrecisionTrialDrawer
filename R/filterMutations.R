@@ -85,7 +85,7 @@ setMethod('filterMutations', 'CancerPanel'
         #
         if(any(colnames(filtered) %notin% unlist(possibleColNames))){
             noGood <- setdiff(colnames(filtered) , unlist(possibleColNames))
-            stop("The following colnames are not recognized:" %++% paste(noGood , collapse=", "))
+            stop(paste("The following colnames are not recognized:" , paste(noGood , collapse=", ")))
         }
         rightColNames <- lapply(possibleColNames , function(x) identical(sort(x) , colnames(filtered))) %>% unlist
         if(sum(rightColNames)!=1){

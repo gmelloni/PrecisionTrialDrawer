@@ -120,8 +120,8 @@ setMethod('coveragePlot', 'CancerPanel', function(object
         collapseMutationByGene <- FALSE
     }
     if(any(alterationType %notin% possibleAlterations)){
-        stop("alterationType can only be one or more of the following" %++% 
-            paste(possibleAlterations , collapse=", "))
+        stop(paste("alterationType can only be one or more of the following" ,
+            paste(possibleAlterations , collapse=", ")))
     }
     if( length(grouping)>1 & any(is.na(grouping)) ){
         # stop("You cannot choose grouping NA and another grouping factor")
@@ -129,8 +129,8 @@ setMethod('coveragePlot', 'CancerPanel', function(object
     }
     if(!any(is.na(grouping))){
         if(any(grouping %notin% possibleGrouping))
-            stop("grouping can only be one of the following:" %++% 
-                paste(possibleGrouping , collapse=", "))
+            stop(paste("grouping can only be one of the following:" ,
+                paste(possibleGrouping , collapse=", ")))
     }
     if(("alteration_id" %in% grouping) & collapseByGene){
         warning(paste("If 'alteration_id' is in grouping variables,",
@@ -197,16 +197,15 @@ setMethod('coveragePlot', 'CancerPanel', function(object
     # GRAB DATA AND SAMPLES
     #----------------------------
 
-    myenv <- new.env()
-    dataExtractor(object=object 
-        , alterationType=alterationType , tumor_type=tumor_type 
-            , collapseMutationByGene=collapseMutationByGene 
-            , collapseByGene=collapseByGene 
-            , myenv=myenv , tumor.weights=tumor.weights)
-    mydata <- get("mydata" , envir=myenv)
-    mysamples <- get("mysamples" , envir=myenv)
-    tum_type_diff <- get("tum_type_diff" , envir=myenv)
-    rm(myenv)
+    de <- dataExtractor(object=object , alterationType=alterationType 
+                        , tumor_type=tumor_type 
+                        , collapseMutationByGene=collapseMutationByGene 
+                        , collapseByGene=collapseByGene 
+                        , tumor.weights=tumor.weights)
+    mydata <- de$data
+    mysamples <- de$Samples
+    tum_type_diff <- de$tumor_not_present
+    rm(de)
 
     # If tumor.freqs is set, 
     # we basically run this method in recursive mode for each tumor type
@@ -315,7 +314,7 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                     plot(c(0, 1), c(0, 1), ann = FALSE
                         , bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
                     text(x = 0.5, y = 0.5
-                        , paste(myTitle %++% "\n", "No alterations to show"), 
+                        , paste(myTitle , "\n", "No alterations to show"), 
                                 cex = 1.6, col = "black")
                 }
                 next
@@ -368,10 +367,11 @@ setMethod('coveragePlot', 'CancerPanel', function(object
             n_pats <- length(pats)
             n_pats_vec <- c(n_pats_vec , n_pats)
             myTitle <- c(myTitle 
-                        , "Number of Samples:" %++% 
-                            n_pats %++% 
-                            "\n(" %+% paste(tumTypes , collapse=", ") %+% ")"
-                        )
+                        , paste0("Number of Samples: " 
+                            , n_pats
+                            , " \n(" 
+                            , paste(tumTypes , collapse=", ") 
+                            , ")"))
             n_alts_bypat <- table(factor(df$case_id , levels=pats))
             tabToPlot <- vapply(seq_len(maxNumAlt) , function(x) {
                                 length(n_alts_bypat[n_alts_bypat>=x])
@@ -383,10 +383,10 @@ setMethod('coveragePlot', 'CancerPanel', function(object
             else
                 plottedData <- c(plottedData , list(tabToPlot))
             if(!noPlot){
-                stat1 <- paste0(round(mean(n_alts_bypat),3) %++% 
-                    "\u00b1" %++% round(sd(n_alts_bypat),3)
-                                , " alterations per sample" 
-                                 )
+                stat1 <- paste0(round(mean(n_alts_bypat),3) 
+                    , "\u00b1 " 
+                    , round(sd(n_alts_bypat),3)
+                    , " alterations per sample")
                 myTitle <- c(myTitle 
                             , stat1
                             )
@@ -453,7 +453,7 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                 plot(c(0, 1), c(0, 1), ann = FALSE, bty = 'n'
                     , type = 'n', xaxt = 'n', yaxt = 'n')
                 text(x = 0.5, y = 0.5
-                    , paste(myTitle %++% "\n", "No alterations to show"), 
+                    , paste(myTitle , "\n", "No alterations to show"), 
                             cex = 1.6, col = "black")
             } else {
                 # A lot of useless code but it is just for coherence
@@ -470,9 +470,11 @@ setMethod('coveragePlot', 'CancerPanel', function(object
         tumTypes <- names(mysamples)[names(mysamples)!="all_tumors"]
         pats <- mysamples[tumTypes] %>% unlist %>% unique
         n_pats <- length(pats)
-        myTitle <- "Number of Samples:" %++% 
-                            n_pats %++% 
-                            "\n(" %+% paste(tumTypes , collapse=", ") %+% ")"
+        myTitle <- paste0("Number of Samples: " 
+                          , n_pats 
+                          ," \n(" 
+                          , paste(tumTypes , collapse=", ") 
+                          , ")")
         n_alts_bypat <- table(factor(mydata$case_id , levels=pats))
         tabToPlot <- vapply(seq_len(maxNumAlt) , function(x) {
                             length(n_alts_bypat[n_alts_bypat>=x])
@@ -482,10 +484,10 @@ setMethod('coveragePlot', 'CancerPanel', function(object
         if(!noPlot) {
             myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral"))
                 , space="Lab")
-            stat1 <- paste0(round(mean(n_alts_bypat),3) %++% 
-                "\u00b1" %++% round(sd(n_alts_bypat),3)
-                            , "alterations per sample" 
-                            )
+            stat1 <- paste0(round(mean(n_alts_bypat),3) 
+                , " \u00b1 "
+                , round(sd(n_alts_bypat),3)
+                , "alterations per sample")
             myTitle <- c(myTitle 
                         , stat1 )
             maxylim=max(tabToPlot) + round(max(tabToPlot)/2.5)

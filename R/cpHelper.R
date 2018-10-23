@@ -38,7 +38,7 @@
   drugDupsLower <- .superdup(tolower(panel$drug))
   if(!identical(drugDups , drugDupsLower)){
     mywarn <- paste(unique( panel$drug[xor(drugDups , drugDupsLower)]) , collapse=", ")
-    warning("Some drug names seems to be case sensitive. Same drug but upper/lower case?:" %++% mywarn)
+    warning(paste("Some drug names seems to be case sensitive. Same drug but upper/lower case?:" , mywarn))
   }
   # Change drug names from "" to a reserved value "no_drug"
   if("no_drug" %in% panel$drug | "" %in% panel$drug ){
@@ -208,7 +208,7 @@
   drugDupsLower <- .superdup(tolower(panel$drug))
   if(!identical(drugDups , drugDupsLower)){
     mywarn <- paste(unique( panel$drug[xor(drugDups , drugDupsLower)]) , collapse=", ")
-    warning("Some drug names seems to be case sensitive. Same drug but upper/lower case?:" %++% mywarn)
+    warning(paste("Some drug names seems to be case sensitive. Same drug but upper/lower case?:" , mywarn))
   }
   # Change drug names from "" to a reserved value "no_drug"
   if("no_drug" %in% panel$drug & any(panel$drug=="")){
@@ -269,9 +269,9 @@
   idx <- which(panel$alteration=="CNA")
   cna_comparison <- panel[ idx , "exact_alteration"] %in% cna_allowed_values
   if(!all(cna_comparison)) {
-    message("Copy number alterations at lines" %++% 
-              paste(idx[!cna_comparison] , collapse=", ") %++% 
-              "are written in the wrong way:\n")
+    message(paste("Copy number alterations at lines" , 
+              paste(idx[!cna_comparison] , collapse=", ") ,
+              "are reported in the wrong way:\n"))
     print(panel[ idx[!cna_comparison] , ])
     message("The accepted values for alteration and exact alterations are:\n")
     print(data.frame(alteration=rep("CNA" , length(cna_allowed_values))
@@ -290,9 +290,9 @@
   idx2 <- which(panel$alteration=="SNV")
   snv_comparison <- panel[ idx2 , "exact_alteration"] %in% snv_allowed_values
   if(!all(snv_comparison)) {
-    message("Mutation alterations at lines" %++% 
-              paste(idx2[!snv_comparison] , collapse=", ") %++% 
-              "are written in the wrong way:\n")
+    message(paste("Mutation alterations at lines" ,
+              paste(idx2[!snv_comparison] , collapse=", ") ,
+              "are written in the wrong way:\n"))
     print(panel[ idx2[!snv_comparison] , ])
     message("The accepted values for alteration and exact_alterations are:\n")
     print(data.frame(alteration=rep("SNV" , length(snv_allowed_values))
@@ -307,9 +307,9 @@
   muts_specs_check <- (panel[idx2 ,"exact_alteration"]=="" & panel[idx2 ,"mutation_specification"]=="") |
     (panel[idx2 ,"exact_alteration"]!="" & panel[idx2 ,"mutation_specification"]!="")
   if(!all(muts_specs_check)) {
-    message("Mutation alterations at lines" %++% 
-              paste(idx2[!muts_specs_check] , collapse=", ") %++% 
-              "are written in the wrong way:\n")
+    message(paste("Mutation alterations at lines" ,
+              paste(idx2[!muts_specs_check] , collapse=", ") ,
+              "are written in the wrong way:\n"))
     print(panel[ idx2[!muts_specs_check] , ])
     message("If exact_alteration is empty, mutation_specification must be empty too\n")
     stop("Panel is malformed")
@@ -320,9 +320,9 @@
   idx3 <- which(panel$alteration=="expression")
   expression_comparison <- panel[ idx3 , "exact_alteration"] %in% expression_allowed_values
   if(!all(expression_comparison)) {
-    message("Mutation alterations at lines" %++% 
-              paste(idx3[!expression_comparison] , collapse=", ") %++% 
-              "are written in the wrong way:\n")
+    message(paste("Mutation alterations at lines" ,
+              paste(idx3[!expression_comparison] , collapse=", ") ,
+              "are written in the wrong way:\n"))
     print(panel[ idx3[!expression_comparison] , ])
     message("The accepted values for alteration and exact_alterations are:\n")
     print(data.frame(alteration=rep("expression" , length(expression_allowed_values))

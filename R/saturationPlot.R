@@ -31,27 +31,12 @@
         geom_line() +
         geom_point(size=3 ) + 
         xlab("Genomic Space in kBase") +
-        # ylab("Mean Number of variants per sample") +
         theme_bw() +
         scale_colour_hue(name=grouping,
                     breaks=levels(mydata_melt$grouping),
                     labels=labels,
                     l=40) +
         ggtitle(plotTitle)
-    #   Original Version with overlapping labels
-    #        geom_text(aes_string(label=adding
-    #                    , hjust=.5
-    #                    , vjust=-.1
-    #                    , angle=45
-    #                    ,show=FALSE
-    #                    ,size=.5),show.legend = FALSE) +
-    #        geom_label_repel(aes_string(label = adding) + aes(fill=grouping)
-    #                        #,fontface = 'bold'
-    #                        ,color = 'white'
-    #                        ,box.padding = unit(0.6, "lines")
-    #                        ,point.padding = unit(0.5, "lines")
-    #                        ,force=2
-    #                        ,show.legend=FALSE) +
     if(annotation){
         p <- p + annotate("text", x = Inf, y = -Inf, label = paste(mylabel , collapse="\n")
         , hjust=1.1
@@ -119,19 +104,24 @@ setMethod('saturationPlot', 'CancerPanel', function(object
     if(length(adding.order)!=1)
         adding.order <- adding.order[1]
     if(any(adding.order %notin% possibleAddingOrder)){
-        stop("adding.order can only be one or more of the following" %++% paste(possibleAddingOrder , collapse=", "))
+        stop(paste("adding.order can only be one or more of the following" 
+                   , paste(possibleAddingOrder , collapse=", ")))
     }
     if(any(alterationType %notin% possibleAlterations)){
-        stop("alterationType can only be one or more of the following" %++% paste(possibleAlterations , collapse=", "))
+        stop(paste("alterationType can only be one or more of the following" 
+                   , paste(possibleAlterations , collapse=", ")))
     }
     if(any(grouping %notin% possibleGrouping)){
-        stop("grouping can only be one of the following" %++% paste(possibleGrouping , collapse=", "))
+        stop(paste("grouping can only be one of the following" 
+                   ,paste(possibleGrouping , collapse=", ")))
     }
     if(any(adding %notin% possibleAdding)){
-        stop("adding can only be one of the following" %++% paste(possibleAdding , collapse=", "))
+        stop(paste("adding can only be one of the following" 
+                   , paste(possibleAdding , collapse=", ")))
     }
     if(any(y_measure %notin% possibley_measure)){
-        stop("y_measure can only be one of the following" %++% paste(possibley_measure , collapse=", "))
+        stop(paste("y_measure can only be one of the following" 
+                   , paste(possibley_measure , collapse=", ")))
     }
     if(("alteration_id" %in% grouping) & length(alterationType)<2){
         stop("If you select 'alteration_id' as grouping variable, you must select more than one alterationType")
@@ -175,15 +165,15 @@ setMethod('saturationPlot', 'CancerPanel', function(object
     # GRAB DATA AND SAMPLES
     #----------------------------
 
-    myenv <- new.env()
-    dataExtractor(object=object , alterationType=alterationType , tumor_type=tumor_type 
-            , collapseMutationByGene=collapseMutationByGene , collapseByGene=collapseByGene 
-            , myenv=myenv , tumor.weights=tumor.weights)
-    mydata <- get("mydata" , envir=myenv)
-    mysamples <- get("mysamples" , envir=myenv)
-    tum_type_diff <- get("tum_type_diff" , envir=myenv)
-    # rm(list=ls(myenv) , envir=myenv)
-    rm(myenv)
+    de <- dataExtractor(object=object , alterationType=alterationType 
+                        , tumor_type=tumor_type 
+                        , collapseMutationByGene=collapseMutationByGene 
+                        , collapseByGene=collapseByGene 
+                        , tumor.weights=tumor.weights)
+    mydata <- de$data
+    mysamples <- de$Samples
+    tum_type_diff <- de$tumor_not_present
+    rm(de)
     # First, split by grouping variable
     if(is.na(grouping)){
         mydata_split <- list("NA"=mydata)
@@ -212,32 +202,9 @@ setMethod('saturationPlot', 'CancerPanel', function(object
         panel_transition_split <- split(panel_transition , panel_transition[[grouping]])
     }
     # Here we calculate space. We developed 4 possible scenarios of space calculation:
-    # 1) sum.by.grouping=FALSE the space is the same across grouping variable
-    # 2) sum.by.grouping=TRUE the space is calculate by splitting the panel by grouping variable
-    # 3) sum.all.feature=TRUE every row of the panel is summed up by adding variable
-    # 4) sum.all.feature=FALSE every row of the panel is summed up by adding variable and gene
-
-    # New version 07/10/2017
-    # sum by grouping makes no sense. If I put a grouping variable I want it to be divided in as many strata as grouping has
-    # sum.all.feature should stay
     # sum.all.feature=TRUE. In case of a panel of cna and snv, a gene is counted twice
     # sum.all.feature=FALSE same gene counts 1
 
-    # browser()
-    # if(sum.by.grouping){
-    #     panel_agg <- lapply(panel_transition_split , function(df) {
-    #       if(sum.all.feature){
-    #         return(aggregate(as.formula(paste("variation_len~" , adding)) , df , sum))
-    #       } else {
-    #         df$full <- ifelse(df$alteration %in% c("CNA" , "fusion" , "expression") , "yes" , 
-    #                           ifelse(df$exact_alteration=="" , "yes" , "no"))
-    #         genefull <- unique(df$gene_symbol[df$full=="yes"])
-    #         df_small <- df[ , unique(c(adding , "gene_symbol" , "variation_len" , "full"))]
-    #         df_small2 <- df_small[ !(df_small$gene_symbol %in% genefull & df_small$full=="no") , ]
-    #         return(aggregate(as.formula(paste("variation_len~" , adding)) , df_small2 , sum))
-    #       }
-    #     })
-    # } else {
     .spacing <- function(df , sum.all.feature){
         if(sum.all.feature){
             out <- aggregate(as.formula(paste("variation_len~" , adding)) , df , sum)
@@ -250,17 +217,13 @@ setMethod('saturationPlot', 'CancerPanel', function(object
             df_small2 <- df_small[ !(df_small$gene_symbol %in% genefull & df_small$full=="no") , ]
             df_small2 <- unique(df_small2)
             out <- aggregate(as.formula(paste("variation_len~" , adding)) , df_small2 , sum)
-            # return(lapply(names(panel_transition_split) , function(x) out))
         }
       return(out)
     }
-    # panel_agg <- .spacing(panel_transition , sum.all.feature)
     panel_agg <- lapply( panel_transition_split , function(x) .spacing(x , sum.all.feature))
-    # }
     names(panel_agg) <- names(panel_transition_split)
     # Cast the splitted data by the adding variable
     caster <- lapply(seq_len(length(mydata_split)) , function(i) {
-        # browser()
         z <- names(mydata_split)[i]
         x <- mydata_split[[i]]
         x_cast <- reshape2::dcast(formula=as.formula( paste("case_id~" , adding)) 
@@ -282,7 +245,6 @@ setMethod('saturationPlot', 'CancerPanel', function(object
             subVec <- paste0(gene_fusions , "__")
             subVec2 <- paste0("__",gene_fusions)
             searchPattern <- paste( c(subVec2 , subVec) , collapse="|")
-            # df$gene_symbol2 <- sub(searchPattern , "" , df$gene_symbol)
             x_cast_colnames2 <- stringr::str_extract(x_cast_colnames , searchPattern) %>% sub("__" , "" , .)
             x_cast_colnames2[is.na(x_cast_colnames2)] <- x_cast_colnames[is.na(x_cast_colnames2)]
             space <- panel_agg[[z]][ match(x_cast_colnames2 , panel_agg[[z]][,adding]), 'variation_len']
@@ -299,7 +261,6 @@ setMethod('saturationPlot', 'CancerPanel', function(object
                 total <- unique(panel_transition[panel_transition[ , grouping]==z , adding])
                 missing <- setdiff( total , len_df[ , "gene_symbol2"] )
             }
-            # df$gene_symbol2 <- NULL
         } else {
             space <- panel_agg[[z]][ match(x_cast_colnames , panel_agg[[z]][,adding]), 'variation_len']
             space <- ifelse(is.na(space) , min(space , na.rm=TRUE) , space)
@@ -344,7 +305,8 @@ setMethod('saturationPlot', 'CancerPanel', function(object
         df$Mean <- apply(x_cast2 , 2 , mean)
         df$Coverage <- apply(x_cast2 , 2 , function(x) length(x[x!=0])/length(x))
         df$SD <- apply(x_cast2 , 2 , sd)
-        df$SE <- df$SD / sqrt(nrow(x_cast2))  # Calculate standard error of the mean
+        # Calculate standard error of the mean
+        df$SE <- df$SD / sqrt(nrow(x_cast2))
         confInt <- .95
         ciMult <- qt(confInt/2 + .5, nrow(x_cast2)-1)
         df$CI <- df$SE * ciMult
@@ -352,15 +314,14 @@ setMethod('saturationPlot', 'CancerPanel', function(object
         df$Space <- cumsum(df$Space)
         return(list(df , c(length(missing) , length(total) )))
     })
-    # mydata_melt <- do.call("rbind" , lapply(caster , '[[' , 1))
     mydata_melt <- as.data.frame(data.table::rbindlist(lapply(caster , '[[' , 1)) , stringsAsFactors=FALSE)
     mydata_melt$grouping <- factor(mydata_melt$grouping , levels=unique(mydata_melt$grouping))
     
     labels <- c( levels(mydata_melt$grouping) )
     mylabel <- vapply(seq_len(length(caster)) , function(x) {
-                    "Missing" %++% adding %++% "in '" %++% 
-                    names(mydata_split)[x] %+% "' :" %++% 
-                    caster[[x]][[2]][1] %+% "/" %+% caster[[x]][[2]][2]
+                    paste0("Missing " , adding , " in ' " , 
+                    names(mydata_split)[x] , "' : " , 
+                    caster[[x]][[2]][1] , "/" , caster[[x]][[2]][2])
                     } , character(1))
     if(noPlot){
         return(mydata_melt)

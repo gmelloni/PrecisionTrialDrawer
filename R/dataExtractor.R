@@ -4,29 +4,27 @@
 #-------------------------------------------------------------
 
 # This method is used by most of the methods of the package
-# For compatibility with the rest of the code, it requires an environment in which variables are stored
-# Then variables are taken with a get outside of this method and the environment destroyed if myenv is provided
-setGeneric('dataExtractor', function(object , alterationType=c("copynumber" , "expression" , "mutations" , "fusions") 
+setGeneric('dataExtractor', function(object 
+                        , alterationType=c("copynumber" , "expression" , "mutations" , "fusions") 
                         , tumor_type=NULL , collapseMutationByGene=TRUE 
                         , collapseByGene=FALSE 
-                        , myenv=NULL , tumor.weights=NULL) {
+                        , tumor.weights=NULL) {
   standardGeneric('dataExtractor')
   })
-setMethod('dataExtractor', 'CancerPanel', function(object , alterationType=c("copynumber" , "expression" , "mutations" , "fusions") 
+setMethod('dataExtractor', 'CancerPanel', function(object 
+                        , alterationType=c("copynumber" , "expression" , "mutations" , "fusions") 
                         , tumor_type=NULL , collapseMutationByGene=TRUE 
                         , collapseByGene=FALSE 
-                        , myenv=NULL , tumor.weights=NULL)
+                        , tumor.weights=NULL)
 {
     #------------------------------------
     # Check parameters
     #------------------------------------
     possibleAlterations <- c("copynumber" , "expression" , "mutations" , "fusions")
     if( any(alterationType %notin% possibleAlterations) ){
-        stop("alterationType can only be one or more of the following" %++% paste(possibleAlterations , collapse=", "))
+        stop(paste("alterationType can only be one or more of the following"
+                   ,paste(possibleAlterations , collapse=", ")))
       }
-    if( !is.null(myenv) && !is.environment(myenv) ){
-        stop("myenv must be an environment")
-    }
     if( !is.logical(collapseByGene) ){
         stop("collapseByGene must be a logical")
     }
@@ -40,8 +38,8 @@ setMethod('dataExtractor', 'CancerPanel', function(object , alterationType=c("co
         stop("tumor_type must be a character vector containing cancer types")
     }
     if(!is.null(tumor_type) && any(tumor_type %notin% object@arguments$tumor_type)){
-      stop("The following tumor types are not in this object:" %++% 
-             paste(setdiff(tumor_type , object@arguments$tumor_type) , collapse=", "))
+      stop(paste("The following tumor types are not in this object:",
+             paste(setdiff(tumor_type , object@arguments$tumor_type) , collapse=", ")))
     }
     #------------------------------------
     # Bind dataframes according to alteratioType specified
@@ -52,7 +50,9 @@ setMethod('dataExtractor', 'CancerPanel', function(object , alterationType=c("co
     toBeBind <- object@dataSubset[alterationType]
     checkDataExistance <- vapply(toBeBind , is.null , logical(1))
     if(any(checkDataExistance)){
-        warning("No data for" %++% paste(names(toBeBind)[checkDataExistance] , collapse=", ") %+% ". They will be removed from alterationType")
+        warning(paste0("No data for " 
+                , paste(names(toBeBind)[checkDataExistance] , collapse=", ") 
+                , ". They will be removed from alterationType"))
         alterationType <- alterationType[!checkDataExistance]
     }
     # Define the dataset
@@ -118,7 +118,7 @@ setMethod('dataExtractor', 'CancerPanel', function(object , alterationType=c("co
         tum_type_diff <- setdiff(tumor_type , unique(mydata$tumor_type))
     }
     if(length(tum_type_diff)!=0){
-        warning("The following tumor types have no alteration to display:" %++% paste(tum_type_diff , collapse=", "))
+        warning(paste("The following tumor types have no alteration to display: " , paste(tum_type_diff , collapse=", ")))
     }
     # Collapsing Mutation by gene
     # This option is valid for mutation. If a gene is mutated in more than 1 spot in a patient
@@ -157,16 +157,10 @@ setMethod('dataExtractor', 'CancerPanel', function(object , alterationType=c("co
         newDataAndSamps <- .tumor.weights.machine(tumor.weights , mysamples , mydata )
         mydata <- newDataAndSamps[[1]]
         mysamples <- newDataAndSamps[[2]]
-      }
-    #------------------------------------
-    # Assign variable to the environment
-    #------------------------------------
-    if(is.null(myenv)){
-        return(list(data=mydata , Samples=mysamples , tumor_not_present=tum_type_diff))
-    } else {
-        myenv$mydata <- mydata
-        myenv$mysamples <- mysamples
-        myenv$tum_type_diff <- tum_type_diff
     }
+    #------------------------------------
+    # Return data
+    #------------------------------------
+    return(list(data=mydata , Samples=mysamples , tumor_not_present=tum_type_diff))
 })
 

@@ -1,25 +1,27 @@
 setGeneric('cpFreq', function(object
-                        , alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
-                        , mutations.specs=c(NA ,"mutation_type","amino_acid_change","amino_position","genomic_position")
-                        , fusions.specs=c("bygene" , "byfusionpair")
-                        , tumor_type=NULL
-                        , tumor.weights=NULL
-                        , tumor.freqs=NULL
-                        , collapseMutationByGene=TRUE  
-                        , freq=c("relative" , "absolute")
-                        )  {
+, alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
+, mutations.specs=c(NA ,"mutation_type","amino_acid_change"
+                    ,"amino_position","genomic_position")
+, fusions.specs=c("bygene" , "byfusionpair")
+, tumor_type=NULL
+, tumor.weights=NULL
+, tumor.freqs=NULL
+, collapseMutationByGene=TRUE  
+, freq=c("relative" , "absolute")
+)  {
     standardGeneric('cpFreq')
     })
 setMethod('cpFreq', 'CancerPanel', function(object
-                        , alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
-                        , mutations.specs=c(NA ,"mutation_type","amino_acid_change","amino_position","genomic_position")
-                        , fusions.specs=c("bygene" , "byfusionpair")
-                        , tumor_type=NULL
-                        , tumor.weights=NULL
-                        , tumor.freqs=NULL
-                        , collapseMutationByGene=TRUE  
-                        , freq=c("relative" , "absolute")
-                        )
+, alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
+, mutations.specs=c(NA ,"mutation_type","amino_acid_change"
+                    ,"amino_position","genomic_position")
+, fusions.specs=c("bygene" , "byfusionpair")
+, tumor_type=NULL
+, tumor.weights=NULL
+, tumor.freqs=NULL
+, collapseMutationByGene=TRUE  
+, freq=c("relative" , "absolute")
+)
 {
     # Check input parameters
     if(is.null(object)){
@@ -33,7 +35,8 @@ setMethod('cpFreq', 'CancerPanel', function(object
     } else {
         if(length(alterationType)>1){
             alterationType <- alterationType[1]
-            warning("More than one alterationType selected. The first one was chosen:" %++% alterationType)
+            warning(paste("More than one alterationType selected. The first one was chosen:" 
+                          , alterationType))
         }
         if(alterationType %notin% c("copynumber" , "expression" , "mutations" , "fusions")){
             stop('AlterationType can only be one among "copynumber" , "expression" , "mutations" , "fusions"')
@@ -50,7 +53,9 @@ setMethod('cpFreq', 'CancerPanel', function(object
     } else {
         mutations.specs <- mutations.specs[1]
         if(mutations.specs %notin% c(NA ,"mutation_type","amino_acid_change","amino_position","genomic_position")){
-            stop("Invalid mutations.specs parameter. mutations.specs can only be NA 'mutation_type' 'amino_acid_change' 'amino_position' 'genomic_position'")
+            stop(paste0("Invalid mutations.specs parameter." 
+                        ,"mutations.specs can only be NA "
+                        ,"'mutation_type' 'amino_acid_change' 'amino_position' 'genomic_position'"))
         }
     }
     if(is.null(fusions.specs)){
@@ -87,7 +92,7 @@ setMethod('cpFreq', 'CancerPanel', function(object
     panel <- object@arguments$panel
     genesToCheck <- panel[ panel$alteration==kConversionTab[alterationType] , "gene_symbol"] %>% unique
     if(length(genesToCheck)==0){
-        stop("No genes are in the panel for" %++% alterationType)
+        stop(paste("No genes are in the panel for" , alterationType))
     }
     # Retrieve the data from the object
     mydata <- object@dataFull[[alterationType]]$data
@@ -100,7 +105,8 @@ setMethod('cpFreq', 'CancerPanel', function(object
             mysamples <- mysamples[tumor_type]    
         } else {
             tumor_type_not_present <- setdiff(tumor_type ,names(mysamples))
-            stop("The following tumor_type are not present" %++% paste(tumor_type_not_present , collapse=", "))
+            stop(paste("The following tumor_type are not present" 
+                       , paste(tumor_type_not_present , collapse=", ")))
         }
         mydata <- mydata[ mydata$tumor_type %in% tumor_type , ]
         if(nrow(mydata)==0){

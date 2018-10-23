@@ -114,57 +114,57 @@
 
 
 setGeneric('survPowerSampleSize', function(object
-                                    , var=c(NA , "drug" , "group" , "gene_symbol" , "alteration_id" , "tumor_type")
-                                    , alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
-                                    , tumor_type=NULL
-                                    , stratum=NULL
-                                    , tumor.weights=NULL
-                                    , tumor.freqs=NULL
-                                    , HR=NULL
-                                    , HR0=1
-                                    , ber = 0.85
-                                    , med=NULL
-                                    , fu=2
-                                    , acc=NULL
-                                    , alpha=0.05
-                                    , power=NULL
-                                    , sample.size=NULL
-                                    , side = c(2,1)
-                                    , case.fraction=0.5
-                                    , collapseMutationByGene=TRUE
-                                    , collapseByGene=FALSE
-                                    , round.result=TRUE
-                                    , priority.trial=NULL
-                                    , priority.trial.order=c("optimal" , "as.is")
-                                    , priority.trial.verbose=TRUE
-                                    , noPlot=FALSE) {
+, var=c(NA , "drug" , "group" , "gene_symbol" , "alteration_id" , "tumor_type")
+, alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
+, tumor_type=NULL
+, stratum=NULL
+, tumor.weights=NULL
+, tumor.freqs=NULL
+, HR=NULL
+, HR0=1
+, ber = 0.85
+, med=NULL
+, fu=2
+, acc=NULL
+, alpha=0.05
+, power=NULL
+, sample.size=NULL
+, side = c(2,1)
+, case.fraction=0.5
+, collapseMutationByGene=TRUE
+, collapseByGene=FALSE
+, round.result=TRUE
+, priority.trial=NULL
+, priority.trial.order=c("optimal" , "as.is")
+, priority.trial.verbose=TRUE
+, noPlot=FALSE) {
     standardGeneric('survPowerSampleSize')
     })
 setMethod('survPowerSampleSize', 'CancerPanel', function(object
-                                    , var=c(NA , "drug" , "group" , "gene_symbol" , "alteration_id" , "tumor_type")
-                                    , alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
-                                    , tumor_type=NULL
-                                    , stratum=NULL
-                                    , tumor.weights=NULL
-                                    , tumor.freqs=NULL
-                                    , HR=NULL
-                                    , HR0=1
-                                    , ber=0.85
-                                    , med=NULL
-                                    , fu=2
-                                    , acc=NULL
-                                    , alpha=0.05
-                                    , power=NULL
-                                    , sample.size=NULL
-                                    , side=c(2,1)
-                                    , case.fraction=0.5
-                                    , collapseMutationByGene=TRUE
-                                    , collapseByGene=FALSE
-                                    , round.result=TRUE
-                                    , priority.trial=NULL
-                                    , priority.trial.order=c("optimal" , "as.is")
-                                    , priority.trial.verbose=TRUE
-                                    , noPlot=FALSE)
+, var=c(NA , "drug" , "group" , "gene_symbol" , "alteration_id" , "tumor_type")
+, alterationType=c("copynumber" , "expression" , "mutations" , "fusions")
+, tumor_type=NULL
+, stratum=NULL
+, tumor.weights=NULL
+, tumor.freqs=NULL
+, HR=NULL
+, HR0=1
+, ber=0.85
+, med=NULL
+, fu=2
+, acc=NULL
+, alpha=0.05
+, power=NULL
+, sample.size=NULL
+, side=c(2,1)
+, case.fraction=0.5
+, collapseMutationByGene=TRUE
+, collapseByGene=FALSE
+, round.result=TRUE
+, priority.trial=NULL
+, priority.trial.order=c("optimal" , "as.is")
+, priority.trial.verbose=TRUE
+, noPlot=FALSE)
 {
     # Check var
     possiblevar <- c(NA , "drug" , "group" , "gene_symbol" , "alteration_id" , "tumor_type")
@@ -175,7 +175,7 @@ setMethod('survPowerSampleSize', 'CancerPanel', function(object
         var <- var[1]
     }
     if(any(var %notin% possiblevar)){
-        stop("var can only be one of the following" %++% paste(possiblevar , collapse=", "))
+        stop(paste("var can only be one of the following" , paste(possiblevar , collapse=", ")))
     }
     # Check tumor_type
     if(!is.null(tumor_type)){
@@ -204,21 +204,24 @@ setMethod('survPowerSampleSize', 'CancerPanel', function(object
     requiredParam <- list(HR=HR , HR0=HR0 , case.fraction=case.fraction , alpha=alpha , ber=ber , fu=fu , side=side)
     # Sanity check for power calculation numerical parameters
     for(i in names(requiredParam)){
-        if(is.null(requiredParam[[i]]))
-            stop(i %++% "cannot be NULL")
-        if(!is.numeric(requiredParam[[i]]))
-            stop(i %++% "must be numeric")
-        if(any(requiredParam[[i]]<=0))
-            stop(i %++% "must be a positive number")
+        if(is.null(requiredParam[[i]])){
+            stop(paste(i , "cannot be NULL"))
+        }
+        if(!is.numeric(requiredParam[[i]])){
+            stop(paste(i , "must be numeric"))
+        }
+        if(any(requiredParam[[i]]<=0)){
+            stop(paste(i , "must be a positive number"))
+        }
         if(i %in% c("case.fraction" , "alpha")){
             if(any(requiredParam[[i]]>=1))
-                stop(i %++% "must be a number strictly between 0 and 1")
+                stop(paste(i , "must be a number strictly between 0 and 1"))
         }
-      if(i == "side"){
-        if(requiredParam[[i]] %notin% c(2,1)){
-          stop(i %++% "can be either 2 or 1")
+        if(i == "side"){
+            if(requiredParam[[i]] %notin% c(2,1)){
+                stop(paste(i , "can be either 2 or 1"))
+            }
         }
-      }
     }
     # Sanity check for HR and HR0
     if(length(HR)!=length(HR0)){
@@ -293,14 +296,14 @@ setMethod('survPowerSampleSize', 'CancerPanel', function(object
         }
         if(var=="drug"){
             if(!all(priority.trial %in% object@arguments$drugs)){
-                stop("The following drug names are not included in the object:" %++% 
-                    paste(priority.trial[priority.trial %notin% object@arguments$drugs] , collapse=", "))
+                stop(paste("The following drug names are not included in the object:" ,
+                    paste(priority.trial[priority.trial %notin% object@arguments$drugs] , collapse=", ")))
             }
         }
         if(var=="group"){
             if(!all(priority.trial %in% object@arguments$panel$group)){
-                stop("The following group levels are not included in the object:" %++% 
-                    paste(priority.trial[priority.trial %notin% object@arguments$panel$group] , collapse=", "))
+                stop(paste("The following group levels are not included in the object:" ,
+                    paste(priority.trial[priority.trial %notin% object@arguments$panel$group] , collapse=", ")))
             }
         }
       if(any(duplicated(priority.trial))){
@@ -318,15 +321,15 @@ setMethod('survPowerSampleSize', 'CancerPanel', function(object
     # GRAB DATA AND SAMPLES
     #----------------------------
 
-    myenv <- new.env()
-    dataExtractor(object=object , alterationType=alterationType , tumor_type=tumor_type 
-            , collapseMutationByGene=collapseMutationByGene , collapseByGene=collapseByGene 
-            , myenv=myenv , tumor.weights=tumor.weights)
-    mydata <- get("mydata" , envir=myenv)
-    mysamples <- get("mysamples" , envir=myenv)
-    tum_type_diff <- get("tum_type_diff" , envir=myenv)
-    # rm(list=ls(myenv) , envir=myenv)
-    rm(myenv);gc()
+    de <- dataExtractor(object=object , alterationType=alterationType 
+                        , tumor_type=tumor_type 
+                        , collapseMutationByGene=collapseMutationByGene 
+                        , collapseByGene=collapseByGene 
+                        , tumor.weights=tumor.weights)
+    mydata <- de$data
+    mysamples <- de$Samples
+    tum_type_diff <- de$tumor_not_present
+    rm(de)
     # Detect var levels
     varLevels <- switch(var 
                         ,gene_symbol=unique(c(object@arguments$panel$gene_symbol , mydata$gene_symbol))
@@ -439,12 +442,12 @@ setMethod('survPowerSampleSize', 'CancerPanel', function(object
             # print(toBePlot_prior)
             TSS <- toBePlot_prior[ toBePlot_prior$Var==names(priority.trial_frac)[1] , "EligibleSampleSize"]
             if(noPlot && priority.trial.verbose){
-                message("\nMinimum Eligible Sample Size to reach" %++% 
-                            paste0(round(power*100),"%") %++% 
-                            "of power with an HR equal to" %++% HR %++% 
-                            "and a HR0 equal to" %++% HR0 %++%
-                            "for each" %++% var %++%
-                            "is equal to:" %++% TSS)
+                message(paste("\nMinimum Eligible Sample Size to reach" , 
+                            paste0(round(power*100),"%") , 
+                            "of power with an HR equal to" , HR , 
+                            "and a HR0 equal to" , HR0 ,
+                            "for each" , var ,
+                            "is equal to:" , TSS))
             }
             # Initialize the three matrices
             matProb <- matSamps <- matSampsAssigned <- matrix(0 , ncol=k , nrow=k)

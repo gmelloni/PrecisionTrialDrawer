@@ -1,12 +1,10 @@
 .tumorFreqPlotterStack <- function(finalTab , var , grouping , alterationType , tumor.freqs){
     myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")), space="Lab")
-    myTitle <- "Number of covered samples:" %++% var %++% "BY" %++% grouping
-    alts <- "Data Type:" %++% paste(alterationType , collapse=", ")
+    myTitle <- paste("Number of covered samples:" , var , "BY" , grouping)
+    alts <- paste("Data Type:" , paste(alterationType , collapse=", "))
     samps <- paste("Freqs:" 
                 , paste( paste(names(tumor.freqs) , round(tumor.freqs , 3) , sep=" - ") , collapse=" , ")
                 )
-    # tums <- unique(names(mysamples)[names(mysamples)!="all_tumors"])
-    # samps <- "Samples:" %++% paste( tums %+% "=" %+% sapply(mysamples[tums] , length) , collapse=" ")
     myTitle <- paste(myTitle , alts , samps , sep="\n")
     # Calculate maxylim
     maxylim=max(colSums(finalTab)) + round(max(colSums(finalTab))/3)
@@ -64,8 +62,8 @@
 .tumorFreqPlotterStackHTML <- function(finalTab , var , grouping , alterationType , tumor.freqs){
     myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")), space="Lab")
     mycolors <- if(nrow(finalTab)>1) c(myPalette(nrow(finalTab)-1) , "#A9A9A9") else myPalette(1)
-    myTitle <- "Number of covered samples:" %++% var %++% "BY" %++% grouping
-    alts <- "Data Type:" %++% paste(alterationType , collapse=", ")
+    myTitle <- paste("Number of covered samples:" , var , "BY" , grouping)
+    alts <- paste("Data Type:" , paste(alterationType , collapse=", "))
     # tums <- unique(names(mysamples)[names(mysamples)!="all_tumors"])
     samps <- paste("Freqs:" 
                 , paste( paste(names(tumor.freqs) , round(tumor.freqs , 3) , sep=" - ") , collapse=" , ")
@@ -141,17 +139,16 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
         stop("var and grouping must differ")
     }
     if(var %notin% possibleVar){
-        stop("var can only be one or more of the following" %++% paste(possibleVar , collapse=", "))
+        stop(paste("var can only be one or more of the following" , paste(possibleVar , collapse=", ")))
     }
-    # if(length(tumor_type)<2 & (var %eq% "tumor_type" | grouping %eq% "tumor_type") ){
-    #     stop("If you select tumor_type as var or grouping, you should select at least two different tumor types")
-    # }
     if(any(alterationType %notin% possibleAlterations)){
-        stop("alterationType can only be one or more of the following" %++% paste(possibleAlterations , collapse=", "))
+        stop(paste("alterationType can only be one or more of the following" 
+                   , paste(possibleAlterations , collapse=", ")))
     }
     if(!any(is.na(grouping))){
         if(any(grouping %notin% possibleGrouping))
-            stop("grouping can only be one of the following:" %++% paste(possibleGrouping , collapse=", "))
+            stop(paste("grouping can only be one of the following:" 
+                       , paste(possibleGrouping , collapse=", ")))
     }
     if(("alteration_id" %in% grouping) & length(alterationType)<2){
         stop("If you select 'alteration_id' as grouping variable, you must select more than one alterationType")
@@ -185,15 +182,15 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
     # GRAB DATA AND SAMPLES
     #----------------------------
 
-    myenv <- new.env()
-    dataExtractor(object=object , alterationType=alterationType , tumor_type=tumor_type 
-            , collapseMutationByGene=collapseMutationByGene , collapseByGene=collapseByGene 
-            , myenv=myenv , tumor.weights=tumor.weights)
-    mydata <- get("mydata" , envir=myenv)
-    mysamples <- get("mysamples" , envir=myenv)
-    tum_type_diff <- get("tum_type_diff" , envir=myenv)
-    # rm(list=ls(myenv) , envir=myenv)
-    rm(myenv)
+    de <- dataExtractor(object=object , alterationType=alterationType 
+                        , tumor_type=tumor_type 
+                        , collapseMutationByGene=collapseMutationByGene 
+                        , collapseByGene=collapseByGene 
+                        , tumor.weights=tumor.weights)
+    mydata <- de$data
+    mysamples <- de$Samples
+    tum_type_diff <- de$tumor_not_present
+    rm(de)
     
     varLevels <- switch(var 
                         ,gene_symbol=unique(c(object@arguments$panel$gene_symbol , mydata$gene_symbol))
@@ -310,10 +307,10 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
         return(list(plottedTable=finalTab , Samples=lengths(mysamples)))
     } else {
         if(!html){
-            myTitle <- "Number of covered samples:" %++% var %++% "BY" %++% grouping
-            alts <- "Data Type:" %++% paste(alterationType , collapse=", ")
+            myTitle <- paste("Number of covered samples:" , var , "BY" , grouping)
+            alts <- paste("Data Type:", paste(alterationType , collapse=", "))
             tums <- unique(names(mysamples)[names(mysamples)!="all_tumors"])
-            samps <- "Samples:" %++% paste( tums %+% "=" %+% lengths(mysamples[tums]) , collapse=" ")
+            samps <- paste("Samples:" , paste( paste0(tums , "=" , lengths(mysamples[tums])) , collapse=" "))
             myTitle <- paste(myTitle , alts , samps , sep="\n")
             # set cex for labels and numbers on top of bars
             mycextext <- if(ncol(finalTab)>20){
@@ -412,10 +409,10 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
                 , srt=90)
         } else {
             mycolors <- if(nrow(finalTab)>1) c(myPalette(nrow(finalTab)-1) , "#A9A9A9") else myPalette(1)
-            myTitle <- "Number of covered samples:" %++% var %++% "BY" %++% grouping
-            alts <- "Data Type:" %++% paste(alterationType , collapse=", ")
+            myTitle <- paste("Number of covered samples:" , var , "BY" , grouping)
+            alts <- paste("Data Type:" , paste(alterationType , collapse=", "))
             tums <- unique(names(mysamples)[names(mysamples)!="all_tumors"])
-            samps <- "Samples:" %++% paste( tums %+% "=" %+% lengths(mysamples[tums]) , collapse=" ")
+            samps <- paste("Samples:" , paste( paste0(tums , "=" , lengths(mysamples[tums])) , collapse=" "))
             myTitle <- paste(myTitle , alts , samps , sep="\n")
             finalTab2 <- as.data.frame(t(finalTab))
             sampLen <- length(mysamples$all_tumors)
@@ -467,30 +464,22 @@ setMethod('coverageStackPlot', 'CancerPanel', function(object
                             , options=list(
                         isStacked=TRUE
                         , explorer="{actions: ['dragToZoom','rightClickToReset'], maxZoomIn:0.05 , keepInBounds: true , axis: 'both'}"
-                        #, crosshair="{trigger:'both'}"
                         , title=gsub("\n" , " - " , myTitle)
                         , height=800
-                        # , width=3000
                         ,vAxis="{title: 'Number of Covered Samples', 
                                    titleTextStyle: {color: '#000000'}}"
-                        # ,hAxis="{title: '" %+% var %+% "', 
-                        #           titleTextStyle: {color: '#000000'}}"
                         , hAxis.viewWindowMode="pretty"
                         , vAxis.viewWindowMode="pretty"
                         , chartArea= "{width: '90%', height: '90%'}"
                         , legend= "{position: 'in' , textStyle: {color: 'black', fontSize: 10} }"
                         , titlePosition= 'in'
-                        # , axisTitlesPosition= 'in'
                         , bar.groupWidth= '100%'
-                        #, tooltip="{isHtml:'true'}" # useful for future aestetics development
                         , tooltip.trigger="both"
-                        #, chartArea='{left:100,top:500 ,right:50}'
                         , enableScrollWheel=TRUE
                         , colors=paste0("['" , paste(mycolors , collapse="','") , "']")
                 ))
-            # plot(htmlColChart)
-            return(htmlColChart)
-        }
+          return(htmlColChart)
+      }
     }
 })
 

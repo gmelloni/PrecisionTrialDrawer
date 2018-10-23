@@ -190,9 +190,9 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
             if(length(notavail)==0)
                 stop("You probably mixed cancer studies and tumor types")
             else
-                stop("The following tumor types or cancer studies are not available:" %++% 
-                    paste(notavail , collapse=", ") %++% 
-                    ". Check with showTumorType() or showCancerStudy()")
+                stop(paste("The following tumor types or cancer studies are not available:" , 
+                    paste(notavail , collapse=", ") ,
+                    ". Check with showTumorType() or showCancerStudy()"))
         }
     }
 
@@ -284,7 +284,11 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
             if(length(mutgenes)>100) {
               #split gene list in blocks of gene_block elements
                 myGenesBlocks <- .subsetter(mutgenes , gene_block)
-                message("Too many genes. We subset data retrieval in" %++% length(myGenesBlocks) %++% "blocks of" %++% gene_block %++% "genes each")
+                message(paste("Too many genes. We subset data retrieval in" 
+                              , length(myGenesBlocks) 
+                              , "blocks of" 
+                              , gene_block 
+                              , "genes each"))
                 gmOut <- lapply(seq_len(length(myGenesBlocks)) , function(x){
                             geneblock <- myGenesBlocks[[x]]
                             .getMutations(geneblock , tumor_type=tumor_type , block=x)
@@ -388,12 +392,12 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
                     Chr_df <- Chr_df[ Chr_df$chromosome_name %in% c(seq_len(23) , "X" , "M" , "MT" , "Y") , ] %>% unique
                     if(any(nochr %notin% Chr_df$hgnc_symbol)){
                         genesout <- setdiff(nochr , Chr_df$hgnc_symbol)
-                        stop("Problem retrieving chr name from biomart in" %++% paste(genesout , collapse=", "))
+                        stop(paste("Problem retrieving chr name from biomart in" , paste(genesout , collapse=", ")))
                     }
                     for(i in nochr){
                         mychr <- Chr_df[ Chr_df$hgnc_symbol == i , "chromosome_name" , drop=TRUE] %>% unique %>% unname
                         if(length(mychr)!=1){
-                            stop(i %++% "is associated with more than 1 chromosome name in biomart")
+                            stop(paste(i , "is associated with more than 1 chromosome name in biomart"))
                         }
                         gmOut2[  gmOut2$gene_symbol == i , "chr"] <- mychr
                     }
@@ -484,7 +488,11 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
             # If the number of requested genes is too large we subset the SQL query in chunks
             if(length(cnagenes)>100) {
                 myGenesBlocks_cna <- .subsetter(cnagenes , gene_block)
-                message("Too many genes. We subset data retrieval in" %++% length(myGenesBlocks_cna) %++% "blocks of" %++% gene_block %++% "genes each")
+                message(paste("Too many genes. We subset data retrieval in" 
+                              , length(myGenesBlocks_cna) 
+                              , "blocks of" 
+                              , gene_block 
+                              , "genes each"))
                 gcOut <- lapply(seq_len(length(myGenesBlocks_cna)) , function(x){
                             geneblock <- myGenesBlocks_cna[[x]]
                             tobereturned <- .getCNA(geneblock , tumor_type=tumor_type , block=x)
@@ -644,7 +652,11 @@ setMethod('getAlterations', 'CancerPanel', function(object, tumor_type=NULL
             # If the number of requested genes is too large we subset the SQL query in chunks
             if(length(exprgenes)>100) {
                 myGenesBlocks_expr <- .subsetter(exprgenes , gene_block)
-                message("Too many genes. We subset data retrieval in" %++% length(myGenesBlocks_expr) %++% "blocks of" %++% gene_block %++% "genes each")
+                message(paste("Too many genes. We subset data retrieval in"
+                              , length(myGenesBlocks_expr)
+                              , "blocks of"
+                              , gene_block
+                              , "genes each"))
                 geOut <- lapply(seq_len(length(myGenesBlocks_expr)) , function(x){
                             geneblock <- myGenesBlocks_expr[[x]]
                             tobereturned <- .getExpression(geneblock , tumor_type=tumor_type , block=x)

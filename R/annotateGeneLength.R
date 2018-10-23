@@ -56,8 +56,8 @@
   #Check for missing genes symbols in the query results
   if(any(genes %notin% dframe$hgnc_symbol)){
     genesNotFound <- setdiff(unique(genes) , unique(dframe$hgnc_symbol))
-    errorMex <- "The following gene symbols were not found:" %++% 
-      paste(genesNotFound , collapse=", ")
+    errorMex <- paste("The following gene symbols were not found:" 
+      , paste(genesNotFound , collapse=", "))
     stop(errorMex)
   }
   

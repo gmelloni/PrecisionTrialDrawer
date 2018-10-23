@@ -445,7 +445,8 @@
                           unique
   missingDframe <- setdiff(full_sequence_genes , unique(dframe_merge$hgnc_symbol) )
   if(length(missingDframe)>0){
-    warning("We could not find these genes in biomaRt:" %++% paste(missingDframe , collapse=", "))
+    warning(paste("We could not find these genes in biomaRt:" 
+                  , paste(missingDframe , collapse=", ")))
   }
   # Genes annotated as aminoacid variants/amino acid intervals
   panel_aa <- panel[ panel$exact_alteration %in% c("amino_acid_position","amino_acid_variant") , , drop=FALSE]
@@ -454,7 +455,7 @@
       message("Reverse mapping of amino acids to genomic...")
       # Make a REST query to HGNC to retrieve a unique couple gene_symbol:ENSEMBLid
       hgnc_query <- BiocParallel::bplapply(genes , function(gene) {
-       query <- "http://rest.genenames.org/fetch/symbol/" %+% gene
+       query <- paste0("http://rest.genenames.org/fetch/symbol/" , gene)
        # tmp <- tempfile()
        # download(query , tmp , mode="wb" , quiet=TRUE)
        tmp <- httr::GET(query)
@@ -462,20 +463,20 @@
        # check if the query was good
        found <- XML::xmlToList(tmp)$result$.attr['numFound'] %>% as.numeric
        if(found>1)
-           stop("You didn't provide a unique valid official gene symbol for: " %+% gene)
+           stop(paste("You didn't provide a unique valid official gene symbol for:" , gene))
        if(found==0){
            # If I can't find the official gene symbol, I look at previous symbols
            # The reason for this is that Ensembl is not always up-to-date
-           query <- "http://rest.genenames.org/fetch/prev_symbol/" %+% gene
+           query <- paste0("http://rest.genenames.org/fetch/prev_symbol/" , gene)
            tmp <- httr::GET(query)
            tmp <- XML::xmlParse(tmp)
            # tmp <- tempfile()
            # download(query , tmp , mode="wb" , quiet=TRUE)
            found <- XML::xmlToList(tmp)$result$.attr['numFound'] %>% as.numeric
            if(found>1)
-             stop("You didn't provide a unique valid official gene symbol for: " %+% gene)
+             stop(paste("You didn't provide a unique valid official gene symbol for:", gene))
            if(found==0)
-             stop("This gene symbol is not an official hgnc symbol: " %+% gene)
+             stop(paste0("This gene symbol is not an official hgnc symbol:" , gene))
            hgnc_df <- XML::xmlToList(tmp) %>% 
              .[['result']] %>% 
              .[['doc']] %>% 
