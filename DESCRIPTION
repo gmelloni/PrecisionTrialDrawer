@@ -3,7 +3,7 @@ Type: Package
 Title: A Tool to Analyze and Design NGS Based Custom Gene Panels
 Version: 0.99.11
 Date: 2018-10-01
-Author: Giorgio Melloni , Alessandro Guida
+Author: Giorgio Melloni , Alessandro Guida, Luca Mazzarella
 Maintainer: Giorgio Melloni <melloni.giorgio@gmail.com>
 Description: We developed a tool to analyze list of genes and
     their alterations in order to create a custom panel for clinical genomics

@@ -5,6 +5,8 @@ author:
   affiliation: Harvard Medical School, Boston, MA.
 - name: Alessandro Guida
   affiliation: European Institute of Oncology, Milan, Italy
+- name: Luca Mazzarella
+  affiliation: European Institute of Oncology, Milan, Italy
 abstract: >
   In recent years, two new forms of clinical trial designs emerged in clinical cancer genomics: umbrella and basket trials. 
   Designs of such trials can be extremely difficult, starting from the creation of a valid screening panel, to the optimization 
@@ -591,12 +593,16 @@ coverageStackPlot(mypanel
              )
 ```
 
-As you can see, ~ 1% of the patients can no longer be potentially treated with Erlotinib because of specific resistant mutations. Furthermore, Olaparib association was completely eliminated by the druggability parameter.
+As you can see, ~ 1% of the patients can no longer be potentially 
+treated with Erlotinib because of specific resistant mutations. 
+Furthermore, Olaparib association was completely eliminated by the druggability parameter.
 
 ## saturationPlot
 
-Our panel is performing very well on the absolute number of covered samples. What about its construction? 
-With the next analysis, we will try to answer to questions related to each element of our panel and try to optimize it. 
+Our panel is performing very well on the absolute number of covered samples. 
+What about its construction? 
+With the next analysis, we will try to answer to questions 
+related to each element of our panel and try to optimize it. 
 In particular we want to ask:
 
 * Is there a particular class of genes or drugs or alteration that is predominant over the others?
