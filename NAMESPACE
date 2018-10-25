@@ -30,8 +30,6 @@ importFrom(reshape2 , melt , acast , dcast)
 importFrom(GenomicRanges , GRanges 
                         , findOverlaps 
                         , makeGRangesFromDataFrame)
-#importFrom(AnnotationHub , AnnotationHub , query)
-#importFrom(rtracklayer , liftOver)
 importFrom(RColorBrewer , brewer.pal)
 importFrom(biomaRt , getBM , useMart)
 importFrom(IRanges , reduce , IRanges)
@@ -81,7 +79,15 @@ importFrom(grid , grid.newpage
 importFrom(S4Vectors, rename , Rle , subjectHits)
 importFrom(stringr, str_extract)
 importFrom(data.table, rbindlist)
-# importFrom(plyr, mapvalues)
+importFrom(matrixStats , rowAlls
+,colAlls
+,rowWeightedMeans
+,rowMeans2
+,rowSds
+,rowMedians
+,rowMads
+,colMeans2
+,colSds)
 exportPattern("^[[:alpha:]]+")
 exportMethods(
     "show",
