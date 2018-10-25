@@ -5,12 +5,7 @@ Version: 0.99.11
 Date: 2018-10-01
 Author: Giorgio Melloni , Alessandro Guida, Luca Mazzarella
 Maintainer: Giorgio Melloni <melloni.giorgio@gmail.com>
-Description: We developed a tool to analyze list of genes and
-    their alterations in order to create a custom panel for clinical genomics
-    studies. It represents a resource to design basket or umbrella clinical trials and 
-    provides a suite of methods to simulate an in silico prescription from a gene or 
-    drug prospective. Finally, it is possible to design the genomic ranges 
-    that will be sequenced in ready-to-be-submitted bed format.
+Description:A suite of methods to design umbrella and basket trials for preision oncology.
 License: GPL-3
 Depends:
     R (>= 3.5)
@@ -43,7 +38,8 @@ Imports:
     shiny,
     shinyBS,
     DT,
-    brglm
+    brglm,
+    matrixStats
 Suggests:
     BiocStyle,
     knitr,
