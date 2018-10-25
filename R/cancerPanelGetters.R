@@ -4,19 +4,39 @@
 ## Method cpArguments
 setGeneric('cpArguments', function(object) standardGeneric('cpArguments'))
 setMethod('cpArguments', 'CancerPanel', function(object) {
-    return(object@arguments)
-    })
+    object@arguments
+})
+# setGeneric('cpArguments<-', function(object, value) {
+# standardGeneric('cpArguments<-')})
+# setReplaceMethod('cpArguments', 'CancerPanel', function(object, value) {
+#   object@arguments <- value
+#   validObject(object)
+#   object
+# })
 
 # -----------------------------------------------------------------------------
 ## Method cpData
 setGeneric('cpData', function(object) standardGeneric('cpData'))
 setMethod('cpData', 'CancerPanel', function(object) {
-    return(object@dataFull)
-    })
+    object@dataFull
+})
+# setGeneric('cpData<-', function(object, value) standardGeneric('cpData<-'))
+# setReplaceMethod('cpData', 'CancerPanel', function(object, value) {
+#   object@arguments <- value
+#   validObject(object)
+#   object
+# })
 
 # -----------------------------------------------------------------------------
 ## Method cpDataSubset
 setGeneric('cpDataSubset', function(object) standardGeneric('cpDataSubset'))
 setMethod('cpDataSubset', 'CancerPanel', function(object) {
-    return(object@dataSubset)
-    })
+    object@dataSubset
+})
+# setGeneric('cpDataSubset<-', function(object, value) {
+# standardGeneric('cpDataSubset<-')})
+# setReplaceMethod('cpDataSubset', 'CancerPanel', function(object, value) {
+#   object@dataSubset <- value
+#   validObject(object)
+#   object
+# })

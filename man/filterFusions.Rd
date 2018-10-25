@@ -4,7 +4,8 @@
 filterFusions: remove or keep specified fusions
 }
 \description{
-This method allows to keep only or to exclude certain fusions according to three different filtering formats
+This method allows to keep only or to exclude certain 
+fusions according to three different filtering formats
 }
 \usage{
 filterFusions(object , filtered , mode = c("exclude" , "keep"))
@@ -30,7 +31,8 @@ At the end of the filtering procedure, subsetAlterations is automatically run.
 An updated instance of class CancerPanel
 }
 \references{
-\href{www.cbioportal.org}{ data origin for mutations, copynumber and expression data}
+\href{www.cbioportal.org}{ data origin for mutations
+, copynumber and expression data}
 
 \href{www.tumorfusions.org}{ data origin for fusion data}
 }
@@ -38,7 +40,8 @@ An updated instance of class CancerPanel
 Giorgio Melloni , Alessandro Guida
 }
 \seealso{
-\code{\link{getAlterations}} \code{\link{subsetAlterations}} \code{\link{filterMutations}}
+\code{\link{getAlterations}} \code{\link{subsetAlterations}} 
+\code{\link{filterMutations}}
 }
 \examples{
 # Retrieve example data

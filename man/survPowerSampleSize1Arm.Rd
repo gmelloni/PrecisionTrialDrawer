@@ -188,7 +188,8 @@ be interested in creating a compound design that is composed
 by a certain number of samples per tumor type. 
 This is the typical situation of basket trials, where you seek for 
 specific alteration, rather than specific tumor types 
-and your design can be stopped when the desired sample size for a given tumor type is reached. 
+and your design can be stopped when the desired 
+sample size for a given tumor type is reached. 
 By adding tumor.weights, we can achieve such target (see examples). 
 Unfortunately, there are two main drawbacks in doing so:
 \enumerate{
@@ -238,7 +239,8 @@ The total Screening Sample Size (SSS) is calculated following this scheme:
     \item{ Continue using the samples not eligible to the 
     end of all drugs/levels. Stop if there are no leftovers.}
     \item{ If all the drugs/groups have reached ESS, stop. 
-    Otherwise start a new screening with the first drug/group that has not reached ESS}
+    Otherwise start a new screening with the first 
+    drug/group that has not reached ESS}
     \item{ Repeat from point 2 up to completion}
 }
 If priority.trial.order is set, the user can decide 
@@ -256,7 +258,8 @@ In case priority.trial is set, a 5-element list is reported.
 See vignette for details.
 }
 \references{
-Lawless, Jerald F. Statistical Models and Methods for Lifetime Data. 2nd ed. John Wiley Sons, 2003.
+Lawless, Jerald F. Statistical Models and Methods for 
+Lifetime Data. 2nd ed. John Wiley Sons, 2003.
 }
 \author{
 Giorgio Melloni, Alessandro Guida

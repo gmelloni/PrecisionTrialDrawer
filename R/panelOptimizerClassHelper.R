@@ -262,7 +262,7 @@
     } else {
       shape <- mean^2/var
       scale <- var/mean
-      pval <- pgamma(unif[[3]]-ent, shape=shape, scale=scale, lower.tail=FALSE)            
+      pval <- pgamma(unif[[3]]-ent, shape=shape, scale=scale, lower.tail=FALSE)
     }
     return(log10(pval))
   } else {
@@ -279,7 +279,8 @@
                  , bw=bw, from=1, to=len, n=len)
     .shannon(d)
   } , numeric(1))
-  return(list(center=center(boots), variability=variability(boots), max=max(boots)))
+  return(list(center=center(boots), variability=variability(boots)
+              , max=max(boots)))
 }
 
 .sampleUnifEntropyL <- function(len, nmut, bw, nboot=1000, weights=NULL, 
@@ -293,7 +294,8 @@
     profile[as.numeric(names(tab))] <- tab
     .profileEntropy(profile, bw=bw, norm=FALSE)
   } , numeric(1))
-  return(list(center=center(boots), variability=variability(boots), max=max(boots)))
+  return(list(center=center(boots), variability=variability(boots)
+              , max=max(boots)))
 }
 
 .makeUniformModel <- function(mat, bw, nboot=1000, plotOUT=TRUE, 
@@ -370,7 +372,6 @@
     variability <- sd
   }
   boots <- lapply(seq_len(nboot), function(i) {
-    # density(sample(1:geneLen, nMut, replace=TRUE , prob=weights), bw=bw, from=1, to=geneLen, n=geneLen)
     positions <- sample(seq_len(geneLen), nMut, replace=TRUE , prob=weights)
     t <- table(positions)
     profile <- rep(0, geneLen)
@@ -379,19 +380,28 @@
   })
   nullDensities <- lapply(boots, '[[', 'y') %>% do.call("cbind" , .)
   # calulate parameters for the gamma distribution
-  mu <- apply(nullDensities, 1, center)
-  s <- apply(nullDensities, 1, variability)
+  if( bw == 0){
+    mu <- matrixStats::rowMeans2(nullDensities)
+    s <- matrixStats::rowSds(nullDensities)
+  } else {
+    mu <- matrixStats::rowMedians(nullDensities)
+    s <- matrixStats::rowMads(nullDensities)
+  }
   s2 <- s^2
   # apply gamma distribution to find thresholds
   upperThreshold <- qgamma(.95, shape=mu^2/s2, scale=s2/mu)
   lowerThreshold <- qgamma(.05, shape=mu^2/s2, scale=s2/mu)
   
   # pvalue of every aa
-  d <- .profileDensity(colSums(mat), bw=bw) #, from=1, to=geneLen, n=geneLen)
+  d <- .profileDensity(colSums(mat), bw=bw)
   pvals <- pgamma(d$y, shape=mu^2/s2, scale=s2/mu, lower.tail=FALSE)
   
   
   return(data.frame(
-    mean=mu, lTsh=lowerThreshold, uTsh=upperThreshold, profile=d$y, pvalue=pvals#, qvalue=qvals
+    mean=mu
+    , lTsh=lowerThreshold
+    , uTsh=upperThreshold
+    , profile=d$y
+    , pvalue=pvals
   ))
 }

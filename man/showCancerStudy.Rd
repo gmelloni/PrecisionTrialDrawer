@@ -31,7 +31,8 @@ have a different source and could not be included in the list.
 Giorgio Melloni, Alessandro Guida
 }
 \seealso{
-\code{\link{getAlterations}} \code{\link{showTumorType}} \code{\link[cgdsr]{cgdsr-getCancerStudies}}
+\code{\link{getAlterations}} \code{\link{showTumorType}} 
+\code{\link[cgdsr]{cgdsr-getCancerStudies}}
 }
 \examples{
 myCanStudies <- showCancerStudy()

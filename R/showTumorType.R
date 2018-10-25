@@ -2,9 +2,9 @@
 #Helper Function
 ################################################################################
 # The two functions in the present file allow the user to display the codes that
-# need to be implemente for calling getAlteration() from the main package. More 
+# needs to be implement for calling getAlteration() from the main package. More 
 # specifically, using the "codes" here shown, we can select the population of 
-# reference that will be used for running the simulation and frequency projections.
+# reference that will be used for running the simulations.
 #
 # Two functions are available:
 #
@@ -26,7 +26,8 @@ showTumorType <- function() {
   
   # From "cancer_study_id" field: 
   #      1) spit by "_" and 
-  #      2) select the first element of the split. This will correspond to the TCGA disease code
+  #      2) select the first element of the split. 
+  #          This will correspond to the TCGA disease code
   # From the "name" field: 
   #      1) Split string to get the disease name
   #      2) trim unwanted spaces
@@ -44,7 +45,7 @@ showTumorType <- function() {
   )
   
   # Since one TCGA symbol can correspond to 1 or more description, reduce the 
-  # dataframe with the aggregate function, putting together description from the 
+  # dataframe with the aggregate function, putting together description from the
   # same TCGA code separated by "|"
   all_cancer_studies3 <- aggregate(Full_Name~Code, all_cancer_studies2
                                    , FUN=function(x) {paste(x , collapse="|")})
@@ -59,15 +60,6 @@ showTumorType <- function() {
 
 ################################################################################
 # With this function we can see all the studies and choose the ones we like
-# For example, for breast cancer we have, by typing showCancerStudy("brca"):
-#               cancer_study_id                                                             name
-# 11                 brca_bccrc        Breast Invasive Carcinoma (British Columbia, Nature 2012)
-# 12                 brca_broad                   Breast Invasive Carcinoma (Broad, Nature 2012)
-# 13                brca_sanger                  Breast Invasive Carcinoma (Sanger, Nature 2012)
-# 14              brca_tcga_pub                    Breast Invasive Carcinoma (TCGA, Nature 2012)
-# 15                  brca_tcga                    Breast Invasive Carcinoma (TCGA, Provisional)
-# 16  brca_bccrc_xenograft_2014 Breast cancer patient xenografts (British Columbia, Nature 2014)
-# 105         brca_tcga_pub2015                                                brca/tcga/pub2015
 # ------------------------------------------------------------------------------
 showCancerStudy <- function(tumor_type=NULL) {
   # create CGDS object
@@ -81,5 +73,5 @@ showCancerStudy <- function(tumor_type=NULL) {
     # run a grep on all the entries using sapply
     # unlist and get the matches
     all_cancer_studies[unlist(lapply(paste0("^" , tumor_type , "_")
-                                    , function(x) grep(x, all_cancer_studies[,1]))),]
+                            , function(x) grep(x, all_cancer_studies[,1]))),]
 }

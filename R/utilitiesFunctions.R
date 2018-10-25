@@ -9,7 +9,7 @@ if(getRversion() >= "2.15.1"){
 }
 
 # Implementation of two specials for comparison of vectors with NA
-# These functions differ from "==" and "!=" in the sense that they can also compare NA
+# These functions differ from "==" and "!=" because they can also compare NA
 # NA==NA is TRUE and "foo"==NA is FALSE (generally they both return NA)
 "%eq%" <- function(x , y) {
     out <- x==y
@@ -50,13 +50,14 @@ if(getRversion() >= "2.15.1"){
 
 # like merge but mantaining the order of the first dataframe
 .mergeOrder <- function(df1 , df2 , ...){
-  if("INDEXVARTOBEDESTROYED" %in% colnames(df1)| "INDEXVARTOBEDESTROYED" %in% colnames(df2)){
-    stop("There should not be any column of df1 with the name INDEXVARTOBEDESTROYED")
+  if("INDEXVAR" %in% colnames(df1) | 
+     "INDEXVAR" %in% colnames(df2)){
+    stop("There should not be any column of df1 with the name INDEXVAR")
   }
-  df1$INDEXVARTOBEDESTROYED <- seq_len(nrow(df1))
+  df1$INDEXVAR <- seq_len(nrow(df1))
   out <- merge(x=df1 , y=df2 , ...)
-  out <- out[ order(out$INDEXVARTOBEDESTROYED , na.last=TRUE) , ]
-  out$INDEXVARTOBEDESTROYED <- NULL
+  out <- out[ order(out$INDEXVAR , na.last=TRUE) , ]
+  out$INDEXVAR <- NULL
   return(out)
 }
 
@@ -75,7 +76,7 @@ if(getRversion() >= "2.15.1"){
   
   # If we have specified the number of columns we want
   if(ncolPlot){
-    # calculate the number of rows we need, based on the required number of columns
+    # calculate the number of rows we need
     nrowPlot <- ceiling(nplots/ncolPlot)
     return(c(nrowPlot, ncolPlot))
   } 
@@ -88,14 +89,11 @@ if(getRversion() >= "2.15.1"){
   }
   sqrt_nplots <- sqrt(nplots)
   if(is.wholenumber(sqrt_nplots)){
-    # par(mfrow=c(sqrt_nplots , sqrt_nplots))
     return(c(sqrt_nplots , sqrt_nplots))
   } else {
     if(round((sqrt_nplots))^2 > nplots){
-      # par(mfrow=c(round(sqrt_nplots) , round(sqrt_nplots)))
       return(c(round(sqrt_nplots) , round(sqrt_nplots)))
     }else{
-      # par(mfrow=c(round(sqrt_nplots) , round(sqrt_nplots) + 1))
       return(c(round(sqrt_nplots) , round(sqrt_nplots) + 1))
     }
   }
@@ -123,7 +121,8 @@ if(getRversion() >= "2.15.1"){
 # Plot an empty plot with a text message in the center
 .emptyPlotter <- function(message){
       par(mar = c(0,0,0,0))
-      plot(c(0, 1), c(0, 1), ann = FALSE, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
+      plot(c(0, 1), c(0, 1), ann = FALSE, bty = 'n'
+           , type = 'n', xaxt = 'n', yaxt = 'n')
       text(x = 0.5, y = 0.5, message
         ,cex = 3, col = "black")
 }
@@ -167,61 +166,6 @@ if(getRversion() >= "2.15.1"){
   }
   mapidx <- match(x, from)
   mapidxNA <- is.na(mapidx)
-  # from_found <- sort(unique(mapidx))
-  # if (warn_missing && length(from_found) != length(from)) {
-  #   message("The following `from` values were not present in `x`: ", 
-  #           paste(from[!(1:length(from) %in% from_found)], collapse = ", "))
-  # }
   x[!mapidxNA] <- to[mapidx[!mapidxNA]]
   x
 }
-
-
-# set a variable to numeric if possible, character otherwise
-# .NumCheck <- function(x)
-# {
-#     x <- as.character(x)
-#    Result <- suppressWarnings(as.numeric(x))
-#    if ( all(is.na(Result) ) ) {
-#         return(x)
-#    } else {
-#         return(Result)
-#    }
-# }
-
-# You can load library even if they are not installed. 
-# In case is not present, this function will check on CRAN first and the Bioconductor
-# USAGE = .loadLibrary("stringr")
-
-# .loadLibrary <- function(x) {
-#   if(suppressWarnings(require(x , character.only = TRUE , quietly=TRUE))){
-#       print( paste(x , "is loaded correctly") )
-#   } else {
-
-#       tryCatch( {
-#           print( paste("Trying to install from CRAN:" , x) )
-#           install.packages(x) 
-#           }
-#           , error=function() {
-#             print("The library is not on CRAN")
-#             print("Trying to install from Bioconductor")
-#             source("http://bioconductor.org/biocLite.R")
-#           biocLite(x , suppressUpdates=TRUE , suppressAutoUpdate=TRUE)
-#           }
-#           , warning=function(w) {
-#             if( grepl('not available' , w) ) {
-#               print("The library is not on CRAN")
-#               print("Trying to install from Bioconductor")
-#               source("http://bioconductor.org/biocLite.R")
-#             biocLite(x , suppressUpdates=TRUE , suppressAutoUpdate=TRUE)
-#             } else {
-#             print(w)
-#             }}
-#           )
-#       if(require(x , character.only = TRUE , quietly=TRUE)){
-#           print( paste(x , "installed and loaded") )
-#       } else {
-#           stop( paste("Could not install" , x) )
-#       }
-#   }
-# }

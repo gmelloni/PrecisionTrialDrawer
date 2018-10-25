@@ -44,10 +44,11 @@ newCancerPanel <- function(panel , rules=NULL
     # If we are checking a rules panel, we split the checks in two functions
     # druggability is scorporated and contain only the cases in which an 
     # entire drug is excluded/included from certain tumor types
-    druggabilityWhich <- which( apply(panel[ , c("gene_symbol" , "alteration" 
-                                , "exact_alteration", "mutation_specification") 
-                                , drop=FALSE] 
-                                , 1 , function(x) all( x == "")))
+    druggabilityWhich <- which( 
+      matrixStats::rowAlls(
+        as.matrix(panel[ , c("gene_symbol" , "alteration" 
+                  , "exact_alteration", "mutation_specification") , drop=FALSE])
+        , value=""))
     if(length(druggabilityWhich)>0){
       # If there are druggability rules, perform check
       druggability <- rules[ druggabilityWhich 

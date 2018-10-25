@@ -223,8 +223,8 @@
     }
   }
   rmrandom <- function(mat){
-    rowidx <- apply(mat, 1 , function(x) all(x==0))
-    colidx <- apply(mat, 2 , function(x) all(x==0))
+    rowidx <- matrixStats::rowAlls(mat, value=0)
+    colidx <- matrixStats::colAlls(mat, value=0)
     idx <- rowidx & colidx
     return(mat[!idx , !idx])
   }

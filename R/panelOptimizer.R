@@ -1,12 +1,10 @@
 .busyIndicator <- function(text = "Processing..."
-                        # , image = file.path(system.file(package="PrecisionTrialDrawer") , "extdata" , "ajax-loader.gif")
-                        , image=NULL
-                        , wait=1000) {
+        , image=NULL
+        , wait=1000) {
   tagList(
     singleton(tags$head(
       tags$link(rel = "stylesheet"
-        , type = "text/css" 
-        # ,href = file.path("PrecisionTrialDrawer","inst","extdata","busyIndicator.css")
+        , type = "text/css"
       )))
     ,div(class = "mybusyindicator",p(text),img(src=image))
     ,tags$script(sprintf(
@@ -39,20 +37,20 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
   knonsynonymous <- setdiff(ktcga_types , c("Silent" , knotTransc))
   kmiss_type <- ktcga_types[c(1,2,3)]
   ktrunc_type <- ktcga_types[c(4,5,6,7,8,9)]
-  panel <- object@arguments$panel
+  panel <- cpArguments(object)$panel
   # Is it possible to select all SNV genes?
   genes <- panel[ panel$alteration=="SNV" &
-                  panel$exact_alteration %in% c("mutation_type" , ""), "gene_symbol"] %>% unique
-  # genes <- panel[ panel$alteration=="SNV" , "gene_symbol"] %>% unique
+                  panel$exact_alteration %in% c("mutation_type" , "")
+                  , "gene_symbol"] %>% unique
   if(length(genes)==0){
     stop("There are no genes in the panel reqeusted for SNV")
   }
-  tumor_type <- object@dataFull$mutations$Samples
+  tumor_type <- cpData(object)$mutations$Samples
   tumor_type <-  names(tumor_type)[!vapply(tumor_type , is.null , logical(1))]
   if(length(tumor_type)==0){
     stop("No tumor types available for mutations in this Cancer Panel object")
   }
-  mydata <- object@dataFull$mutations$data
+  mydata <- cpData(object)$mutations$data
   if(is.null(mydata)|nrow(mydata)==0){
     stop("No mutation data in this CancerPanel object")
   }
@@ -84,11 +82,6 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
                       , value = 0
                       , min=0
                       )
-          # , sliderInput("bandwidth" , "Select a bandwidth:"
-          #           , value = 0 
-          #           , min = 0 
-          #           , max = 200
-          #           , step = 0.05)
           , helpText("Automatic bandwidth overwrites the slider above")
           , radioButtons("autobw" , "Use Silverman's bandwidth"
                         , c("No" =  "No" , "Yes" = "Yes")
@@ -103,49 +96,49 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
         ,mainPanel(
           tabsetPanel(type="tabs"
             , tabPanel("LowMACA Regions" 
-                      , bsButton(inputId="storelowmaca"
-                               , label= "Store LowMACA" 
-                               , style="warning"
-                               , size="small"
-                               , disabled=FALSE)
-                      , helpText("Click to add the regions suggested by LowMACA or select the rows you prefer and then click")
-                      , helpText("The regions will be stored in the Optimize Panel tab")
-                      , plotOutput("lmPlot" , height=400)
-                      , hr()
-                      , verbatimTextOutput("NoSignificanceText")
-                      , hr()
-                      , DT::dataTableOutput("lowmacaregions")
-                      # , uiOutput("lowmacaregions") # Failed attempt to show a plot or table if no results
-                      )
+                , bsButton(inputId="storelowmaca"
+                , label= "Store LowMACA" 
+                , style="warning"
+                , size="small"
+                , disabled=FALSE)
+            , helpText(paste("Click to add the regions suggested"
+                  , "by LowMACA or select the rows you prefer and then click"))
+            , helpText("The regions will be stored in the Optimize Panel tab")
+            , plotOutput("lmPlot" , height=400)
+            , hr()
+            , verbatimTextOutput("NoSignificanceText")
+            , hr()
+            , DT::dataTableOutput("lowmacaregions"))
             , tabPanel("LowMACA Stats"  
-                      , helpText("Check the significant positions identified by LowMACA")
-                      , DT::dataTableOutput("lfm"))
+                , helpText("Check significant positions identified by LowMACA")
+                , DT::dataTableOutput("lfm"))
             , tabPanel("Manual Selection"
-                      , bsButton(inputId="storesingle"
-                                , label= "Store Single Mutation" 
-                                , style="warning"
-                                , size="small"
-                                , disabled=FALSE)
-                      , bsButton(inputId="storeregion"
-                                , label= "Store Region" 
-                                , style="warning"
-                                , size="small"
-                                , disabled=FALSE)
-                      , helpText("Click on a dot and Store a single mutation. Drag a region and then click on Store Region")
-                      , plotOutput("barplot" 
-                                  , click = "plot_click"
-                                  # , hover = clickOpts(id="plot_hover" ,nullOutside=FALSE)
-                                  , brush = "plot_brush"
-                                  , height = 300)
-                      , plotOutput("barplotdomains" , height=30)
-                      , hr()
-                      , verbatimTextOutput("textMessage")
-                      , hr()
-                      , tableOutput("infoclick")
-                      , tableOutput("infobrush"))
+                , bsButton(inputId="storesingle"
+                    , label= "Store Single Mutation" 
+                    , style="warning"
+                    , size="small"
+                    , disabled=FALSE)
+                , bsButton(inputId="storeregion"
+                    , label= "Store Region" 
+                    , style="warning"
+                    , size="small"
+                    , disabled=FALSE)
+                , helpText(paste("Click on a dot and Store a single mutation."
+                              ,"Drag a region and then click on Store Region"))
+                , plotOutput("barplot" 
+                    , click = "plot_click"
+                    , brush = "plot_brush"
+                    , height = 300)
+                , plotOutput("barplotdomains" , height=30)
+                , hr()
+                , verbatimTextOutput("textMessage")
+                , hr()
+                , tableOutput("infoclick")
+                , tableOutput("infobrush"))
             , tabPanel("Optimize Panel" 
-                      , helpText("All your selected regions are here. To remove them, select the rows and then click Discard")
-                      , bsButton(inputId="discard" 
+                , helpText(paste("All your selected regions are here." 
+                    , "To remove them, select the rows and then click Discard"))
+                , bsButton(inputId="discard" 
                                 , label= "Discard" 
                                 , style="danger"
                                 , size="small"
@@ -154,7 +147,8 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
           )
         , width=9)
       )
-      ,.busyIndicator(wait=1000 , image="http://i.giphy.com/l3V0EQrPMh1nnfbFe.gif")
+      ,.busyIndicator(wait=1000 
+                      , image="http://i.giphy.com/l3V0EQrPMh1nnfbFe.gif")
     )
     ,server = {
       function(input, output , session) {
@@ -170,24 +164,26 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
       # --------------------------------------
 
         # Create a LowMACA object that depends on tumor types and gene
-        # lmObj is reactive to the Run button (if you change gene you must press it again)
+        # lmObj is reactive to the Run button 
+        # (if you change gene you must press it again)
       lmObj <- eventReactive(input$goButton , {
           repos_red <- repos[ repos$Tumor_Type %in% input$tumor_type &
                               repos$Gene_Symbol==input$genes, ]
           if(nrow(repos_red)==0){
             return(NULL)
           }
-          lmObj <- tryCatch(.newLowMACAsimple(genes=input$genes) , error=function(e) NULL)
+          lmObj <- tryCatch(.newLowMACAsimple(genes=input$genes) 
+                            , error=function(e) NULL)
           if(is.null(lmObj)){
             return(NULL)
           }
-          # suppressWarnings(lmParamsSimple(lmObj)$mutation_type <- "all")
           suppressWarnings( lmObj$arguments$params$mutation_type <- "all" )
           lmObj <- .setupSimple(lmObj , repos=repos_red)
           return(lmObj)
         })
         # lmObjEntropy takes lmObj and apply .entropySimple with the selected bw
-        # changing bandwidth will automatically recalculate this step if run button is pressed
+        # changing bandwidth will automatically 
+        # recalculate this step if run button is pressed
       lmObjEntropy <- eventReactive(input$goButton , {
         if(is.null(lmObj()))
           return(NULL)
@@ -204,20 +200,9 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
         tmp <- lmObjEntropy()
         .lmPlotSimple(tmp)
       })
-        # These reactive values are:
-        # regions -> the LowMACA identified regions
-        # lfm -> the significant positions/mutations found by LowMACA
-      # regionEmpty <- data.frame(Gene_Symbol=""
-      #                   , Span=""
-      #                   , Region_Width_In_bp=""
-      #                   , Span_Percentage=""
-      #                   , Percentage_Of_Covered_Mutations=""
-      #                   )
       myoutputlist <- reactiveValues(regions=NULL
                                     , lfm=NULL
-                                    , NoSignificanceText=NULL
-                                    # , panel=panel
-                                    )
+                                    , NoSignificanceText=NULL)
         # Report the significant mutations (lfm function of LowMACA) (tab 2) 
       observe({
         if(is.null(lmObjEntropy())){
@@ -231,30 +216,30 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
             # return(out)
           } else {
             # Aesthetics improvements
-            out <- out[ , c("Gene_Symbol" , "Amino_Acid_Position" , "Amino_Acid_Change" , "Tumor_Type" , "metric" , "Sample")]
+            out <- out[ , c("Gene_Symbol" , "Amino_Acid_Position" 
+                  , "Amino_Acid_Change" , "Tumor_Type" , "metric" , "Sample")]
             colnames(out)[colnames(out)=="metric"] <- input$metric
-            agg1 <- aggregate(Sample ~ Gene_Symbol + Amino_Acid_Position + Tumor_Type, out , FUN=length)
-            agg1$Tumor_Type_and_Freq <- paste(agg1$Tumor_Type , agg1$Sample , sep=":")
-            agg1 <- aggregate(Tumor_Type_and_Freq ~ Gene_Symbol + Amino_Acid_Position , agg1 
+            agg1 <- aggregate(Sample ~ Gene_Symbol + 
+                                Amino_Acid_Position + 
+                                Tumor_Type, out , FUN=length)
+            agg1$Tumor_Type_and_Freq <- paste(agg1$Tumor_Type 
+                                              , agg1$Sample , sep=":")
+            agg1 <- aggregate(Tumor_Type_and_Freq ~ Gene_Symbol + 
+                                Amino_Acid_Position , agg1 
                     , FUN=function(x) paste(unique(x) , collapse="|"))
-            finalOut <- merge(agg1 , unique(out[ , c("Gene_Symbol" , "Amino_Acid_Position" , input$metric)]))
-            finalOut$Amino_Acid_Position <- as.integer(finalOut$Amino_Acid_Position)
+            finalOut <- merge(agg1 , unique(out[ , c("Gene_Symbol" 
+                            , "Amino_Acid_Position" , input$metric)]))
+            finalOut$Amino_Acid_Position <- 
+              as.integer(finalOut$Amino_Acid_Position)
             finalOut <- finalOut[ order(finalOut$Amino_Acid_Position) , ]
             # Update element lfm of the output
             myoutputlist$lfm <- finalOut
-            # finalOut
           }
         }
       })
       output$lfm <- DT::renderDataTable({
         myoutputlist$lfm
         } ,rownames=FALSE
-          # ,extensions=list(FixedColumns=list(leftColumns = 1))
-          # ,options = list(searchHighlight = TRUE
-          #     ,scrollX = TRUE
-          #     ,scrollCollapse = FALSE
-          #     ,pageLength = 10)
-          # ,filter = 'bottom'
       )
        # Report LowMACA results:
           # 1) the significant regions
@@ -274,53 +259,60 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
           } else {
             signAminosGroups <- .splitter(signAminos)
             out <- data.frame(
-                    Gene_Symbol=rep(lmObjEntropy()$arguments$genes , length(signAminosGroups))
-                    # , Region=names(signAminosGroups) 
-                    , Span=vapply(signAminosGroups , function(x) {
-                          if(length(x)==1){
-                            return(paste(as.character(x) , as.character(x) , sep="-"))
-                          } else {
-                            return(paste(x[1] , x[length(x)] , sep="-"))
-                          }
-                      } , character(1))
-                    , Region_Width_In_bp=vapply(signAminosGroups , function(x) {
-                          if(length(x)==1){
-                            return(3)
-                          } else {
-                            span <- x[length(x)] - x[1] + 1
-                            return(span*3)
-                          }
-                      } , numeric(1))
-                    , stringsAsFactors=FALSE)
+            Gene_Symbol=rep(lmObjEntropy()$arguments$genes 
+                                , length(signAminosGroups))
+                , Span=vapply(signAminosGroups , function(x) {
+                      if(length(x)==1){
+                        return(paste(as.character(x) , as.character(x) 
+                                     , sep="-"))
+                      } else {
+                        return(paste(x[1] , x[length(x)] , sep="-"))
+                      }
+                  } , character(1))
+                , Region_Width_In_bp=vapply(signAminosGroups , function(x) {
+                      if(length(x)==1){
+                        return(3)
+                      } else {
+                        span <- x[length(x)] - x[1] + 1
+                        return(span*3)
+                      }
+                  } , numeric(1))
+                , stringsAsFactors=FALSE)
             # Calculate the percentage of aminoacids covered by each region
             Span_Percentage=vapply(signAminosGroups , function(x) {
-                          if(length(x)==1){
-                            (1/length(aminos))*100
-                          } else {
-                            span <- x[length(x)] - x[1] + 1
-                            (span/length(aminos))*100
-                          }
-                      } , numeric(1))
-            out$Span_Percentage <- paste0(format(round(Span_Percentage , 2), nsmall=2) , "%")
+                      if(length(x)==1){
+                        (1/length(aminos))*100
+                      } else {
+                        span <- x[length(x)] - x[1] + 1
+                        (span/length(aminos))*100
+                      }
+                  } , numeric(1))
+            out$Span_Percentage <- paste0(format(round(Span_Percentage 
+                                                       , 2), nsmall=2) , "%")
             # Calculate the percentage of mutations caught by the region
             mymuts <- lmObjEntropy()$mutations$data
             coveredMutations <- vapply(signAminosGroups , function(x) {
-                                  regionMuts <- nrow(mymuts[ mymuts$Amino_Acid_Position %in% x , ])
-                                  perc <- 100*(regionMuts/nrow(mymuts))
-                                  return(perc)
-                            } , numeric(1))
-            out$Percentage_Of_Covered_Mutations <- paste0(format(round(coveredMutations , 2), nsmall=2) , "%")
+                regionMuts <- nrow(mymuts[ mymuts$Amino_Acid_Position %in% x, ])
+                perc <- 100*(regionMuts/nrow(mymuts))
+                return(perc)
+                        } , numeric(1))
+            out$Percentage_Of_Covered_Mutations <- 
+              paste0(format(round(coveredMutations , 2), nsmall=2) , "%")
             totalSummary <- paste(
-              paste("Gene Symbol:" , lmObjEntropy()$arguments$genes, "-", length(aminos) , "aminoacids")
+              paste("Gene Symbol:" , lmObjEntropy()$arguments$genes
+                    , "-", length(aminos) , "aminoacids")
               , paste("Identified LowMACA regions:" , nrow(out))
               , paste("Total bp:" , sum(out$Region_Width_In_bp))
-              , paste("Percentage of the protein:" , paste0(format(round(sum(Span_Percentage) , 2), nsmall=2) , "%"))
-              , paste("Percentage of total mutations:" , paste0(format(round(sum(coveredMutations) , 2), nsmall=2) , "%"))
+              , paste("Percentage of the protein:" 
+                      , paste0(format(round(sum(Span_Percentage) , 2)
+                                      , nsmall=2) , "%"))
+              , paste("Percentage of total mutations:" 
+                      , paste0(format(round(sum(coveredMutations) , 2)
+                                      , nsmall=2) , "%"))
               , sep="\n")
             myoutputlist$NoSignificanceText <- totalSummary
             # Update element regions in myoutputlist
             myoutputlist$regions <- out
-            # return(out)
           }
         }
       })
@@ -330,10 +322,9 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
           myoutputlist$NoSignificanceText <- NULL
         } else {
           if(is.null(myoutputlist$regions)){
-            myoutputlist$NoSignificanceText <- "No Significant Regions or Mutations identified by LowMACA"
-          } #else {
-          #   myoutputlist$NoSignificanceText <- NULL
-          # }
+            myoutputlist$NoSignificanceText <- 
+              "No Significant Regions or Mutations identified by LowMACA"
+          }
         }
       })
       output$NoSignificanceText <- renderText(myoutputlist$NoSignificanceText)
@@ -341,30 +332,11 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
       output$lowmacaregions <- DT::renderDataTable({
         myoutputlist$regions
         } , server=FALSE
-          ,rownames=FALSE
-          # ,extensions=list(FixedColumns=list(leftColumns = 1))
-          # ,options = list(searchHighlight = TRUE
-          #     ,scrollX = TRUE
-          #     ,scrollCollapse = FALSE
-          #     ,pageLength = 10)
-          # ,filter = 'bottom'
-        )
-      # output$lowmacaregions <- renderUI({
-      #   if(is.null(lmObj())){
-      #     return(NULL)
-      #   }
-      #   if(!is.null(myoutputlist$regions)){
-      #     output$lowmacaregionsTab <- DT::renderDataTable(myoutputlist$regions)
-      #     DT::dataTableOutput("lowmacaregionsTab")
-      #   } else {
-      #     output$lowmacaregionsTab <- renderPlot(.emptyPlotter("No Significant Mutations or Regions"))
-      #     plotOutput("lowmacaregionsTab")
-      #   }
-      #   })
+          ,rownames=FALSE)
         # Store LowMACA regions in compound regions
         # When clicking Store LowMACA, an event is triggered:
           # If no rows are selected, take all the regions suggested by LowMACA
-          # If the first row is selected, take all the regions suggested by LowMACA
+          # If the first row is selected, take the regions suggested by LowMACA
           # If specific regions are selected, take those
       observeEvent(input$storelowmaca , {
         if(is.null(input$lowmacaregions_rows_selected)){
@@ -374,10 +346,12 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
           if(1 %in% as.numeric(input$lowmacaregions_rows_selected)){
             lowmacaadd <- myoutputlist$regions[ -1 , , drop=FALSE]
           } else {
-            lowmacaadd <- myoutputlist$regions[ as.numeric(input$lowmacaregions_rows_selected) , , drop=FALSE]
+            lowmacaadd <- myoutputlist$regions[ 
+              as.numeric(input$lowmacaregions_rows_selected) , , drop=FALSE]
           }
         }
-        myregion$compoundRegion <- rbind(myregion$compoundRegion , lowmacaadd) %>% unique
+        myregion$compoundRegion <- rbind(myregion$compoundRegion 
+                                         , lowmacaadd) %>% unique
       })
 
       # --------------------------------------
@@ -389,18 +363,19 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
         if(is.null(lmObj()))
           return(NULL)
         mut_aligned <- lmObj()$mutations$aligned
-        #mut_aligned_df <- data.frame(Position=1:ncol(mut_aligned)
-        #                            , Mutations=mut_aligned[ 1 , , drop=TRUE])
-        #mut_aligned_df <- mut_aligned_df[ mut_aligned_df$Mutations!=0 , ]
         # New Version with trunc and missense
         mut_aligned_data <- lmObj()$mutations$data
-        mut_aligned_tab <- table(mut_aligned_data$Amino_Acid_Position , mut_aligned_data$Mutation_Type) %>%
+        mut_aligned_tab <- table(mut_aligned_data$Amino_Acid_Position 
+                                 , mut_aligned_data$Mutation_Type) %>%
           melt %>%
           setNames(. , c("Position" , "Mutation_Type" , "Mutations")) %>%
           .[ .$Mutations!=0 , ]
-        mut_aligned_tab$Color <- ifelse(mut_aligned_tab$Mutation_Type %in% ktrunc_type , "darkred" , "limegreen")
-        mut_aligned_tab_agg1 <- aggregate(Mutations ~ Position , mut_aligned_tab , FUN=sum)
-        mut_aligned_tab_agg2 <- aggregate(Color ~ Position , mut_aligned_tab , FUN=function(x) {
+        mut_aligned_tab$Color <- ifelse(mut_aligned_tab$Mutation_Type %in% 
+                                          ktrunc_type , "darkred" , "limegreen")
+        mut_aligned_tab_agg1 <- aggregate(Mutations ~ Position 
+                                          , mut_aligned_tab , FUN=sum)
+        mut_aligned_tab_agg2 <- aggregate(Color ~ Position 
+                                          , mut_aligned_tab , FUN=function(x) {
           out <- paste(sort(unique(x)) , collapse="|")
           if(out=="darkred|limegreen")
             return("purple")
@@ -414,10 +389,6 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
         if(is.null(lmObj)){
           return(.emptyPlotter("No Mutations or No protein available"))
         }
-        # mut_aligned <- lmObjEntropy()$mutations$aligned
-        # mut_aligned_df <- data.frame(Position=1:ncol(mut_aligned)
-        #                             , Mutations=mut_aligned[ 1 , , drop=TRUE])
-        # mut_aligned_df <- mut_aligned_df[ mut_aligned_df$Mutations!=0 , ]
         mut_aligned <- mut_aligned_df()[[1]]
         mut_aligned_df <- mut_aligned_df()[[2]]
         # Draw a custom axis
@@ -429,39 +400,28 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
         # Impose custom limits
         myylim <- c(0, max(colSums(mut_aligned)) + 1)
         myxlim <- c(0 , ncol(mut_aligned))
-        # layoutMatrix <- as.matrix(c(1,1,1,1,1,1,2))
-        # layout(layoutMatrix)
         par(mar=c(1.5,4.1,4.1,2.1))
         plot(mut_aligned_df$Position
           , mut_aligned_df$Mutations
-          #, pch=19
           , cex=1.5
-          , main=paste0("Lolliplot of " , rownames(mut_aligned) , " - " , ncol(mut_aligned) , " aminoacids"
+          , main=paste0("Lolliplot of " , rownames(mut_aligned) , " - " 
+                        , ncol(mut_aligned) , " aminoacids"
                       , "\nclick on the dots or drag to select a region")
-          # , col=c("green" , "white")[ (mut_aligned_df$Mutations==0) + 1 ]
-          # , bty="n"
           , xaxs = "i"
-          # , yaxs="i"
           , xaxt="n"
           , yaxt="n"
           , frame.plot=FALSE
-          # , bty="n"
-          #, col="darkred"
           , bg=mut_aligned_df$Color
           , pch=21
           , col="gray"
-          # , xlab="Position"
           , xlab=""
           , ylab="Mutations"
           , xlim=myxlim
           , xaxp=c(myxlim[1] , myxlim[2] , 10)
           , ylim=myylim
-          # , xaxt="n"
           )
         axis(side = 1 , at = round(seq(1 , myxlim[2] , length = 20)) 
              , labels = as.character(round(seq(1 , myxlim[2] , length = 20)))
-             #, cex = 0.1 
-             #, font=windowsFont("Comic Sans MS")
              , mgp = c(0, 0.5, 0)
              , font.axis=2,font.lab=2,cex.lab=0.8,cex.axis=0.8)
         ymarks <- if(myylim[2]<6){
@@ -480,14 +440,14 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
                , col = c("darkred" , "limegreen" , "purple")
                , pch=19
                , bty="n")
-        # axis(1 , at=myaxis , labels = as.character(myaxis) , las=2)
         # The distance between the bottom of y axis and x axis is 4% of yaxis
         # We have to elong the segements so that they touch the x axis
         for(i in mut_aligned_df$Position){
             segments( i 
                       , 0 - 0.04*diff(myylim)
                       , i 
-                      , mut_aligned_df[mut_aligned_df$Position==i , "Mutations"] - 0.025*diff(myylim)
+                      , mut_aligned_df[mut_aligned_df$Position==i 
+                          , "Mutations"] - 0.025*diff(myylim)
                       , col="gray" , lwd=2)
         }
         par <- par(opar)
@@ -505,38 +465,40 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
         domains <- myPfam[myPfam$Gene_Symbol==gene
           , c("Envelope_Start" , "Envelope_End" , "Pfam_Name")]
         ## create empty plot
-        # No margins on top and bottom, but keep the left and right margins as the plot above
+        # No margins on top and bottom, but keep 
+        # the left and right margins as the plot above
         par(mar=c(0,4.1,0,2.1))
         plot(c(0, 1), c(0, 1)
-            , ann = FALSE, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n' , xaxs = "i"
-            , xlim=myxlim , ylim=c(0,0.05) , xaxp=c(myxlim[1] , myxlim[2] , 10))
-        # Draw a gray rectangle to represent the protein, the domains will be plotted over
+            , ann = FALSE, bty = 'n', type = 'n'
+            , xaxt = 'n', yaxt = 'n' , xaxs = "i"
+            , xlim=myxlim , ylim=c(0,0.05) 
+            , xaxp=c(myxlim[1] , myxlim[2] , 10))
+        # Draw a gray rectangle to represent 
+        # the protein, the domains will be plotted over
         rect(xleft = myxlim[1] , xright = myxlim[2] 
              , ytop = 0.0332 , ybottom = 0.01666
              , col="gray" , border=NA)
-        # plot.new()
-        # plot.window(
-        #   xlim=myxlim
-        #   , ylim=c(0,0.05)
-        #   )
         ## plot domains
         if(nrow(domains)>0) {
           # Assign a different color for each domain name
-          myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral")), space="Lab")
-          domains$Colors <- factor(domains$Pfam_Name) %>% as.numeric %>% myPalette(max(.))[.]
+          myPalette <- colorRampPalette(rev(brewer.pal(11, "Spectral"))
+                                        , space="Lab")
+          domains$Colors <- factor(domains$Pfam_Name) %>% 
+            as.numeric %>% myPalette(max(.))[.]
           for(i in seq_len(nrow(domains))) {
             xleft=as.numeric(domains[i , "Envelope_Start"])
             xright=as.numeric(domains[i , "Envelope_End"])
             ytop=0.05
             ybottom=0
-            #col=topo.colors(nrow(domains) , alpha)[i]
             col=domains[i , "Colors"]
             characters <- nchar(domains[i , "Pfam_Name"])
             rect(xleft=xleft , xright=xright 
               , ytop=ytop , ybottom=ybottom 
               , col=col , border=NA)
-            text(x=xleft , y=0.025 , as.character(xleft) , font=2 , col="red" , cex=1 , srt=90)
-            text(x=xright , y=0.025 , as.character(xright) , font=2 , col="red" , cex=1 , srt=90)
+            text(x=xleft , y=0.025 , as.character(xleft) 
+                 , font=2 , col="red" , cex=1 , srt=90)
+            text(x=xright , y=0.025 , as.character(xright) 
+                 , font=2 , col="red" , cex=1 , srt=90)
             if(characters<=3){
               text(x=(xright+xleft)/2 , y=0.025 
                 , domains[i , "Pfam_Name"] 
@@ -558,41 +520,40 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
             , 'no pfam domains', cex=1.5)
         }
         par <- par(opar)
-        # par(mar=c(2,4,4,2))
       })
-        # Reactive values for manual selection
-          # 1) selectRegion: brush points selected
-          # 2) selectSingle: click single mutations selction
-          # 2) compoundRegion: incremental brush point + LowMACA regions for tab 4
-          # 3) textMessage: tell the user is selecting an overlapping region or NULL when click on store
-      myregion <- reactiveValues(selectRegion=NULL , selectSingle=NULL , compoundRegion=NULL , textMessage=NULL)
+      # Reactive values for manual selection
+      # 1) selectRegion: brush points selected
+      # 2) selectSingle: click single mutations selction
+      # 2) compoundRegion: incremental brush point + LowMACA regions for tab 4
+      # 3) textMessage: tell the user is selecting 
+           # an overlapping region or NULL when click on store
+      myregion <- reactiveValues(selectRegion=NULL , selectSingle=NULL 
+                                 , compoundRegion=NULL , textMessage=NULL)
 
         # Visualize single mutation on mouse click
       output$infoclick <- shiny::renderTable({
-        # print(input$plot_click$x);print(input$plot_click$y)
         if(is.null(input$plot_click)){
           return(NULL)
         }
-        # mut_aligned <- lmObjEntropy()$mutations$aligned
         mut_aligned <- mut_aligned_df()[[1]]
         mut_aligned_df <- data.frame(Position=seq_len(ncol(mut_aligned))
                                     , Mutations=mut_aligned[ 1 , , drop=TRUE])
         mut_aligned_df <- mut_aligned_df[ mut_aligned_df$Mutations!=0 , ]
-        # mut_aligned <- mut_aligned_df()[[1]]
-        # mut_aligned_df <- mut_aligned_df()[[2]]
         mynearPoints <- nearPoints(mut_aligned_df , input$plot_click 
                                 , xvar="Position" , yvar="Mutations"
                                 , maxpoints=1)
-        # print(mynearPoints)
         if(nrow(mynearPoints)==0){
           return()
         }
         mynearPoints$Mutations <- as.integer(mynearPoints$Mutations)
-        perc_mutation <- 100*(mynearPoints$Mutations/sum(mut_aligned_df$Mutations))
-        perc_mutation <- paste0(format(round(perc_mutation , 2), nsmall=2) , "%")
+        perc_mutation <- 100*(mynearPoints$Mutations/sum(
+          mut_aligned_df$Mutations))
+        perc_mutation <- paste0(format(round(perc_mutation , 2)
+                                       , nsmall=2) , "%")
         mynearPoints$Percentage_Of_Covered_Mutations <- perc_mutation
         mymuts <- lmObj()$mutations$data
-        mydataPosition <- mymuts[ mymuts$Amino_Acid_Position==mynearPoints$Position ,  ]
+        mydataPosition <- mymuts[ mymuts$Amino_Acid_Position==
+                                    mynearPoints$Position ,  ]
         tumtypeTab <- table(mydataPosition$Tumor_Type)
         mynearPoints$Tumor_Type <- paste( paste(names(tumtypeTab) 
                                               , unname(tumtypeTab) 
@@ -603,20 +564,16 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
                                                       , unname(aminochangeTab) 
                                                       , sep=":")
                                                 , collapse="|")
-        # print(rownames(mut_aligned))
-        # print(paste( mynearPoints$Positions , mynearPoints$Positions  , sep="-"))
-        # print(paste0(format(round(100/ncol(mut_aligned) , 2), nsmall=2) , "%"))
-        # print(perc_mutation)
         out <- data.frame(Gene_Symbol = rownames(mut_aligned)
-                          , Span = paste( mynearPoints$Position , mynearPoints$Position  , sep="-")
-                          , Region_Width_In_bp = 3
-                          , Span_Percentage = paste0(format(round(100/ncol(mut_aligned) , 2), nsmall=2) , "%")
-                          , Percentage_Of_Covered_Mutations = perc_mutation
-                          , stringsAsFactors=FALSE)
+            , Span = paste( mynearPoints$Position 
+                      , mynearPoints$Position  , sep="-")
+            , Region_Width_In_bp = 3
+            , Span_Percentage = 
+              paste0(format(round(100/ncol(mut_aligned) , 2), nsmall=2) , "%")
+            , Percentage_Of_Covered_Mutations = perc_mutation
+            , stringsAsFactors=FALSE)
         myregion$selectSingle <- out
-        # print(mynearPoints)
         return(mynearPoints)
-        # paste("Position:" , input$plot_click$x , "\nMutations:" , input$plot_click$y)
       })
         # Show the features of the selcted region with brush points      
       output$infobrush <- shiny::renderTable({
@@ -627,7 +584,8 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
         mut_aligned <- mut_aligned_df()[[1]]
         mut_aligned_df <- data.frame(Position=seq_len(ncol(mut_aligned))
                                     , Mutations=mut_aligned[ 1 , , drop=TRUE])
-        start <- ifelse(floor(input$plot_brush$xmin)<1 , 1 , floor(input$plot_brush$xmin))
+        start <- ifelse(floor(input$plot_brush$xmin)<1 , 1 
+                        , floor(input$plot_brush$xmin))
         end <- ifelse(ceiling(input$plot_brush$xmax)>nrow(mut_aligned_df) 
                     , nrow(mut_aligned_df)
                     , ceiling(input$plot_brush$xmax))
@@ -636,10 +594,11 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
         perc_space <- end - start + 1
         perc_space <- 100*(perc_space/(nrow(mut_aligned_df)))
         perc_space <- paste0(format(round(perc_space , 2), nsmall=2) , "%")
-        perc_mutation <- 100*(sum(myblock$Mutations)/sum(mut_aligned_df$Mutations))
-        perc_mutation <- paste0(format(round(perc_mutation , 2), nsmall=2) , "%")
+        perc_mutation <- 100*(sum(myblock$Mutations)/sum(
+          mut_aligned_df$Mutations))
+        perc_mutation <- paste0(format(round(perc_mutation , 2)
+                                       , nsmall=2) , "%")
         out <- data.frame(Gene_Symbol=rownames(mut_aligned)
-                          # , Region = "Selected Region"
                           , Span = paste( start , end  , sep="-")
                           , Region_Width_In_bp = as.integer(3*(end - start + 1))
                           , Span_Percentage = perc_space
@@ -656,22 +615,30 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
             myregion$compoundRegion <- tmp
           } else {
             if(!tmp$Gene_Symbol %in% myregion$compoundRegion$Gene_Symbol){
-              myregion$compoundRegion <- unique(rbind(myregion$compoundRegion , tmp))
+              myregion$compoundRegion <- unique(rbind(myregion$compoundRegion
+                                                      , tmp))
             } else {
-              # tokeep <- myregion$compoundRegion[ myregion$compoundRegion$Gene_Symbol!=tmp$Gene_Symbol , , drop=FALSE ]
-              tomerge <- myregion$compoundRegion[ myregion$compoundRegion$Gene_Symbol==tmp$Gene_Symbol , , drop=FALSE ]
-              # print(as.character(tmp$Span))
-              # print(str(tomerge))
-              spantmp <- strsplit(as.character(tmp$Span) , "-") %>% unlist %>% as.integer
+              tomerge <- myregion$compoundRegion[ 
+                myregion$compoundRegion$Gene_Symbol==tmp$Gene_Symbol 
+                , , drop=FALSE ]
+              spantmp <- strsplit(as.character(tmp$Span) , "-") %>% 
+                unlist %>% as.integer
               for(i in seq_len(nrow(tomerge))){
                 myspan <- as.character(tomerge[i , "Span"])
-                intervalAmino <- strsplit(myspan , "-") %>% unlist %>% as.integer
+                intervalAmino <- strsplit(myspan , "-") %>% 
+                  unlist %>% as.integer
                 intervalAmino <- intervalAmino[1]:intervalAmino[2]
-                if(spantmp[1] %in% intervalAmino | spantmp[2] %in% intervalAmino){
-                  myregion$textMessage <- "This region overlaps with one of the previous ones.\nWhen you close and save, the regions will be merged"
-                  myregion$compoundRegion <- unique(rbind(myregion$compoundRegion , tmp))
+                if(spantmp[1] %in% intervalAmino | spantmp[2] %in% 
+                   intervalAmino){
+                  myregion$textMessage <- 
+                    paste("This region overlaps with one of the previous ones."
+                        ,"When you close and save, the regions will be merged"
+                        , sep="\n")
+                  myregion$compoundRegion <- 
+                    unique(rbind(myregion$compoundRegion , tmp))
                 } else {
-                  myregion$compoundRegion <- unique(rbind(myregion$compoundRegion , tmp))
+                  myregion$compoundRegion <- 
+                    unique(rbind(myregion$compoundRegion , tmp))
                   myregion$textMessage <- NULL
                 }
               }
@@ -687,22 +654,30 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
             myregion$compoundRegion <- tmp
           } else {
             if(!tmp$Gene_Symbol %in% myregion$compoundRegion$Gene_Symbol){
-              myregion$compoundRegion <- unique(rbind(myregion$compoundRegion , tmp))
+              myregion$compoundRegion <- unique(rbind(myregion$compoundRegion 
+                                                      , tmp))
             } else {
-              # tokeep <- myregion$compoundRegion[ myregion$compoundRegion$Gene_Symbol!=tmp$Gene_Symbol , , drop=FALSE ]
-              tomerge <- myregion$compoundRegion[ myregion$compoundRegion$Gene_Symbol==tmp$Gene_Symbol , , drop=FALSE ]
-              # print(as.character(tmp$Span))
-              # print(str(tomerge))
-              spantmp <- strsplit(as.character(tmp$Span) , "-") %>% unlist %>% as.integer
+              tomerge <- myregion$compoundRegion[ 
+                myregion$compoundRegion$Gene_Symbol==tmp$Gene_Symbol 
+                , , drop=FALSE ]
+              spantmp <- strsplit(as.character(tmp$Span) , "-") %>% 
+                unlist %>% as.integer
               for(i in seq_len(nrow(tomerge))){
                 myspan <- as.character(tomerge[i , "Span"])
-                intervalAmino <- strsplit(myspan , "-") %>% unlist %>% as.integer
+                intervalAmino <- strsplit(myspan , "-") %>% 
+                  unlist %>% as.integer
                 intervalAmino <- intervalAmino[1]:intervalAmino[2]
-                if(spantmp[1] %in% intervalAmino | spantmp[2] %in% intervalAmino){
-                  myregion$textMessage <- "This region overlaps with one of the previous ones.\nWhen you close and save, the regions will be merged"
-                  myregion$compoundRegion <- unique(rbind(myregion$compoundRegion , tmp))
+                if(spantmp[1] %in% intervalAmino | spantmp[2] %in% 
+                   intervalAmino){
+                  myregion$textMessage <- 
+                    paste("This region overlaps with one of the previous ones."
+                          ,"When you close and save, the regions will be merged"
+                          , sep="\n")
+                  myregion$compoundRegion <- 
+                    unique(rbind(myregion$compoundRegion , tmp))
                 } else {
-                  myregion$compoundRegion <- unique(rbind(myregion$compoundRegion , tmp))
+                  myregion$compoundRegion <- 
+                    unique(rbind(myregion$compoundRegion , tmp))
                   myregion$textMessage <- NULL
                 }
               }
@@ -717,14 +692,14 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
         # Discard a region from the panel Optimize Panel (tab 4)
       observeEvent(input$discard , {
         if(!is.null(input$panel_rows_selected)){
-          # updateButton(session , inputId = "discard" , disabled=FALSE)
-          # print(input$panel_rows_selected)
-          temp <- myregion$compoundRegion[ -as.numeric(input$panel_rows_selected) , , drop=FALSE]
+          temp <- myregion$compoundRegion[ 
+            -as.numeric(input$panel_rows_selected) , , drop=FALSE]
           temp <- unique(temp)
           myregion$compoundRegion <- temp
         }
       })
-        # Show the error message when attempting to select two overlapping regions in manual selection
+        # Show the error message when attempting to 
+        # select two overlapping regions in manual selection
       output$textMessage <- renderText({
         myregion$textMessage
         })
@@ -732,55 +707,62 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
       output$panel <- DT::renderDataTable({
         myregion$compoundRegion
       } , server=FALSE
-        , rownames=FALSE
-        # ,extensions=list(FixedColumns=list(leftColumns = 1))
-        # ,options = list(searchHighlight = TRUE
-        #               ,scrollX = TRUE
-        #               ,scrollCollapse = FALSE
-        #               ,pageLength = 10)
-        # , filter = 'bottom'
-      )
+        , rownames=FALSE)
 
       # ------------------------------------------------------
       # Output Result
       # ------------------------------------------------------
 
-      # Return compoundRegion content in case of close and save or if the app is closed
+      # Return compoundRegion content in case 
+      # of close and save or if the app is closed
       observeEvent(input$stopandsave , {
-          # session$sendCustomMessage(type = 'testmessage',
-          #   message = 'Thanks for optimizing your panel')
           stopApp(isolate({
             if(is.null(myregion$compoundRegion)){
-              colsToKeep <- c("drug" , "gene_symbol" , "alteration" , "exact_alteration" , "mutation_specification" , "group")
+              colsToKeep <- c("drug" , "gene_symbol" 
+                , "alteration" , "exact_alteration" 
+                , "mutation_specification" , "group")
               panelNew <- panel[ , colsToKeep] %>% unique
               list(regions=NULL , mergedRegions=NULL , panel=panelNew)
             } else if(nrow(myregion$compoundRegion)==0){
-              colsToKeep <- c("drug" , "gene_symbol" , "alteration" , "exact_alteration" , "mutation_specification" , "group")
+              colsToKeep <- c("drug" , "gene_symbol" 
+                , "alteration" , "exact_alteration" 
+                , "mutation_specification" , "group")
               panelNew <- panel[ , colsToKeep] %>% unique
               list(regions=NULL , mergedRegions=NULL , panel=panelNew)
             } else {
               finalRegionSelected <- myregion$compoundRegion
               splitregions <- strsplit(finalRegionSelected$Span , "-")
-              finalRegionSelected$start <- as.integer(vapply(splitregions , '[' , character(1) , 1))
-              finalRegionSelected$end <- as.integer(vapply(splitregions , '[' , character(1) , 2))
-              finalRegionSelectedsplit <- split(finalRegionSelected , finalRegionSelected$Gene_Symbol)
+              finalRegionSelected$start <- 
+                as.integer(vapply(splitregions , '[' , character(1) , 1))
+              finalRegionSelected$end <- 
+                as.integer(vapply(splitregions , '[' , character(1) , 2))
+              finalRegionSelectedsplit <- 
+                split(finalRegionSelected , finalRegionSelected$Gene_Symbol)
               reducer <- lapply(finalRegionSelectedsplit , function(df){
-                              myir <- IRanges(df$start , df$end)
-                              myir <- reduce(myir)
-                              out <- data.frame(region=paste(myir@start , myir@start + myir@width - 1 , sep="-")
-                                                ,gene_symbol=unique(df$Gene_Symbol)
-                                                ,stringsAsFactors=FALSE)
-                              return(out)
+                  myir <- IRanges(df$start , df$end)
+                  myir <- reduce(myir)
+                  out <- data.frame(region=paste(myir@start 
+                                    , myir@start + myir@width - 1 , sep="-")
+                                    ,gene_symbol=unique(df$Gene_Symbol)
+                                    ,stringsAsFactors=FALSE)
+                  return(out)
                 }) %>% do.call("rbind" , .)
               panelNew <- merge(panel , reducer , all.x=TRUE)
-              idxToSubstituteWithRegion <- panelNew$alteration=="SNV" & 
-                                            panelNew$exact_alteration %in% c("" , "mutation_type") & 
-                                            !is.na(panelNew$region)
-              panelNew$exact_alteration <- ifelse(idxToSubstituteWithRegion ,"amino_acid_position" ,panelNew$exact_alteration)
-              panelNew$mutation_specification <- ifelse(idxToSubstituteWithRegion ,panelNew$region ,panelNew$mutation_specification)
-              colsToKeep <- c("drug" , "gene_symbol" , "alteration" , "exact_alteration" , "mutation_specification" , "group")
+              idxToSubstituteWithRegion <- 
+                panelNew$alteration=="SNV" & 
+                panelNew$exact_alteration %in% c("" , "mutation_type") & 
+                !is.na(panelNew$region)
+              panelNew$exact_alteration <- ifelse(idxToSubstituteWithRegion 
+                            ,"amino_acid_position" ,panelNew$exact_alteration)
+              panelNew$mutation_specification <- 
+                ifelse(idxToSubstituteWithRegion
+                            , panelNew$region ,panelNew$mutation_specification)
+              colsToKeep <- c("drug" , "gene_symbol" 
+                      , "alteration" , "exact_alteration"
+                      , "mutation_specification" , "group")
               panelNew <- panelNew[ , colsToKeep] %>% unique
-              list(regions=myregion$compoundRegion , mergedRegions=reducer , panel=panelNew)
+              list(regions=myregion$compoundRegion 
+                   , mergedRegions=reducer , panel=panelNew)
             }
            })
          )
@@ -788,36 +770,51 @@ setMethod('panelOptimizer', 'CancerPanel', function(object){
       session$onSessionEnded(function() {
         stopApp(isolate({
             if(is.null(myregion$compoundRegion)){
-              colsToKeep <- c("drug" , "gene_symbol" , "alteration" , "exact_alteration" , "mutation_specification" , "group")
+              colsToKeep <- c("drug" , "gene_symbol" 
+                              , "alteration" , "exact_alteration" 
+                              , "mutation_specification" , "group")
               panelNew <- panel[ , colsToKeep] %>% unique
               list(regions=NULL , mergedRegions=NULL , panel=panelNew)
             } else if(nrow(myregion$compoundRegion)==0){
-              colsToKeep <- c("drug" , "gene_symbol" , "alteration" , "exact_alteration" , "mutation_specification" , "group")
+              colsToKeep <- c("drug" , "gene_symbol" 
+                              , "alteration" , "exact_alteration" 
+                              , "mutation_specification" , "group")
               panelNew <- panel[ , colsToKeep] %>% unique
               list(regions=NULL , mergedRegions=NULL , panel=panelNew)
             } else {
               finalRegionSelected <- myregion$compoundRegion
               splitregions <- strsplit(finalRegionSelected$Span , "-")
-              finalRegionSelected$start <- as.integer(vapply(splitregions , '[' , character(1) , 1))
-              finalRegionSelected$end <- as.integer(vapply(splitregions , '[' , character(1) , 2))
-              finalRegionSelectedsplit <- split(finalRegionSelected , finalRegionSelected$Gene_Symbol)
+              finalRegionSelected$start <- 
+                as.integer(vapply(splitregions , '[' , character(1) , 1))
+              finalRegionSelected$end <- 
+                as.integer(vapply(splitregions , '[' , character(1) , 2))
+              finalRegionSelectedsplit <- 
+                split(finalRegionSelected , finalRegionSelected$Gene_Symbol)
               reducer <- lapply(finalRegionSelectedsplit , function(df){
-                              myir <- IRanges(df$start , df$end)
-                              myir <- reduce(myir)
-                              out <- data.frame(region=paste(myir@start , myir@start + myir@width - 1 , sep="-")
-                                                ,gene_symbol=unique(df$Gene_Symbol)
-                                                ,stringsAsFactors=FALSE)
-                              return(out)
+                myir <- IRanges(df$start , df$end)
+                myir <- reduce(myir)
+                out <- data.frame(region=paste(myir@start 
+                                  , myir@start + myir@width - 1 , sep="-")
+                                  ,gene_symbol=unique(df$Gene_Symbol)
+                                  ,stringsAsFactors=FALSE)
+                return(out)
                 }) %>% do.call("rbind" , .)
               panelNew <- merge(panel , reducer , all.x=TRUE)
               idxToSubstituteWithRegion <- panelNew$alteration=="SNV" & 
-                                            panelNew$exact_alteration %in% c("" , "mutation_type") & 
-                                            !is.na(panelNew$region)
-              panelNew$exact_alteration <- ifelse(idxToSubstituteWithRegion ,"amino_acid_position" ,panelNew$exact_alteration)
-              panelNew$mutation_specification <- ifelse(idxToSubstituteWithRegion ,panelNew$region ,panelNew$mutation_specification)
-              colsToKeep <- c("drug" , "gene_symbol" , "alteration" , "exact_alteration" , "mutation_specification" , "group")
+                              panelNew$exact_alteration %in% 
+                c("" , "mutation_type") & 
+                              !is.na(panelNew$region)
+              panelNew$exact_alteration <- ifelse(idxToSubstituteWithRegion 
+                            ,"amino_acid_position" ,panelNew$exact_alteration)
+              panelNew$mutation_specification <- 
+                ifelse(idxToSubstituteWithRegion ,panelNew$region 
+                       ,panelNew$mutation_specification)
+              colsToKeep <- c("drug" , "gene_symbol" 
+                              , "alteration" , "exact_alteration" 
+                              , "mutation_specification" , "group")
               panelNew <- panelNew[ , colsToKeep] %>% unique
-              list(regions=myregion$compoundRegion , mergedRegions=reducer , panel=panelNew)
+              list(regions=myregion$compoundRegion
+                   , mergedRegions=reducer , panel=panelNew)
             }
            })
          )

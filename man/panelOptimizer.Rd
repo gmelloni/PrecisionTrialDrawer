@@ -67,7 +67,8 @@ returned in standard output.
 A list of three elements after closing the shiny session.
 \enumerate{
   \item{regions}{ a data.frame with the regions selected, 
-               the percentage of space occupied and percentage of mutations captured}
+               the percentage of space occupied 
+               and percentage of mutations captured}
   \item{mergedRegions}{ merged protein regions by gene from user section}
   \item{panel}{ if no regions were selected, it reports the original panel, 
                otherwise it substitutes the gene requested 

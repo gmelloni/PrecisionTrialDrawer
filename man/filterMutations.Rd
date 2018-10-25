@@ -4,7 +4,8 @@
 filterMutations: remove or keep specified mutations
 }
 \description{
-This method allows to keep only or to exclude certain mutations according to three different filtering formats
+This method allows to keep only or to exclude certain mutations 
+according to three different filtering formats
 }
 \usage{
 filterMutations(object 
@@ -28,7 +29,8 @@ If "exclude", mutations are removed from the object.
 If "keep", mutations specified in filtered are the only ones maintained.
 }
   \item{tumor_type}{
-A vector of tumor_type names. The filter will be active only on the specified tumor types
+A vector of tumor_type names. The filter will 
+be active only on the specified tumor types
 }
 }
 \details{
@@ -47,7 +49,8 @@ At the end of the filtering procedure, subsetAlterations is automatically run.
 An updated instance of class CancerPanel
 }
 \references{
-\href{www.cbioportal.org}{ data origin for mutations, copynumber and expression data}
+\href{www.cbioportal.org}{ data origin for mutations
+, copynumber and expression data}
 
 \href{www.tumorfusions.org}{ data origin for fusion data}
 }
@@ -55,7 +58,8 @@ An updated instance of class CancerPanel
 Giorgio Melloni , Alessandro Guida
 }
 \seealso{
-\code{\link{getAlterations}} \code{\link{subsetAlterations}} \code{\link{filterFusions}}
+\code{\link{getAlterations}} \code{\link{subsetAlterations}} 
+\code{\link{filterFusions}}
 }
 \examples{
 # Retrieve example data

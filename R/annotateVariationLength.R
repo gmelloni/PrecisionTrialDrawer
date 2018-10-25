@@ -14,28 +14,29 @@
     full_gene_specs <- c("amplification" , "deletion" , "up" , "down" , "" 
                         , "mutation_type" , "exact_fusion" , "gene_fusion")
     # every amino acid notation is composed by three bases
-    aminoLength <- 3
-    # Every time we subtract end - start in a "bed style" fashion we need to add 1
+    aLength <- 3
+    # Every time we subtract end-start in a "bed style" fashion we need to add 1
     offSet <- 1
     # List all possible target field
-    allTarget <- c(full_gene_specs , "amino_acid_position" , "amino_acid_variant" 
-                   , "dbSNP_rs" , "genomic_variant" , "genomic_position")
+    allTarget <- c(full_gene_specs, "amino_acid_position", "amino_acid_variant" 
+                   , "dbSNP_rs", "genomic_variant", "genomic_position")
     #Cycle through the panel and get the variation lenght based on the choice
     variation_length <- vapply(seq_len(nrow(panel)) , function(x) {
             # browse alteration
             target <- panel[x , "exact_alteration"]
             if( ! target %in% allTarget){
-              stop(paste("Mutation Specification is not correct at panel line" , x))
+              stop(paste("Mutation Specification is not correct at panel line" 
+                         , x))
             }
             if(target=="amino_acid_position"){
                 out <- strsplit(as.character(
                   panel[x , "mutation_specification"]) , "-") %>% 
                   unlist
                 # Final amino acid - First amino acid + 1. all multiply by 3
-                out <- (as.numeric(out[2]) - as.numeric(out[1]) + offSet)*aminoLength
+                out <- (as.numeric(out[2])-as.numeric(out[1])+offSet)*aLength
             }
             if(target=="amino_acid_variant"){
-                out <- aminoLength + 2*padding_length
+                out <- aLength + 2*padding_length
                 if(out<(padding_length*2 + offSet))
                     out <- (padding_length*2 + offSet)
             }

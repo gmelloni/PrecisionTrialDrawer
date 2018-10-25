@@ -72,7 +72,8 @@ Giorgio Melloni, Alessandro Guida
 \examples{
 # Load example CancerPanel object
 data(cpObj)
-# Launch subsetAlterations excluding certain mutations from being considered actionable
+# Launch subsetAlterations excluding certain mutations 
+# from being considered actionable
 rules <- data.frame(
     drug=c("Erlotinib" , "Erlotinib", "Erlotinib","Erlotinib","Olaparib")
     , gene_symbol=c("EGFR" , "KRAS", "" , "", "")

@@ -1,5 +1,5 @@
 ---
-title: "PrecisionTrialDrawer - A tool to analyze and design NGS based custom gene panels"
+title: "PrecisionTrialDrawer - To analyze and design NGS-based gene panels"
 author: 
 - name: Giorgio Melloni
   affiliation: Harvard Medical School, Boston, MA.
@@ -8,10 +8,14 @@ author:
 - name: Luca Mazzarella
   affiliation: European Institute of Oncology, Milan, Italy
 abstract: >
-  In recent years, two new forms of clinical trial designs emerged in clinical cancer genomics: umbrella and basket trials. 
-  Designs of such trials can be extremely difficult, starting from the creation of a valid screening panel, to the optimization 
-  of sequencing space and to the calculation of a correct sample size for the trial. PTD provides a series of tools that 
-  can help bioinformaticians, clinicians and biostatisticians to design, analyze and finalize a custom gene panel for cancer genomics.
+  In recent years, two new forms of clinical trial designs emerged 
+  in clinical cancer genomics: umbrella and basket trials. 
+  Designs of such trials can be extremely difficult, starting 
+  from the creation of a valid screening panel, to the optimization 
+  of sequencing space and to the calculation of a correct sample 
+  size for the trial. PTD provides a series of tools that 
+  can help bioinformaticians, clinicians and biostatisticians to 
+  design, analyze and finalize a custom gene panel for cancer genomics.
 vignette: >
   %\VignetteIndexEntry{Bioconductor style for HTML documents}
   %\VignetteEngine{knitr::rmarkdown}
@@ -45,18 +49,26 @@ knitr::knit_hooks$set(timeit = local({
 
 # Introduction
 
-In the era of personalized medicine and personalized health there is a tremendous effort 
-to bring NGS based technology in the clinical routine. Nevertheless, the information coming 
-from research studies is in most cases useless for the clinical practice and in addition too 
+In the era of personalized medicine and personalized 
+health there is a tremendous effort 
+to bring NGS based technology in the clinical routine. 
+Nevertheless, the information coming 
+from research studies is in most cases useless for the 
+clinical practice and in addition too 
 expensive. To bridge the gap between cancer research and clinical genomics, 
-we propose `r Rpackage("PrecisionTrialDrawer")`, a suite of simple tools to explore the ability 
+we propose `r Rpackage("PrecisionTrialDrawer")`, 
+a suite of simple tools to explore the ability 
 of less expensive cancer gene panels to be used in clinical trials. 
 With this package, you can use information coming from different sources 
-like mutations, expression, copynumber and fusion data and apply them to your cancer panel 
-to see for example how many patients are covered by a specific mutations or better, 
-how many patients would be covered by a drug that acts on multiple targets. 
+like mutations, expression, copynumber and fusion data 
+and apply them to your cancer panel 
+to see for example how many patients are covered 
+by a specific mutations or better, 
+how many patients would be covered by a drug 
+that acts on multiple targets. 
 Given a panel and tumor types to analyze, `r Rpackage("PrecisionTrialDrawer")`
-can be a terrific tool to create a pilot project for a basket or umbrella design 
+can be a terrific tool to create a pilot 
+project for a basket or umbrella design 
 and also to design the library to be ready for sequencing.
 
 # Data Preparation
@@ -64,87 +76,96 @@ and also to design the library to be ready for sequencing.
 The only input data the user has to provide is the panel itself. 
 We create an easy to read standard format, suitable for every kind 
 of alteration supported by `r Rpackage("PrecisionTrialDrawer")`. 
-For example, while in the research practice genomic regions are a standard way to 
-represent mutations (e.g. VCF style, 1:10000:A,C) this is not the most used form of 
+For example, while in the research practice 
+genomic regions are a standard way to 
+represent mutations (e.g. VCF style, 1:10000:A,C) 
+this is not the most used form of 
 representing druggable or pathogenic variants in clinical routine. 
-The use of amino acid notation (*BRAF* V600E is sensitive to *Vemurafenib*) or dbsnp rs numbers 
-(for example in [OMIM](http://www.omim.org/) database) is way more common but these are formats incompatible 
-with NGS genomic format. With our tool, every kind of notation is accepted so that you can easily integrate 
+The use of amino acid notation (*BRAF* V600E is 
+sensitive to *Vemurafenib*) or dbsnp rs numbers 
+(for example in [OMIM](http://www.omim.org/) database) 
+is way more common but these are formats incompatible 
+with NGS genomic format. With our tool, every kind 
+of notation is accepted so that you can easily integrate 
 any database at your disposal without any particular effort.
 
 ## CancerPanel object
 
 First of all, let's see what is the format of a cancer panel:
 
-```{r chunk1, echo=TRUE , eval=TRUE , message=FALSE , warning=FALSE , timeit=FALSE}
+```{r chunk1, echo=TRUE, eval=TRUE , message=FALSE, warning=FALSE , timeit=NULL}
 library(PrecisionTrialDrawer)
 library(knitr)
 data(panelexample)
 knitr::kable(panelexample)
 ```
 
-A cancer panel is a data.frame of character columns and every row represents an alteration and its properties. 
-We put together a panel using known specific drug targets (like Vemurafenib for *BRAF* V600E/K) or pathway targeting drugs 
-(like kinases inhibitor Vandetanib). We also add known driver/prognostic genes with no associated drug 
-(like *KRAS* or *TP53*). You have to bear in mind that the panel is both what you target and what you analyze. 
-If you ask for a *BRAF* V600E alteration, you will sequence 3 bases but only V600E will have the characteristic 
-of being druggable and will be considered in simulation analysis. In other words, by putting V600E you occupies 3 bases 
-in your panel but in simulations only a change from valine to glutamic acid will be considered druggable.
+A cancer panel is a data.frame of character columns and every row represents an
+alteration and its properties.  We put together a panel using known specific
+drug targets (like Vemurafenib for *BRAF* V600E/K) or pathway targeting drugs
+(like kinases inhibitor Vandetanib). We also add known driver/prognostic genes
+with no associated drug  (like *KRAS* or *TP53*). You have to bear in mind that
+the panel is both what you target and what you analyze.  If you ask for a *BRAF*
+V600E alteration, you will sequence 3 bases but only V600E will have the
+characteristic  of being druggable and will be considered in simulation
+analysis. In other words, by putting V600E you occupies 3 bases  in your panel
+but in simulations only a change from valine to glutamic acid will be considered
+druggable.
 
- - **drug**: drug names or compound or empty lines if this is not a druggable alteration;
- - **gene_symbol**: HGNC official gene symbols where the alteration;
- - **alteration**: can be one of the following 'SNV', 'CNA', 'expression', 'fusion':
- - **exact\_alteration**: a character vector that identifies the exact alteration depending on alteration value. 
-            For example, alteration 'CNA' could correspond to exact_alteration 'amplification' or 'deletion'.
- - **mutation\_specification**: a character vector that must be empty if alteration is not 'SNV' and identifies 
-            the exact mutation in the format specified in *exact_alteration*
- - **group**: this is a free field that is useful to identify groups of alteration. In the example is used to divide 
-            druggable from non-druggable driver variants. Another use could be to identify different panels and compare them.
+ - **drug**: drug names or compound or empty lines if this is not a druggable
+alteration;  - **gene_symbol**: HGNC official gene symbols where the alteration;
+- **alteration**: can be one of the following 'SNV', 'CNA', 'expression',
+'fusion':  - **exact\_alteration**: a character vector that identifies the exact
+alteration depending on alteration value. For example, alteration
+'CNA' could correspond to exact_alteration 'amplification' or 'deletion'.  -
+**mutation\_specification**: a character vector that must be empty if alteration
+is not 'SNV' and identifies              the exact mutation in the format
+specified in *exact_alteration*  - **group**: this is a free field that is
+useful to identify groups of alteration. In the example is used to divide
+druggable from non-druggable driver variants. Another use could be to identify
+different panels and compare them.
 
-We now present a list of possible alteration formats that must be respected. 
-Possible values for a cancer panel in columns alteration, **exact\_alteration** and mutation_specification are: 
+We now present a list of possible alteration formats that must be respected.
+Possible values for a cancer panel in columns alteration, **exact\_alteration**
+and mutation_specification are:
 
 |alteration |exact.alteration    |mutation_specification |
-|:----------|:-------------------|:----------------------|
-|CNA        |amplification       |                       |
-|CNA        |deletion            |                       |
-|expression |up                  |                       |
-|expression |down                |                       |
-|fusion     |                    |                       |
-|SNV        |                    |                       |
-|SNV        |mutation_type       |missense               |
-|SNV        |mutation_type       |truncating             |
-|SNV        |amino_acid_position |300-300                |
-|SNV        |amino_acid_position |300-350                |
-|SNV        |amino_acid_variant  |V600E                  |
-|SNV        |genomic_position    |13:20000-40000         |
-|SNV        |genomic_position    |13:20000-20000         |
-|SNV        |genomic_variant     |13:20000:A,C           |
-|SNV        |dbSNP_rs            |rs1234567              |
+|:----------|:-------------------|:----------------------| |CNA
+|amplification       |                       | |CNA        |deletion
+|                       | |expression |up                  |
+| |expression |down                |                       | |fusion     |
+|                       | |SNV        |                    |
+| |SNV        |mutation_type       |missense               | |SNV
+|mutation_type       |truncating             | |SNV        |amino_acid_position
+|300-300                | |SNV        |amino_acid_position |300-350
+| |SNV        |amino_acid_variant  |V600E                  | |SNV
+|genomic_position    |13:20000-40000         | |SNV        |genomic_position
+|13:20000-20000         | |SNV        |genomic_variant     |13:20000:A,C
+| |SNV        |dbSNP_rs            |rs1234567              |
 
 
-Copynumber and expression are basically self explained. Mutations can be expressed in a plethora of ways 
-but remember to keep the 1-base convention and in case of single position (amino acid or genomic) to 
-replicate start and end (e.g. 300-300). If you don't want to specify a particular mutation, 
-you can either leave *exact_alteration* and *mutation_specification* 
-empty or specify a subtype of alteration, like only missense 
-or only truncating variants. In the example panel, *BRCA1* is sensitive to a PARP inhibitor 
-only if it is either deleted or truncated, 
-because generally missense mutations are not considered pathogenic. 
-Fusions have no particular format, but are expressed in the gene\textunderscore symbol column. 
-If you put a single gene, `r Rpackage("PrecisionTrialDrawer")` will interpret it as 
-'every fusion involving that gene' (see *RET*), 
-while if you put a specific fusion (see *EML4\_\_ALK*), 
-it will look only for that specific fusion. 
-The format for specific fusions must be always *gene1\_\_gene2*.
+Copynumber and expression are basically self explained. Mutations can be
+expressed in a plethora of ways  but remember to keep the 1-base convention and
+in case of single position (amino acid or genomic) to  replicate start and end
+(e.g. 300-300). If you don't want to specify a particular mutation,  you can
+either leave *exact_alteration* and *mutation_specification*  empty or specify a
+subtype of alteration, like only missense  or only truncating variants. In the
+example panel, *BRCA1* is sensitive to a PARP inhibitor  only if it is either
+deleted or truncated,  because generally missense mutations are not considered
+pathogenic.  Fusions have no particular format, but are expressed in the
+gene\textunderscore symbol column.  If you put a single gene, `r
+Rpackage("PrecisionTrialDrawer")` will interpret it as  'every fusion involving
+that gene' (see *RET*),  while if you put a specific fusion (see *EML4\_\_ALK*),
+it will look only for that specific fusion.  The format for specific fusions
+must be always *gene1\_\_gene2*.
 
 Now that we have our panel, we need to build an object of class CancerPanel:
 
-```{r chunk2, echo=TRUE , eval=TRUE , message=TRUE , warning=FALSE , timeit=FALSE}
+```{r chunk2, echo=TRUE , eval=TRUE, message=TRUE, warning=FALSE, timeit=NULL}
 mypanel <- newCancerPanel(panelexample)
 ```
 
-```{r chunk2_bis, echo=FALSE , eval=TRUE , message=TRUE , warning=FALSE , timeit=FALSE}
+```{r chunk2_b, echo=FALSE, eval=TRUE, message=TRUE, warning=FALSE, timeit=NULL}
 # Keep a copy of this object in this status
 mypanel2 <- mypanel
 ```
@@ -153,36 +174,46 @@ mypanel2 <- mypanel
 The class constructor performs two main tasks. 
 The first one is to check for inconsistency in panel data.frame. 
 The second is to calculate a genomic length for every row of the panel. 
-CNA and expression alteration will have a length equal to the CDS or CDS plus UTR of the requested gene. 
-Fusions follow the same rule, but when a specific fusion is requested, the length 
+CNA and expression alteration will have a length equal to 
+the CDS or CDS plus UTR of the requested gene. 
+Fusions follow the same rule, but when a 
+specific fusion is requested, the length 
 is equal to the mean of two genes involved. 
 Finally, mutations will take a length equal to the exact alteration requested 
 plus a *padding_length* that can be decided by the user. 
 Note that this calculation does not take into account 
-overlapping regions as this is just a rough estimation for simulations in which every row 
-counts for itself. For a precise calculation, refer to the last section **PanelDesigner**.
+overlapping regions as this is just a rough estimation 
+for simulations in which every row 
+counts for itself. For a precise calculation, 
+refer to the last section **PanelDesigner**.
 
-Gene length calculations are based on biomaRt and ensembl database which is located in the UK. 
-For your convenience, we add the possibility of changing the host and go to a faster mirror 
+Gene length calculations are based on biomaRt and 
+ensembl database which is located in the UK. 
+For your convenience, we add the possibility of 
+changing the host and go to a faster mirror 
 located closer to your location.
 
-```{r chunk2_host, echo=TRUE , eval=FALSE , message=FALSE , warning=FALSE , timeit=FALSE}
+```{r chunk2_h, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE,timeit=NULL}
 # Connect to US east coast server
 # The default is www.ensembl.org
 mypanel <- newCancerPanel(panelexample , myhost="uswest.ensembl.org")
 ```
 
-A convenient list of mirror servers can be found here: [ensembl mirrors](http://www.ensembl.org/info/about/mirrors.html). 
+A convenient list of mirror servers can be found here: 
+[ensembl mirrors](http://www.ensembl.org/info/about/mirrors.html). 
 The same option is also available for *panelDesigner* method.
 
 ## Rules parameter
 
-There are specific situations where not every tumor in the panel can be associated with a drug. Such cases include 
-known drug resistance or simply drugs that are approved only for specific tumor types.
-We add a parameter called **rules** that define a set of modifiers of associations between drug and tumor types.
+There are specific situations where not every tumor in the panel 
+can be associated with a drug. Such cases include 
+known drug resistance or simply drugs that are 
+approved only for specific tumor types.
+We add a parameter called **rules** that define a set 
+of modifiers of associations between drug and tumor types.
 For example we can create a data.frame like the following:
 
-```{r chunk_rules, timeit=FALSE}
+```{r chunk_rules, timeit=NULL}
 rules <- data.frame(
     drug=c("Erlotinib" , "Erlotinib", "Erlotinib","Erlotinib","Olaparib")
     , gene_symbol=c("EGFR" , "KRAS", "" , "", "")
@@ -197,9 +228,10 @@ rules <- data.frame(
 knitr::kable(rules)
 ```
 
-It can be added directly when the object is constructed or later on during **subsetAlteration**.
+It can be added directly when the object is 
+constructed or later on during **subsetAlteration**.
 
-```{r chunk2_exclude, echo=TRUE , eval=FALSE , message=FALSE , warning=FALSE , timeit=FALSE}
+```{r chunk2_e, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE,timeit=NULL}
 mypanel_exclude <- newCancerPanel(panelexample 
                                   , myhost="uswest.ensembl.org" 
                                   , rules = rules)
@@ -209,7 +241,7 @@ We developed two type of possible rules described below.
 
 ### Drug resistance rules
 
-```{r chunk_rules2, timeit=FALSE}
+```{r chunk_rules2, timeit=NULL}
 knitr::kable(rules[1:2 , ])
 ```
 
@@ -224,29 +256,37 @@ to all the patients with the specified alteration.
 The **group** column is instead what the new couple sample-drug 
 should be considered. In our case, *Actionable* becomes *Driver*.
 
-An extra column specifying the **tumor_type** in which the rule is applied is added.
+An extra column specifying the **tumor_type** 
+in which the rule is applied is added.
 If the rule is valid for any tumor type, simply put "" (empty string).
 
-**in_out** define the type of rule. In this case is an exclusion (in_out=exclude) 
-rule so any patient harboring that mutation cannot be associated with Erlotinib. 
+**in_out** define the type of rule. In this 
+case is an exclusion (in_out=exclude) 
+rule so any patient harboring that mutation 
+cannot be associated with Erlotinib. 
 Also inclusion only rules can be implemented using in_out=include.
 
 ### Drug association rules
 
-```{r chunk_rules3, timeit=FALSE}
+```{r chunk_rules3, timeit=NULL}
 knitr::kable(rules[3:5 , ])
 ```
 
-Not every drug can be associated with all tumor types. Certain treatments (e.g. FDA approved) are only available for 
-specific tumor types. We implemented a second set of rules in the rows 3,4 and 5.
+Not every drug can be associated with all tumor types. 
+Certain treatments (e.g. FDA approved) are only available for 
+specific tumor types. We implemented a 
+second set of rules in the rows 3,4 and 5.
 
-The interpretation is: *drugA* can be used only in (*include*) or not used in (*exclude*) the specific *tumor_type* and 
+The interpretation is: *drugA* can be used only in 
+(*include*) or not used in (*exclude*) the specific *tumor_type* and 
 it will be associated with group *Driver*.
 
-Multiple *include* on the same drug are cumulative and every tumor type require a new row 
+Multiple *include* on the same drug are cumulative 
+and every tumor type require a new row 
 (Erlotinib can be used only in coadread and luad).
 
-These rules are universal and do not depend on the data or the panel. In the example we are going to develop, 
+These rules are universal and do not depend on the data 
+or the panel. In the example we are going to develop, 
 coadread is not included but the rule can stay.
 
 ## getAlterations
@@ -254,7 +294,7 @@ coadread is not included but the rule can stay.
 Now that we have our panel, we want to test it against tumor samples. 
 We will choose two different cancer types among the available ones: 
 
-```{r chunk3, echo=TRUE , eval=FALSE , message=TRUE , warning=FALSE , timeit=FALSE}
+```{r chunk3, echo=TRUE , eval=FALSE, message=TRUE, warning=FALSE, timeit=NULL}
 # Check available tumor types
 knitr::kable( head(showTumorType()) , row.names=FALSE)
 # Fetch data from breast cancer and lung adenocarcinoma samples
@@ -263,7 +303,7 @@ mypanel <- getAlterations(mypanel , tumor_type=c("brca" , "luad"))
 str( cpData(mypanel)$mutations , vec.len = 1)
 ```
 
-```{r chunk3_bis, echo=FALSE , eval=TRUE , message=TRUE , warning=FALSE , timeit=FALSE}
+```{r chunk3_b, echo=FALSE , eval=TRUE, message=TRUE, warning=FALSE,timeit=NULL}
 # Check available tumor types
 knitr::kable( head(showTumorType()) , row.names=FALSE)
 # Fetch data from breast cancer and lung adenocarcinoma samples
@@ -274,7 +314,8 @@ str( cpData(mypanel)$mutations , vec.len = 1)
 rm(cpObj)
 ```
 
-This method performs 2 tasks. Download data from cBioportal and MD Anderson Fusion Portal 
+This method performs 2 tasks. Download data from 
+cBioportal and MD Anderson Fusion Portal 
 for every alteration type for the requested genes and 
 retrieve the total number of samples for each available data type.
 
@@ -284,11 +325,13 @@ tumor_type ```getAlterations(mypanel , tumor_type="all_tumors")```
 
 ### Specify the cancer studies
 
-Additionally, instead of specifying the tumor type, it is also possible to display the individual study 
-associated with each tumor type and select them one by one. This for example allows 
+Additionally, instead of specifying the tumor type, it is 
+also possible to display the individual study 
+associated with each tumor type and select them 
+one by one. This for example allows 
 the user more control over what dataset will be used to run the simulation. 
 
-```{r showCancerStudy, echo=TRUE , eval=FALSE , message=FALSE , warning=FALSE , timeit=FALSE}
+```{r sct,echo=TRUE,eval=FALSE,message=FALSE,warning=FALSE,timeit=NULL}
 # Check available tumor types
 knitr::kable( showCancerStudy(c("brca","luad")) , row.names = FALSE )
 # Fetch data from breast cancer and lung adenocarcinoma samples
@@ -297,45 +340,55 @@ mypanel_alternative <- getAlterations(mypanel
                                        , "brca_tcga_pan_can_atlas_2018"))
 ```
 
-At this point, the data are downloaded by gene, without looking for the exact alteration requested.
-If you want, you can always put your own data, as long as you respect the format for each alteration type. 
+At this point, the data are downloaded by gene, without 
+looking for the exact alteration requested.
+If you want, you can always put your own data, as long 
+as you respect the format for each alteration type. 
 
-```{r chunk4, echo=TRUE , eval=TRUE , message=FALSE , warning=FALSE , timeit=FALSE}
+```{r chunk4,echo=TRUE,eval=TRUE,message=FALSE,warning=FALSE,timeit=NULL}
 # Extract the data from the panel as a toy example.
 repos <- lapply(cpData(mypanel) , '[' , c('data' , 'Samples'))
 # How custom data should look like
 str(repos , vec.len=1)
 ```
 
-```{r chunk4_bis, echo=TRUE , eval=FALSE , message=FALSE , warning=FALSE , timeit=FALSE}
+```{r chunk4_bis,echo=TRUE,eval=FALSE,message=FALSE,warning=FALSE,timeit=NULL}
 # Use custom data in a new CancerPanel object
 mypanel_toy <- newCancerPanel(panelexample)
 mypanel_toy <- getAlterations(mypanel_toy , repos=repos)
 ```
 
-```{r chunk4_bis2, echo=FALSE , eval=TRUE , message=FALSE , warning=FALSE , timeit=FALSE}
+```{r chunk4_b,echo=FALSE,eval=TRUE,message=FALSE,warning=FALSE,timeit=NULL}
 # Use custom data in a new CancerPanel object
 mypanel_toy <- mypanel2
 mypanel_toy <- getAlterations(mypanel_toy , repos=repos)
 ```
 
 
-In this toy example, we extract the data from our CancerPanel object and transfer them to a new object. 
-This operation can be useful when you want to test subsets of your original panel using a freeze of 
-your data. Remember that sample names are taken from the element 'Sample' of the list for each alteration type 
-because our tool needs to know the actual reference samples for which a genomic screening were made, 
+In this toy example, we extract the data from our 
+CancerPanel object and transfer them to a new object. 
+This operation can be useful when you want to test 
+subsets of your original panel using a freeze of 
+your data. Remember that sample names are taken from 
+the element 'Sample' of the list for each alteration type 
+because our tool needs to know the actual reference 
+samples for which a genomic screening were made, 
 even if they have no alterations. 
-If 'Sample' is not present, the sample names are retrieved directly from the data using column *case_id*.
+If 'Sample' is not present, the sample names are retrieved 
+directly from the data using column *case_id*.
 Adding more data than necessary is not a problem at this point, because every 
 statistics and calculation are made after the call to **subsetAlterations**.
 
 ### Add or filter custom data
 
-In case you want to add extra data from a different source, and you dispose of the data 
-already according to the @dataFull slot format, you can append this dataset to an existing panel. 
-This allows to increase the sample size for those rare tumor_types that are not present in cBioPortal.
+In case you want to add extra data from a different source, 
+and you dispose of the data 
+already according to the @dataFull slot format, 
+you can append this dataset to an existing panel. 
+This allows to increase the sample size for those 
+rare tumor_types that are not present in cBioPortal.
 
-```{r append, echo=TRUE , eval=TRUE , message=FALSE , warning=FALSE , timeit=FALSE}
+```{r append,echo=TRUE,eval=FALSE,message=FALSE,warning=FALSE,timeit=NULL}
 # Add two mutations from two different samples for breast cancer
 newmutations <- data.frame(
     entrez_gene_id=c(7157 , 7157)
@@ -352,18 +405,21 @@ newmutations <- data.frame(
 newsamples <- c("new_samp1" , "new_samp2")
 # A dataFull slot style list should look like this
 toBeAdded <- list(fusions=list(data=NULL , Samples=NULL)
-                 , mutations=list(data=newmutations , Samples=list(brca=newsamples))
+                 , mutations=list(data=newmutations 
+                                  , Samples=list(brca=newsamples))
                  , copynumber=list(data=NULL , Samples=NULL)
                  , expression=list(data=NULL , Samples=NULL)
                  )
 new_panel <- appendRepo(mypanel_toy , toBeAdded)
 ```
 
-Furthermore, if you want to filter certain mutations or fusions from your dataset, 
+Furthermore, if you want to filter certain mutations 
+or fusions from your dataset, 
 you can use the methods `filterMutations` and 
-`filterFusions`. The first method, can be used with specific mutations or using a bed file.
+`filterFusions`. The first method, can be used 
+with specific mutations or using a bed file.
 
-```{r filter, echo=TRUE , eval=TRUE , message=FALSE , warning=FALSE , timeit=FALSE}
+```{r filter,echo=TRUE,eval=FALSE,message=FALSE,warning=FALSE,timeit=NULL}
 # Create a bedfile
 bed <- data.frame(chr = paste0("chr" , c(7 , 17)) 
                   , start = c(140534632 , 41244326) 
@@ -374,38 +430,44 @@ knitr::kable(bed , row.names=FALSE)
 # You can decide to exclude or keep only the mutations in the bed file
 new_panel <- filterMutations(mypanel_toy , bed = bed , mode = "exclude")
 # Filtering can be also tumor-wise
-new_panel <- filterMutations(mypanel_toy , bed = bed , mode = "exclude" , tumor_type="brca")
+new_panel <- filterMutations(mypanel_toy , bed = bed 
+                             , mode = "exclude" , tumor_type="brca")
 ```
 
 
-```{r chunk5, echo=FALSE , eval=TRUE , message=FALSE , warning=FALSE , timeit=FALSE}
+```{r chunk5,echo=FALSE,eval=TRUE,message=FALSE,warning=FALSE,timeit=NULL}
 rm(mypanel_toy)
 rm(new_panel)
 ```
 
 ## subsetAlterations
 
-After getting alterations, we have to subset alterations for the exact specifications of our panel.
+After getting alterations, we have to subset 
+alterations for the exact specifications of our panel.
 
-```{r chunk6, echo=TRUE , eval=TRUE , message=FALSE , warning=FALSE , timeit=FALSE}
+```{r chunk6,echo=TRUE,eval=FALSE,message=FALSE,warning=FALSE,timeit=NULL}
 # Subset the alterations using panel information
 mypanel <- subsetAlterations(mypanel)
 # See the updated slot dataSubset
 str( cpDataSubset(mypanel) , vec.len = 1)
 ```
 
-As we can see, the format of the new slot is now the same for every alteration type and the 
+As we can see, the format of the new slot is now the 
+same for every alteration type and the 
 information contained in the panel was merged. This format is necessary to 
 perform our simulations since we can easily bind together these datasets.
 
-If the user provides an *exclude* data.frame (either at the object construction or here), all the patients 
-excluded from certain treatment opportunities will be stored in the excluded slot. See Negation Rules section above.
+If the user provides an *exclude* data.frame (either 
+at the object construction or here), all the patients 
+excluded from certain treatment opportunities will be 
+stored in the excluded slot. See Negation Rules section above.
 
 The *druggability* parameter can be used in this context too.
 
-For example we can use the data already downloaded and use them in a panel with an exclude and druggability parameter:
+For example we can use the data already downloaded and 
+use them in a panel with an exclude and druggability parameter:
 
-```{r , echo=TRUE , eval=TRUE , message=FALSE , warning=FALSE , timeit=FALSE}
+```{r ,echo=TRUE,eval=TRUE,message=FALSE,warning=FALSE,timeit=NULL}
 mypanel_exclude <- mypanel
 mypanel_exclude <- subsetAlterations(mypanel_exclude 
                                      , rules=rules)
@@ -414,156 +476,201 @@ mypanel_exclude <- subsetAlterations(mypanel_exclude
 
 # Plots and Stats
 
-`r Rpackage("PrecisionTrialDrawer")` has three different plot capabilities/statistics. Every plot can be turned off by using 
-noPlot=TRUE option and statistics are reported instead. The first plot is the **coveragePlot**, 
-which returns the absolute number of samples covered by at least one or more alterations. 
-A more compact but less informative version of the same plot is the **coverageStackPlot**, which returns a breakdown 
+`r Rpackage("PrecisionTrialDrawer")` has three different 
+plot capabilities/statistics. Every plot can be turned off by using 
+noPlot=TRUE option and statistics are reported instead. 
+The first plot is the **coveragePlot**, 
+which returns the absolute number of samples covered by 
+at least one or more alterations. 
+A more compact but less informative version of the same 
+plot is the **coverageStackPlot**, which returns a breakdown 
 of variable (e.g. drug) by its subcomponents (e.g. genes).
-The second one is called **saturationPlot**, and expresses the cumulative number of samples 
-covered or the mean number of alteration per sample by adding one piece of the panel at a time. 
-In particular, this plot is able to estimate the trade-off between the number of covered samples 
-and the genomic space occupied by the panel (as a sort of proxy of cost). The third plot is called **coocMutexPlot** 
-and is able to explore the relationship between pairs of features as mutual exclusive or cooccurent. For example, in a typical 
-umbrella design, we seek for drugs or genes that are possibly mutual exclusive between each other, in order to maximize 
+The second one is called **saturationPlot**, and 
+expresses the cumulative number of samples 
+covered or the mean number of alteration per sample 
+by adding one piece of the panel at a time. 
+In particular, this plot is able to estimate the trade-off 
+between the number of covered samples 
+and the genomic space occupied by the panel (as a sort of proxy of cost). 
+The third plot is called **coocMutexPlot** 
+and is able to explore the relationship between pairs of features 
+as mutual exclusive or cooccurent. For example, in a typical 
+umbrella design, we seek for drugs or genes that are possibly 
+mutual exclusive between each other, in order to maximize 
 the number of covered patients and avoid confusing multiple targeting.
 
-All plots accept a **CancerPanel** object and a grouping variable to see the plot stratified 
-by gene or tumor type. Furthermore, you can decide the kind of alteration to plot, between mutations, copynumber, fusions,  
+All plots accept a **CancerPanel** object and a grouping 
+variable to see the plot stratified 
+by gene or tumor type. Furthermore, you can decide the kind 
+of alteration to plot, between mutations, copynumber, fusions,  
 expression or any combination of these.
 
 ## coveragePlot
 
-Let's draw the simplest of the coverage plot. We want to see how many samples are covered 
+Let's draw the simplest of the coverage plot. We want to see 
+how many samples are covered 
 by at least one of the alteration of our panel, divided by tumor type: 
 
 
-```{r plot1, echo=TRUE, eval=TRUE, fig.width=7, fig.height=5 , timeit=FALSE}
+```{r plot1, echo=TRUE, eval=TRUE, fig.width=7, fig.height=5 , timeit=NULL}
 coveragePlot(mypanel 
             , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
             , grouping="tumor_type")
 ```
 
-If we do not want the plot to be displayed but just the statistics, we can add the parameter noPlot set to TRUE.
+If we do not want the plot to be displayed but just the statistics, 
+we can add the parameter noPlot set to TRUE.
 
-```{r chunk7 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r chunk7 , echo=TRUE , eval=TRUE , timeit=NULL}
 # Same command, but we ask for no plot, just the statistics
 covStats <- coveragePlot(mypanel
-             , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+             , alterationType=c("mutations" , "expression" 
+                                , "copynumber" , "fusions")
              , grouping="tumor_type" 
              , noPlot=TRUE)
 # Proportion of covered samples by at least one alteration
 atLeastOne <- covStats$plottedTable[ , 1]/covStats$Samples
 ```
   
-The results appears to be extremely good, because we reached `r paste0( round(unname(atLeastOne[1]) , 2)*100 , "\\%")` 
-of breast samples and `r paste0( round(unname(atLeastOne[2]) , 2)*100 , "\\%")` for lung adenocarcinoma samples.
+The results appears to be extremely good, because we reached 
+`r paste0( round(unname(atLeastOne[1]) , 2)*100 , "\\%")` 
+of breast samples and `r paste0( round(unname(atLeastOne[2]) , 2)*100 , "\\%")` 
+for lung adenocarcinoma samples.
 
-How many of these samples are actually actionable by at least one alteration? Since we use 'group' 
-in our panel to divide druggable from non-druggable alterations, it is pretty easy to answer this question.
+How many of these samples are actually actionable by at 
+least one alteration? Since we use 'group' 
+in our panel to divide druggable from non-druggable alterations, 
+it is pretty easy to answer this question.
 
 
-```{r plot2 , echo=TRUE , eval=TRUE, fig.width=7, fig.height=7 , timeit=FALSE}
+```{r plot2 , echo=TRUE , eval=TRUE, fig.width=7, fig.height=7 , timeit=NULL}
 # We add a new grouping variable, 'group'
 coveragePlot(mypanel 
-            , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+            , alterationType=c("mutations" , "expression" 
+                               , "copynumber" , "fusions")
             , grouping=c("tumor_type" , "group")
             )
 ```
 
 
-```{r chunk8 , echo=FALSE , eval=TRUE , timeit=FALSE}
+```{r chunk8 , echo=FALSE , eval=TRUE , timeit=NULL}
 # Same command as above, but we ask for no plot, just the statistics
 covStats2 <- coveragePlot(mypanel
-             , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+             , alterationType=c("mutations" , "expression" 
+                                , "copynumber" , "fusions")
              , grouping=c("tumor_type" , "group")
              , noPlot=TRUE)
 # Proportion of covered samples by at least one actionable alteration
 atLeastOne2 <- covStats2$plottedTable[ , 1]/covStats2$Samples
 ```
 
-Only the `r paste0( round(unname(atLeastOne2[1]) , 2)*100 , "%")` of breast samples are actionable and 
-`r paste0( round(unname(atLeastOne2[3]) , 2)*100 , "%")` of lung adenocarcinomas.
+Only the `r paste0( round(unname(atLeastOne2[1]) , 2)*100 , "%")` 
+of breast samples are actionable and 
+`r paste0( round(unname(atLeastOne2[3]) , 2)*100 , "%")` 
+of lung adenocarcinomas.
 
 ## coverageStackPlot
 
-Some of the drugs, like Vandetanib, are multitarget that acts on several kinases. So now we are interested in knowing 
-what are the most altered genes for each drug. We could add one more grouping variable to the **coveragePlot** 
-but we will end up with a very hard to read plot (one plot per gene). To overcome this difficulty, 
-we implemented a more compact version of the coverage plot that only returns the number of samples 
+Some of the drugs, like Vandetanib, are multitarget that acts 
+on several kinases. So now we are interested in knowing 
+what are the most altered genes for each drug. We could add 
+one more grouping variable to the **coveragePlot** 
+but we will end up with a very hard to read plot (one plot per gene). 
+To overcome this difficulty, 
+we implemented a more compact version of the coverage plot 
+that only returns the number of samples 
 with at least one alteration stratified for a 'grouping' variable.
 
 
-```{r plotStack , echo=TRUE , eval=TRUE, fig.width=7, fig.height=14 , timeit=FALSE}
+```{r plotStack,echo=TRUE,eval=TRUE,fig.width=7,fig.height=14,timeit=NULL}
 # the stacked coverage plot requires:
   # 'var' parameter (that selects the bars)
   # 'grouping' parameter (that selects the stratification variable, optional)
   # 'tumor_type' parameter (to select one or more tumor type, optional)
 par(mfrow=c(2,1))
 coverageStackPlot(mypanel
-             , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+             , alterationType=c("mutations" , "expression" 
+                                , "copynumber" , "fusions")
              , var="drug"
              , grouping="gene_symbol"
              , tumor_type="brca"
              )
 coverageStackPlot(mypanel
-             , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+             , alterationType=c("mutations" , "expression" 
+                                , "copynumber" , "fusions")
              , var="drug"
              , grouping="gene_symbol"
              , tumor_type="luad"
              )
 ```
   
-The stacked version of coverage plot reports a breakdown of each drug by gene and then the total samples covered by 
-each drug. When the total is lower than the breakdown, it means that some of the samples are altered in more than one gene 
+The stacked version of coverage plot reports a breakdown of 
+each drug by gene and then the total samples covered by 
+each drug. When the total is lower than the breakdown, it 
+means that some of the samples are altered in more than one gene 
 targeted by the same drug.
 
-```{r statsStack , echo=FALSE , eval=TRUE, timeit=FALSE}
+```{r statsStack , echo=FALSE , eval=TRUE, timeit=NULL}
 stackStats <- lapply(c("brca" , "luad") , function(x) {
                coverageStackPlot(mypanel
-                , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+                , alterationType=c("mutations" , "expression" 
+                                   , "copynumber" , "fusions")
                 , var="drug"
                 , grouping="gene_symbol"
                 , tumor_type=x
                 ,noPlot=TRUE)
               })
-freqGene <- lapply(stackStats , function(x) rowSums(x$plottedTable)/x$Samples['all_tumors'])
-freqDrug <- lapply(stackStats , function(x) x$plottedTable['Total' , ]/x$Samples['all_tumors'])
+freqGene <- lapply(stackStats , function(x) {
+  rowSums(x$plottedTable)/x$Samples['all_tumors']})
+freqDrug <- lapply(stackStats , function(x) {
+  x$plottedTable['Total' , ]/x$Samples['all_tumors']})
 names(freqGene) <- c("brca" , "luad")
 names(freqDrug) <- c("brca" , "luad")
 olaparib <- sapply(freqDrug , '[' , 'Total Olaparib')
 ```
 
-From this plot we can show for example that olaparib covers, in both tumors the 10\% of the samples 
+From this plot we can show for example that olaparib covers, 
+in both tumors the 10\% of the samples 
 (`r paste0( round(unname(olaparib[1]) , 2)*100 , "%")` for breast and 
 `r paste0( round(unname(olaparib[2]) , 2)*100 , "%")` for lung). 
-The contribute of its target *BRCA1* and *BRCA2* is different. While in breast cancer 
-the number of altered samples is splitted between the two genes, in lung the contribution of *BRCA2* is 
-predominant ( *BRCA1* covers the `r paste0( round(unname(freqGene$luad['BRCA1']) , 2)*100 , "%")` while 
+The contribute of its target *BRCA1* and *BRCA2* 
+is different. While in breast cancer 
+the number of altered samples is splitted between the two genes, 
+in lung the contribution of *BRCA2* is 
+predominant ( *BRCA1* covers the 
+`r paste0( round(unname(freqGene$luad['BRCA1']) , 2)*100 , "%")` while 
 *BRCA1* the `r paste0( round(unname(freqGene$luad['BRCA2']) , 2)*100 , "%")` ).
 
-Furthermore, a multitarget drug like Vandetanib could be a valuable therapeutic option, especially in lung adenocarcinoma. 
-It covers the `r paste0( round(unname(freqDrug$luad['Total Vandetanib']) , 2)*100 , "\\%")` 
-of the samples with a large contribution of *KDR* ( `r paste0( round(unname(freqGene$luad['KDR']) , 2)*100 , "%")`) 
-and *ABL2* (`r paste0( round(unname(freqGene$luad['ABL2']) , 2)*100 , "%")`) that is not present in breast cancer.
+Furthermore, a multitarget drug like Vandetanib could be a 
+valuable therapeutic option, especially in lung adenocarcinoma. 
+It covers the 
+`r paste0( round(unname(freqDrug$luad['Total Vandetanib']) , 2)*100 , "\\%")` 
+of the samples with a large contribution of *KDR* 
+( `r paste0( round(unname(freqGene$luad['KDR']) , 2)*100 , "%")`) 
+and *ABL2* (`r paste0( round(unname(freqGene$luad['ABL2']) , 2)*100 , "%")`) 
+that is not present in breast cancer.
 
-If the plot result is not clear, we can create an interactive version of the same graph.
+If the plot result is not clear, we can create 
+an interactive version of the same graph.
 
-```{r plotStackHTML1 , echo=TRUE , eval=TRUE, timeit=FALSE}
+```{r plotStackHTML1,echo=TRUE,eval=TRUE,timeit=NULL}
 # Add parameter html=TRUE
 myHTMLPlot <- coverageStackPlot(mypanel
-             , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+             , alterationType=c("mutations" , "expression" 
+                                , "copynumber" , "fusions")
              , var="drug"
              , grouping="gene_symbol"
              , html=TRUE)
 ```
 
-```{r plotStackHTML2 , echo=TRUE , eval=FALSE, timeit=FALSE}
-# The plot is not displayed immediately to allow the user to embed it in markdown document or web page
+```{r plotStackHTML2 , echo=TRUE , eval=FALSE, timeit=NULL}
+# The plot is not displayed immediately to allow the user 
+# to embed it in markdown document or web page
 # Now run plot
 plot(myHTMLPlot)
 ```
 
-```{r plotStackHTMLshow , echo=FALSE , eval=TRUE, results='asis' , fig.width=7, fig.height=14, timeit=FALSE}
+```{r plotStackHTMLshow,echo=FALSE,eval=TRUE,results='asis',fig.width=7,fig.height=14,timeit=NULL}
 # Print is the actual command that works inside a Rmd
 # Plot is the one to use in case you are on a R console
 print(myHTMLPlot , tag="chart")
@@ -571,10 +678,12 @@ print(myHTMLPlot , tag="chart")
 
 ## Rules parameter effect
 
-Implementing negation rules can significantly alter the number of subject that can be potentially treated by a drug. 
-In this example, we will see the effect of the **rules** parameter on Erlotinib drug in the lung dataset.
+Implementing negation rules can significantly alter the number 
+of subject that can be potentially treated by a drug. 
+In this example, we will see the effect of the **rules** 
+parameter on Erlotinib drug in the lung dataset.
 
-```{r plotStack_exclude , echo=TRUE , eval=TRUE, fig.width=7, fig.height=14, timeit=FALSE}
+```{r plotStack_exclude,echo=TRUE,eval=TRUE,fig.width=7,fig.height=14,timeit=NULL}
 # First plot with exclude activated, second without
 par(mfrow=c(2,1))
 coverageStackPlot(mypanel_exclude
@@ -595,7 +704,8 @@ coverageStackPlot(mypanel
 
 As you can see, ~ 1% of the patients can no longer be potentially 
 treated with Erlotinib because of specific resistant mutations. 
-Furthermore, Olaparib association was completely eliminated by the druggability parameter.
+Furthermore, Olaparib association was completely 
+eliminated by the druggability parameter.
 
 ## saturationPlot
 
@@ -605,18 +715,21 @@ With the next analysis, we will try to answer to questions
 related to each element of our panel and try to optimize it. 
 In particular we want to ask:
 
-* Is there a particular class of genes or drugs or alteration that is predominant over the others?
-* What is the cumulative number of samples covered by growing the panel one piece at a time?
+* Is there a particular class of genes or drugs or 
+alteration that is predominant over the others?
+* What is the cumulative number of samples covered 
+by growing the panel one piece at a time?
 * Is our panel optimize in terms of length?
 * Are there alterations/genes that are never seen in our samples?
 * Do all the drugs have at least one altered target?
 
 To answer these questions, let's draw a saturation plot.
 
-```{r plot3 , echo=TRUE , eval=TRUE, fig.width=7, fig.height=7, timeit=FALSE}
+```{r plot3 , echo=TRUE , eval=TRUE, fig.width=7, fig.height=7, timeit=NULL}
 # Saturation plot by adding one gene at a time divided by tumor type
 saturationPlot(mypanel 
-            , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+            , alterationType=c("mutations" , "expression" 
+                               , "copynumber" , "fusions")
             , grouping="tumor_type"
             , adding="gene_symbol"
             )
@@ -630,13 +743,14 @@ using all alteration types (**alterationType** parameter) and drawing
 one curve per tumor type (**grouping** parameter). 
 The genes are added by their frequency of alteration, starting from the 
 most altered. As can be seen from the bottom right annotation, 
-some of the genes are never altered in these tumor types. To find out who they are, 
-we can run this simple lines of code:
+some of the genes are never altered in these tumor types. 
+To find out who they are, we can run this simple lines of code:
 
-```{r chunk9 , echo=TRUE , eval=TRUE, fig.width=7, fig.height=10, timeit=FALSE}
+```{r chunk9 , echo=TRUE , eval=TRUE, fig.width=7, fig.height=10, timeit=NULL}
 # As always, we can ask for the statistics with the option noPlot
 satStats <- saturationPlot(mypanel
-             , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+             , alterationType=c("mutations" , "expression" 
+                                , "copynumber" , "fusions")
              , grouping="tumor_type"
              , adding="gene_symbol"
              , noPlot=TRUE
@@ -655,13 +769,15 @@ missingGenes
 As we can see, *HRAS* is never altered in the positions requested in the panel, 
 both in breast and lung cancer samples.
 We can think about remove it from our panel and save some genomic space.
-This plot can also be seen from the drug point of view, by changing the variable *adding*:
+This plot can also be seen from the drug point of view, 
+by changing the variable *adding*:
 
 
-```{r plot4 , echo=TRUE , eval=TRUE,  fig.width=7, fig.height=7, timeit=FALSE}
+```{r plot4 , echo=TRUE , eval=TRUE,  fig.width=7, fig.height=7, timeit=NULL}
 # Saturation plot by adding one drug at a time divided by tumor type
 saturationPlot(mypanel 
-            , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+            , alterationType=c("mutations" , "expression" 
+                               , "copynumber" , "fusions")
             , grouping="tumor_type"
             , adding="drug"
             , y_measure="absolute"
@@ -669,24 +785,33 @@ saturationPlot(mypanel
 ```
 
 
-In this case, we plot the absolute number of cumulative covered patient (like in the coverage plot) 
+In this case, we plot the absolute number of cumulative 
+covered patient (like in the coverage plot) 
 by using the parameter **y_measure** set to "absolute".
-We can notice that by using just Idelasib (target of *PIK3CA*) and Trastuzumab (target of *ERBB2*), 
-we can cover almost the 50% of breast cancer patients. Moreover, two drugs have no available target 
+We can notice that by using just Idelasib (target of *PIK3CA*) 
+and Trastuzumab (target of *ERBB2*), 
+we can cover almost the 50% of breast cancer patients. 
+Moreover, two drugs have no available target 
 and could be excluded from a potential trial. 
-On the other hand, lung samples are predominantly mutated in *KRAS* and *TP53* and since these two genes 
+On the other hand, lung samples are predominantly 
+mutated in *KRAS* and *TP53* and since these two genes 
 are not targeted by any drug, the first "drug" category is indeed *no_drug*. 
-In addition, we can appreciate a very high coverage for LUAD samples, but the saturation 
-is reached at the point of Idelalisib/Olaparib and all other drugs increase the coverage of 1-2%. 
-Olaparib itself, occupies almost 25 Kbases alone with its targets *BRCA1/2*, which are very long genes.
+In addition, we can appreciate a very high coverage 
+for LUAD samples, but the saturation 
+is reached at the point of Idelalisib/Olaparib and 
+all other drugs increase the coverage of 1-2%. 
+Olaparib itself, occupies almost 25 Kbases alone with 
+its targets *BRCA1/2*, which are very long genes.
 
 ## coocMutexPlot
 
-The information coming from the **saturationPlot** is useful but not complete. In fact, the order of the genes/drugs 
-can be misleading about the true coverage of a single feature. For example, let's plot the coverage by drug and tumor type:
+The information coming from the **saturationPlot** is useful 
+but not complete. In fact, the order of the genes/drugs 
+can be misleading about the true coverage of a single feature. 
+For example, let's plot the coverage by drug and tumor type:
 
 
-```{r plot5 , echo=TRUE , eval=TRUE , fig.width=7, fig.height=11, timeit=FALSE}
+```{r plot5 , echo=TRUE , eval=TRUE , fig.width=7, fig.height=11, timeit=NULL}
 # One tumor at a time, we draw a stack plot of drug without stratification
 par(mfrow=c(2,1))
 coverageStackPlot(mypanel , var="drug" 
@@ -695,23 +820,29 @@ coverageStackPlot(mypanel , var="drug"
         , grouping=NA , tumor_type="luad" , collapseByGene=TRUE)
 ```
 
-```{r parToNormal, echo=FALSE , eval=TRUE, timeit=FALSE}
+```{r parToNormal, echo=FALSE , eval=TRUE, timeit=NULL}
 par(mfrow=c(1,1))
 ```
 
-In this case we add the parameter **collapseByGene**. This option is useful to prevent the package from counting 
-two different types of alteration on the same gene and same sample to be counted twice. For example, if *ERBB2* is 
-both amplified and overexpressed (two things that are extremely correlated) in the same sample, 
-it will count for 1 alteration only. This parameter has an effect on the bars from 2 to 10, 
+In this case we add the parameter **collapseByGene**. 
+This option is useful to prevent the package from counting 
+two different types of alteration on the same gene and 
+same sample to be counted twice. For example, if *ERBB2* is 
+both amplified and overexpressed (two things that 
+are extremely correlated) in the same sample, 
+it will count for 1 alteration only. This parameter 
+has an effect on the bars from 2 to 10, 
 but obviously not on the 'at least one' alteration bar.
 
 From this plot we can see for example that Olaparib (a target of *BRCA1/2*) 
-accounts for almost the 11% of breast cancer samples, while in the saturationPlot its cumulative 
-contribute appeared to be between 5-6%. This is where the **coocMutexPlot** comes handy.
+accounts for almost the 11% of breast cancer samples, 
+while in the saturationPlot its cumulative 
+contribute appeared to be between 5-6%. 
+This is where the **coocMutexPlot** comes handy.
 
 
 
-```{r plot6 , echo=TRUE , eval=TRUE , fig.width=10, fig.height=4, timeit=FALSE}
+```{r plot6 , echo=TRUE , eval=TRUE , fig.width=10, fig.height=4, timeit=NULL}
 # coocMutexPlot of drug divided by tumor type
 coocMutexPlot(mypanel 
      , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
@@ -724,7 +855,8 @@ This plot represents significant mutual exclusivity and cooccurence between
 couples of drugs. In particular, it tests whether 
 all the alterations targeted by a drug tends to appear in different patients 
 or together in the same set of patients. 
-For example, we can appreciate that Olaparib is mutual exclusive with Idelalisib, 
+For example, we can appreciate that 
+Olaparib is mutual exclusive with Idelalisib, 
 so the drugs are active on different set of patients. 
 This is particular useful to know for balancing a basket trial design. 
 The more two drugs are mutual exclusive, the larger is the set of 
@@ -734,11 +866,12 @@ The very same plot, using genes instead of drugs, shows a mutual exclusivity
 on both *BRCA1* and *BRCA2* against *PIK3CA*.
 
 
-```{r plot7 , echo=TRUE , eval=TRUE , fig.height=10, fig.width=15, timeit=FALSE}
+```{r plot7 , echo=TRUE , eval=TRUE , fig.height=10, fig.width=15, timeit=NULL}
 # coocMutexPlot of genes divided by tumor type
 # To avoid plotting gene pairs with no significance, we set parameter plotrandom
 coocMutexPlot(mypanel 
-             , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+             , alterationType=c("mutations" , "expression" 
+                                , "copynumber" , "fusions")
              , grouping="tumor_type"
              , var="gene_symbol"
              , plotrandom=FALSE
@@ -750,23 +883,26 @@ prospective of similarity, rather than pair-wise mutex. For this purpose,
 we developed an alternative style for the plot that exploits binary 
 distance between occurrences of alterations between genes or drugs.
 
-```{r plotDendro , echo=TRUE , eval=TRUE , fig.height=10, fig.width=15, timeit=FALSE}
+```{r plotDendro,echo=TRUE,eval=TRUE,fig.height=10,fig.width=15, timeit=NULL}
 # coocMutexPlot of drugs divided by tumor type
 # Style set to dendro
 coocMutexPlot(mypanel 
-             , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+             , alterationType=c("mutations" , "expression" 
+                                , "copynumber" , "fusions")
              , grouping="tumor_type"
              , var="drug"
              , style="dendro"
              )
 ```
 
-Again, if you want just the statistics and no plot, set the parameter **noPlot** to TRUE.
+Again, if you want just the statistics and no plot, 
+set the parameter **noPlot** to TRUE.
 
-```{r chunk10 , echo=TRUE , eval=TRUE, timeit=FALSE}
+```{r chunk10,echo=TRUE,eval=TRUE,timeit=NULL}
 # coocMutexPlot of genes divided by tumor type
 coocMutexStats <- coocMutexPlot(mypanel 
-             , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+             , alterationType=c("mutations" , "expression" 
+                                , "copynumber" , "fusions")
              , grouping="tumor_type"
              , var="drug"
              , noPlot=TRUE
@@ -774,32 +910,42 @@ coocMutexStats <- coocMutexPlot(mypanel
 knitr::kable(head(coocMutexStats) , digits = 3)
 ```
 
-```{r chunkInvisible , echo=FALSE , eval=TRUE , timeit=FALSE}
-idx <- coocMutexStats$sp1_name=="Idelalisib" & coocMutexStats$sp2_name=="Olaparib" & coocMutexStats$grouping=="brca"
-idx2 <- coocMutexStats$sp2_name=="Idelalisib" & coocMutexStats$sp1_name=="Olaparib" & coocMutexStats$grouping=="brca"
+```{r chunkInvisible , echo=FALSE , eval=TRUE , timeit=NULL}
+idx <- coocMutexStats$sp1_name=="Idelalisib" & 
+  coocMutexStats$sp2_name=="Olaparib" & coocMutexStats$grouping=="brca"
+idx2 <- coocMutexStats$sp2_name=="Idelalisib" & 
+  coocMutexStats$sp1_name=="Olaparib" & coocMutexStats$grouping=="brca"
 olapstats <- coocMutexStats[idx | idx2 , , drop=TRUE]
 ```
 
-Idelalisib and Olaparib are mutual exclusive with a p-value of `r prettyNum(olapstats$pVal.MutEx , digits=3 , format="E")`.
+Idelalisib and Olaparib are mutual exclusive with a p-value of 
+`r prettyNum(olapstats$pVal.MutEx , digits=3 , format="E")`.
 
 ## Create your own plots
 
-*PrecisionTrialDrawer* is designed to allow the user to perform a lot of tasks for designing a genomic based trial. 
-Nevertheless, not all the possible plots are available inside the package. We implemented a function to extract the relevant information 
+*PrecisionTrialDrawer* is designed to allow the user to perform 
+a lot of tasks for designing a genomic based trial. 
+Nevertheless, not all the possible plots are available inside the package. 
+We implemented a function to extract the relevant information 
 for any kind of simulation, called `dataExtractor`.
 
-```{r extract , echo=TRUE , eval=TRUE, timeit=FALSE}
+```{r extract,echo=TRUE,eval=TRUE,timeit=NULL}
 #Extract mutations from BRCA tumor type
-myData <- dataExtractor(mypanel , alterationType = "mutations" , tumor_type = "brca")
+myData <- dataExtractor(mypanel , alterationType = "mutations" 
+                        , tumor_type = "brca")
 # Check the format
 str(myData)
 ```
 
-A data extraction is therefore a list composed by data, Samples divided by tumor type and a character vector of tumors that are not present under 
-the requested parameters. For example, we could ask how many samples are targeted by 0, 1, 2, 3 drugs. 
-This function is not directly implemented in our package and so we can build it up here.
+A data extraction is therefore a list composed by data, 
+Samples divided by tumor type and a character vector 
+of tumors that are not present under 
+the requested parameters. For example, we could ask 
+how many samples are targeted by 0, 1, 2, 3 drugs. 
+This function is not directly implemented in our 
+package and so we can build it up here.
 
-```{r customplot , echo=TRUE , eval=TRUE, timeit=FALSE}
+```{r customplot,echo=TRUE,eval=TRUE,timeit=NULL}
 #Extract drug samples couples
 dataDrug <- unique(myData$data[ , c("case_id" , "drug")])
 # Retrieve all screened samples
@@ -817,38 +963,55 @@ barplot(drugsPerPatientFreq ,  ylim = c(0,1)
 
 # Panel Optimization
 
-While copynumber, expression and fusions require reading the whole gene, mutations can be targeted with high sensitivity. For particularly large genes, according 
-to the tumor type under examination, it is often better to target specific regions rather than sequencing the whole gene. To design such regions, a "ratiometric" 
-approach could be the best solution. It is better to evaluate the trade-off between genomic space occupied by the panel and number of mutations 
-captured.
+While copynumber, expression and fusions require reading the whole gene, 
+mutations can be targeted with high sensitivity. 
+For particularly large genes, according 
+to the tumor type under examination, it is often better to 
+target specific regions rather than sequencing the whole gene. 
+To design such regions, a "ratiometric" 
+approach could be the best solution. It is better to evaluate 
+the trade-off between genomic space occupied 
+by the panel and number of mutations captured.
 
-A shiny-based interactive application was created to allow the users to design their custom regions. For a better explanation of all the features of **panelOptimizer**, 
-we suggest you to follow the manual page `?panelOptimizer` and reading carefully the instruction inside the mini app itself.
+A shiny-based interactive application was created to allow 
+the users to design their custom regions. For a better 
+explanation of all the features of **panelOptimizer**, 
+we suggest you to follow the manual page `?panelOptimizer` 
+and reading carefully the instruction inside the mini app itself.
 
-```{r panOpt , echo=TRUE , eval=FALSE, timeit=FALSE}
+```{r panOpt , echo=TRUE , eval=FALSE, timeit=NULL}
 panOpt <- panelOptimizer(mypanel)
 ```
 
 
 # Sample Size and Power Calculation
 
-In a classical epidemiological study design, one of the most important task is power and sample size estimation. 
-In `r Rpackage("PrecisionTrialDrawer")` is currently possible to evaluate two of the most common oncological trial designs: 
-time-to-event (survival) and proportion equality. The methods **survPowerSampleSize** and **propPowerSampleSize** 
-are currently implemented inside the package. In this vignette, we will evaluate the first of the two methods. The latter is very similar, 
-but requires a different set of initial parameter (*pCase* and *pControl*). A single-sample time-to-event calculator is also 
-available as **survPowerSampleSize1Arm**. It is similar to **survPowerSampleSize** but instead of Hazard Ratio it requires *MED1* 
+In a classical epidemiological study design, one of the 
+most important task is power and sample size estimation. 
+In `r Rpackage("PrecisionTrialDrawer")` is currently possible 
+to evaluate two of the most common oncological trial designs: 
+time-to-event (survival) and proportion equality. The methods 
+**survPowerSampleSize** and **propPowerSampleSize** 
+are currently implemented inside the package. In this vignette, 
+we will evaluate the first of the two methods. The latter is very similar, 
+but requires a different set of initial parameter (*pCase* and *pControl*). 
+A single-sample time-to-event calculator is also 
+available as **survPowerSampleSize1Arm**. It is similar 
+to **survPowerSampleSize** but instead of Hazard Ratio it requires *MED1* 
 and *MED0*, median survival for the case group and historical median survival.
 
 
 ## Estimating full panel sample size and power
 
-First, we calculate the sample size required to obtain 4 levels of power (from 0.6 to 0.9) for 4 different 
-postulated hazard ratios (from 0.625 to 0.3). Type I error was set to 5% ('alpha') and baseline event rate per unit of time was set to 0.9 
+First, we calculate the sample size required to obtain 
+4 levels of power (from 0.6 to 0.9) for 4 different 
+postulated hazard ratios (from 0.625 to 0.3). Type I error 
+was set to 5% ('alpha') and baseline event rate per unit of time was set to 0.9 
 ('ber', which correspond to 10% 1-year progression-free survival). 
-Average follow-up time is 3 years ('fu'). Allocation is equal between treatment and control groups ('case.fraction').
+Average follow-up time is 3 years ('fu'). Allocation is equal 
+between treatment and control groups ('case.fraction').
 
-```{r chunkSurv1 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r chunkSurv1 , echo=TRUE , eval=TRUE , timeit=NULL}
 survPowerSampleSize(mypanel
   , HR = c(0.625 , 0.5 ,  0.4 , 0.3)
   , power = seq(0.6 , 0.9 , 0.1)
@@ -859,11 +1022,13 @@ survPowerSampleSize(mypanel
   )
 ```
 
-Our function estimates the real number of samples required to start the study under the hypothesis that only a fraction of them 
-will have at least one alteration included in the panel. The number of samples that will actually enter in the study can be retrieved 
+Our function estimates the real number of samples required to 
+start the study under the hypothesis that only a fraction of them 
+will have at least one alteration included in the panel. 
+The number of samples that will actually enter in the study can be retrieved 
 using the option **noPlot**, in the following way.
 
-```{r chunkSurv2 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r chunkSurv2 , echo=TRUE , eval=TRUE , timeit=NULL}
 # Add option noPlot to retrieve results as dataframe
 sampSize <- survPowerSampleSize(mypanel
   , HR = c(0.625 , 0.5 ,  0.4 , 0.3)
@@ -877,14 +1042,20 @@ sampSize <- survPowerSampleSize(mypanel
 knitr::kable(sampSize[ sampSize$HazardRatio==0.5 , ] , row.names = FALSE)
 ```
 
-Under the column EligibleSampleSize we can see the actual number of patients in treatment and control 
-groups combined under the postulated hypothesis (`r sampSize[ sampSize$HazardRatio==0.5 & sampSize$Power==0.8 , "EligibleSampleSize"]`).
+Under the column EligibleSampleSize we can see the actual 
+number of patients in treatment and control 
+groups combined under the postulated hypothesis (
+`r sampSize[sampSize$HazardRatio==0.5&sampSize$Power==0.8,"EligibleSampleSize"]`
+).
 
-Our sample size estimation function can also be used to estimate power from a postulated screening sample size. We first 
-bring the sample size from screening to eligibility (multiplying by the frequency of alterations) and then perform the calculation. 
-As a toy example, we use the same screening sample sizes calculated before and show the calculated power.
+Our sample size estimation function can also be used to 
+estimate power from a postulated screening sample size. We first 
+bring the sample size from screening to eligibility 
+(multiplying by the frequency of alterations) and then perform the calculation. 
+As a toy example, we use the same screening sample sizes 
+calculated before and show the calculated power.
 
-```{r chunkSurv3 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r chunkSurv3 , echo=TRUE , eval=TRUE , timeit=NULL}
 # Calculate power from sample size at screening
 survPowerSampleSize(mypanel
   , HR = 0.5
@@ -896,7 +1067,7 @@ survPowerSampleSize(mypanel
   )
 ```
 
-```{r chunkSurv3invisible , echo=FALSE , eval=TRUE , timeit=FALSE}
+```{r chunkSurv3invisible , echo=FALSE , eval=TRUE , timeit=NULL}
 # Calculate power from sample size at screening
 survSampInv <- survPowerSampleSize(mypanel
   , HR = 0.5
@@ -909,16 +1080,19 @@ survSampInv <- survPowerSampleSize(mypanel
   )
 ```
 
-So with `r sampSize[ sampSize$HazardRatio==0.5 & sampSize$Power==0.8 , "ScreeningSampleSize"]` patients we obtain an estimated power 
+So with 
+`r sampSize[sampSize$HazardRatio==0.5 & sampSize$Power==0.8,"ScreeningSampleSize"]` 
+patients we obtain an estimated power 
 of `r survSampInv[ survSampInv$ScreeningSampleSize==120 , "Power"]`.
 
 ## Estimating arm-wise sample size and power
 
-In a typical basket or umbrella design, we can also be interested in what is the power or sample size 
+In a typical basket or umbrella design, we can also be 
+interested in what is the power or sample size 
 of the design of each single drug or tumor type instead of the whole panel. 
 By adding the parameter **var**, this task is easy to achieve.
 
-```{r chunkSurv4 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r chunkSurv4 , echo=TRUE , eval=TRUE , timeit=NULL}
 # Calcualte sample size by tumor type
 survPowerSampleSize(mypanel
   , var = "tumor_type"
@@ -931,11 +1105,14 @@ survPowerSampleSize(mypanel
   )
 ```
 
-Similarly, we can also ask a design divided by drug. Given the frequency of alterations targetable by each drug, we 
-can estimate how many patients should be screened to obtain the minimum number of samples to reach a certain level of power. 
-In this case, we don't ask for all the drug type, but only *Olaparib* and *Idelalisib*.
+Similarly, we can also ask a design divided by drug. 
+Given the frequency of alterations targetable by each drug, we 
+can estimate how many patients should be screened to 
+obtain the minimum number of samples to reach a certain level of power. 
+In this case, we don't ask for all the 
+drug type, but only *Olaparib* and *Idelalisib*.
 
-```{r chunkSurv5 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r chunkSurv5 , echo=TRUE , eval=TRUE , timeit=NULL}
 # Calcualte sample size by drug
 # Visualize only "Olaparib" and "Idelalisib"
 survPowerSampleSize(mypanel
@@ -950,9 +1127,13 @@ survPowerSampleSize(mypanel
   )
 ```
 
-It is noteworthy that the calculations performed arm-wise are based on the assumption that each arm is completely independent from the others. 
-In other terms, patients with two targetable alterations enter in the frequency calculations twice as they could be treated with both drugs. In a typical 
-umbrella design (many drugs, one tumor type) the patient is generally not treated with multiple drugs and can enter in one arm only.
+It is noteworthy that the calculations performed arm-wise are 
+based on the assumption that each arm is completely independent from the others. 
+In other terms, patients with two targetable alterations enter 
+in the frequency calculations twice as they could 
+be treated with both drugs. In a typical 
+umbrella design (many drugs, one tumor type) the patient is generally 
+not treated with multiple drugs and can enter in one arm only.
 
 ## Priority Trial
 
@@ -961,40 +1142,64 @@ The two sample size estimations above are useful in two particular occasions:
 1. The design of a genomic trial VS standard of care (full panel sample size)
 2. The design of single-drug VS standard of care (arm-wise sample size)
 
-In case of a multi-drug design, the calculation of the number of patients to screen can be heavily biased. 
-The first estimates the power of the whole study correctly, but each drug can be underpowered. 
-The second estimates the power of each single arm correctly, but overestimates the total number of patients to screen. This is because 
-the patients that are not eligible to enter in a specific arm cannot be assigned to a different drug and are simply discarded. To give an example, 
-it is like performing 3 different clinical trials in 3 different hospitals with no possibility that a patient discarded from 
+In case of a multi-drug design, the calculation of the number of 
+patients to screen can be heavily biased. 
+The first estimates the power of the whole study correctly, 
+but each drug can be underpowered. 
+The second estimates the power of each single arm correctly, 
+but overestimates the total number of patients to screen. This is because 
+the patients that are not eligible to enter in a specific arm 
+cannot be assigned to a different drug and are simply discarded. 
+To give an example, 
+it is like performing 3 different clinical trials in 3 different 
+hospitals with no possibility that a patient discarded from 
 the first trial can be eligible in the other 2.
 
-In a real umbrella trial scenario, the sample size should be calculated according to 3 assumptions:
+In a real umbrella trial scenario, the sample size should 
+be calculated according to 3 assumptions:
 
 1. Each arm should reach a minimum level of power
 2. The total screening sample size should be minimized
-3. In case of multiple alterations and multiple drug opportunities, there could be a priority order for each drug
+3. In case of multiple alterations and multiple drug opportunities, 
+there could be a priority order for each drug
 
-**survPowerSampleSize** has a specific parameter to fulfill these prerequisites called *priority.trial*, a character vector listings 
-drugs or group levels to build an umbrella trial based on a priority order. Sample size calculation becomes a multistep process reproduced 
+**survPowerSampleSize** has a specific parameter to fulfill 
+these prerequisites called *priority.trial*, a character vector listings 
+drugs or group levels to build an umbrella trial based on a priority order. 
+Sample size calculation becomes a multistep process reproduced 
 by a cascade algorithm of screening and assignment.
 
-The algorithm is composed by steps that implement a series of rules to screen and allocate patients to each arm of the trial. By default, 
-the screening starts from the drug whose linked alteration are the rarest in the object up to the most common. This default rule guarantees 
-the minimal sample size to screen. Alternatively, the user can decide the order of "importance" of each drug by changing the default 
-`priority.trial.order="optimal"` to `"as.is"`. In this case, the order of importance is dictated by the order of the *priority.trial* vector.
+The algorithm is composed by steps that implement a series of rules 
+to screen and allocate patients to each arm of the trial. By default, 
+the screening starts from the drug whose linked alteration are the 
+rarest in the object up to the most common. This default rule guarantees 
+the minimal sample size to screen. Alternatively, the user can decide 
+the order of "importance" of each drug by changing the default 
+`priority.trial.order="optimal"` to `"as.is"`. In this case, the order 
+of importance is dictated by the order of the *priority.trial* vector.
 
-1. Calculate a fixed Eligible Sample Size (ESS) that is common to all arms. This is the minimal threshold of patients that should enter in each arm.
-2. Start screening with the first drug, reaching the Screening Sample Size (SSS) necessary to reach ESS
-3. From the samples not eligible for the first drug, test the second drug/group and collects as many samples as possible up to ESS
+1. Calculate a fixed Eligible Sample Size (ESS) that is common to all arms. 
+This is the minimal threshold of patients that should enter in each arm.
+2. Start screening with the first drug, reaching the 
+Screening Sample Size (SSS) necessary to reach ESS
+3. From the samples not eligible for the first drug, test the 
+second drug/group and collects as many samples as possible up to ESS
 4. Continue using the not eligible samples up to the end of all drugs.
-    1. If it is the last drug to screen, allocate all the possible samples, even over ESS. They are not eligible for any other drug.
-    2. If it is not the last drug to screen, but all the other drugs already reached ESS, allocate as many samples as possible (like point 4.1).
+    1. If it is the last drug to screen, allocate all the possible samples, 
+    even over ESS. They are not eligible for any other drug.
+    2. If it is not the last drug to screen, but all the other drugs 
+    already reached ESS, allocate as many samples as possible (like point 4.1).
 5. If all the drugs/groups have reached ESS, stop screening of new samples, 
-    otherwise start a new screening with the first drug/group that has not reached ESS yet.
+    otherwise start a new screening with the first 
+    drug/group that has not reached ESS yet.
 6. Repeat from point 3 up to the point that all drugs have reached ESS threshold.
 
-In order to calculate the fraction of expected patients with an alteration that make them eligible for a drug, we need to calculate a matrix as shown below. 
-Under a example design with 4 drugs (A, B, C, D), the fraction (probability) of obtaining an eligible patient is calculated as:
+In order to calculate the fraction of expected patients with an 
+alteration that make them eligible for a drug, 
+we need to calculate a matrix as shown below. 
+Under a example design with 4 drugs (A, B, C, D), 
+the fraction (probability) of obtaining an eligible patient is calculated as:
+
 
 $$\mathbf{P_{A,B,C,D}} = \left[\begin{array}
 {rrrr}
@@ -1005,11 +1210,15 @@ P(A|\bar{D}) & P(B|\bar{A}\cup\bar{D}) & P(C|\bar{A}\cup\bar{B}\cup\bar{C}) & P(
 \end{array}\right]
 $$
 
-The dependence scheme derives from the following order of priority of the drugs taken into consideration 
+The dependence scheme derives from the following order 
+of priority of the drugs taken into consideration 
 ($A \rightarrow B \rightarrow C \rightarrow D$). The main diagonal 
-represents the screening phase, that starts with new samples and so is not influenced by any other drugs. Moving to 2, 
-the second drug, the probability is calculated as $P(2|\bar{1})$ that in the table above is $P(B|\bar{A})$. Moving to 3 means 
-taking dependencies from both 1 and 2, so $P(2|\bar{1}\cup\bar{2})$ ( $P(C|\bar{A}\cup\bar{B})$ ). 
+represents the screening phase, that starts with new 
+samples and so is not influenced by any other drugs. Moving to 2, 
+the second drug, the probability is calculated as 
+$P(2|\bar{1})$ that in the table above is $P(B|\bar{A})$. Moving to 3 means 
+taking dependencies from both 1 and 2, so 
+$P(2|\bar{1}\cup\bar{2})$ ( $P(C|\bar{A}\cup\bar{B})$ ). 
 
 $$\mathbf{Order} = \left[\begin{array}
 {rrrr}
@@ -1020,20 +1229,29 @@ $$\mathbf{Order} = \left[\begin{array}
 \end{array}\right]
 $$
 
-The main diagonal (new screening line) uses the original frequencies of each drug, estimated as the 
-number of eligible patients over the total number of samples in our CancerPanel object. 
-Every advancement on the columns must take in consideration a depletion of all the samples 
-that were already allocated. For example, $P(B|\bar{A})$, ( first row , second column), calculates the number of 
-eligible patients for B in a dataset epurated from all the samples eligible for A.
-If the drugs cover different pathways, the dependent frequencies are very similar to the original ones. 
-Conversely, if you imagine two drugs with very similar molecular targets, once the first has removed 
-all its eligible patients, very few patients can be allocated to the second treatment 
+The main diagonal (new screening line) uses the 
+original frequencies of each drug, estimated as the 
+number of eligible patients over the total number 
+of samples in our CancerPanel object. 
+Every advancement on the columns must take in consideration 
+a depletion of all the samples 
+that were already allocated. For example, $P(B|\bar{A})$, 
+( first row , second column), calculates the number of 
+eligible patients for B in a dataset epurated from 
+all the samples eligible for A.
+If the drugs cover different pathways, the dependent 
+frequencies are very similar to the original ones. 
+Conversely, if you imagine two drugs with very 
+similar molecular targets, once the first has removed 
+all its eligible patients, very few patients 
+can be allocated to the second treatment 
 that will drop dramatically in frequency.
 
-Now, let's see an example. We take into consideration a design with four drugs, and we ask for the optimal order 
+Now, let's see an example. We take into consideration 
+a design with four drugs, and we ask for the optimal order 
 of priority of the drugs (basically starting from the rarest).
 
-```{r prior1 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r prior1 , echo=TRUE , eval=TRUE , timeit=NULL}
 drugs4 <- c("Idelalisib" , "Olaparib" , "Trastuzumab" , "Vandetanib")
 prior4drugs <- survPowerSampleSize(mypanel
   , var = "drug"
@@ -1046,26 +1264,42 @@ prior4drugs <- survPowerSampleSize(mypanel
 prior4drugs
 ```
 
-The output is completely different from the regular one of this function. It is a list composed by 5 elements: 
-Summary, Screening.scheme, Allocation.scheme, Probability.scheme, Base.probabilities.
+The output is completely different from the regular 
+one of this function. It is a list composed by 5 elements: 
+Summary, Screening.scheme, Allocation.scheme, 
+Probability.scheme, Base.probabilities.
 
-- **Summary**: A matrix listings the number of samples screened, eligible (allocable) and not eligible (lost)
-- **Screening.scheme**: A square matrix that reports the number of patients available for screening at each new screening
-                        (diagonal) and, by row, all the not eligible that are tested for the next drugs
-- **Allocation.scheme**: Same as above, but now listings the number of patients eligible at each new step
-- **Probability.scheme**: An square matrix reproducing the mathematical matrix above. Our algorithm is parsimonious, in the sense that 
-                          some of those dependent probabilities are not calculated if the required sample size has been already reached.
-- **Base.probabilities**: A named numerical vector listings the initial probability to find a patient eligible for each drug under 
-                          no dependence assumptions. These values are used on the diagonal of Screening.scheme when a new screening is started.
+- **Summary**: A matrix listings the number of samples 
+screened, eligible (allocable) and not eligible (lost)
+- **Screening.scheme**: A square matrix that reports the 
+number of patients available for screening at each new screening
+                        (diagonal) and, by row, all the not 
+                        eligible that are tested for the next drugs
+- **Allocation.scheme**: Same as above, but now listings the 
+number of patients eligible at each new step
+- **Probability.scheme**: An square matrix reproducing the 
+mathematical matrix above. Our algorithm is parsimonious, in the sense that 
+some of those dependent probabilities are not calculated 
+if the required sample size has been already reached.
+- **Base.probabilities**: A named numerical vector listings the initial 
+probability to find a patient eligible for each drug under 
+no dependence assumptions. These values are used on the diagonal 
+of Screening.scheme when a new screening is started.
                           
-A message is telling us that each drug must reach a number of eligible patients equal to 66, under a default case/control fraction 
-of 0.5. We are designing a trial where each drug needs 33 treated and 33 controls. 
-Reading from the Summary, our algorithm rules that `r prior4drugs$Summary["Screened" , "Total"]` patients must be screened to obtain `r prior4drugs$Summary["Eligible" , "Total"]` 
-eligible subjects and discarding `r prior4drugs$Summary["Not.Eligible" , "Total"]` patients that cannot be inserted in any arm of the trial.
+A message is telling us that each drug must reach a number of 
+eligible patients equal to 66, under a default case/control fraction 
+of 0.5. We are designing a trial where 
+each drug needs 33 treated and 33 controls. 
+Reading from the Summary, our algorithm rules that 
+`r prior4drugs$Summary["Screened" , "Total"]` patients must 
+be screened to obtain `r prior4drugs$Summary["Eligible" , "Total"]` 
+eligible subjects and discarding 
+`r prior4drugs$Summary["Not.Eligible" , "Total"]` 
+patients that cannot be inserted in any arm of the trial.
 
 Let's now compare the result to the ones seen in the two sections above.
 
-```{r prior2 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r prior2 , echo=TRUE , eval=TRUE , timeit=NULL}
 # We use stratum to create a design with only four drugs
 fullDesign <- survPowerSampleSize(mypanel
   , var = "drug"
@@ -1076,20 +1310,27 @@ fullDesign <- survPowerSampleSize(mypanel
 knitr::kable(fullDesign)
 ```
 
-As we can see, the Eligible Sample Size is the same as above, equal to `r fullDesign[1 , "EligibleSampleSize"]`. 
-The Full Design calculates a number of patients to screen equal to `r fullDesign[fullDesign$Var=="Full Design" , "ScreeningSampleSize"]`, way 
-lower than `r prior4drugs$Summary["Screened" , "Total"]` calculated by our priority trial. This result guarantees at least 80% of power on the whole trial, 
-but it doesn't assure sufficient power for all the arms of the study. Conversely, the sum of all the patients to screen 
-assuming 4 independent trials is way higher, because a patient discarded from an arm of the study cannot be eligible for a different arm.
+As we can see, the Eligible Sample Size is the same 
+as above, equal to `r fullDesign[1 , "EligibleSampleSize"]`. 
+The Full Design calculates a number of patients to 
+screen equal to `r fullDesign[fullDesign$Var=="Full Design" , "ScreeningSampleSize"]`, way 
+lower than `r prior4drugs$Summary["Screened" , "Total"]` 
+calculated by our priority trial. 
+This result guarantees at least 80% of power on the whole trial, 
+but it doesn't assure sufficient power for all the arms of the study. 
+Conversely, the sum of all the patients to screen 
+assuming 4 independent trials is way higher, because a patient 
+discarded from an arm of the study cannot be eligible for a different arm.
 
-```{r prior3 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r prior3 , echo=TRUE , eval=TRUE , timeit=NULL}
 sum(fullDesign[fullDesign$Var %in% drugs4 , "ScreeningSampleSize"])
 ```
 
-If we want to calculate the post-hoc power for the whole study, using a sample size equal to the one 
+If we want to calculate the post-hoc power for the whole study, 
+using a sample size equal to the one 
 calculated with priority trial, we can do:
 
-```{r prior4 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r prior4 , echo=TRUE , eval=TRUE , timeit=NULL}
 # Extract the number of samples calculated with priority.trial
 sizePrior4Drugs <- prior4drugs[[1]]$Summary["Screened" , "Total"]
 # Calculate post-hoc power, given sample.size
@@ -1102,30 +1343,46 @@ postHocPower <- survPowerSampleSize(mypanel
 postHocPower[ postHocPower$Var=="Full Design" , "Power"]
 ```
 
-The power is basically 100%. In conclusion, priority.trial guarantees an high level of power for the whole trial 
-and at least the same level of power for each drug, minimizing the samples to screen.
+The power is basically 100%. In conclusion, priority.trial 
+guarantees an high level of power for the whole trial 
+and at least the same level of power for each drug, 
+minimizing the samples to screen.
 
 
 # Basket Trial Design: tumor.freqs and tumor.weights parameters
 
-The problem of using public data is that the information available from each tumor type depends on how many samples per 
-tumor type were sequenced. In our example, we can see that mutation data are not the same between tumor types 
-with `r length(cpData(mypanel)$mutations$Samples$brca)` sequenced samples for breast cancer and `r length(cpData(mypanel)$mutations$Samples$luad)` 
-for lung adenocarcinoma. Therefore, when calculating compound frequencies across tumor types, breast cancer weights more than lung cancer. 
+The problem of using public data is that the information 
+available from each tumor type depends on how many samples per 
+tumor type were sequenced. In our example, we can see that 
+mutation data are not the same between tumor types 
+with `r length(cpData(mypanel)$mutations$Samples$brca)` 
+sequenced samples for breast cancer and 
+`r length(cpData(mypanel)$mutations$Samples$luad)` 
+for lung adenocarcinoma. Therefore, when calculating compound 
+frequencies across tumor types, breast cancer weights more than lung cancer. 
 
-This behaviour was purposely set by default given the nature of the original idea of a panel-wise analysis that is the base of **Umbrella Designs** 
-(one tumor type, multiple targets). In other words, `r Rpackage("PrecisionTrialDrawer")` is best suited for tumor-wise analysis where homogeneity 
+This behaviour was purposely set by default given the 
+nature of the original idea of a panel-wise analysis 
+that is the base of **Umbrella Designs** 
+(one tumor type, multiple targets). In other words, 
+`r Rpackage("PrecisionTrialDrawer")` is best suited 
+for tumor-wise analysis where homogeneity 
 of samples is automatically granted.
 
-Nevertheless, **Basket Designs** (one target, multiple tumor types) can also be explored using this package by adding two parameters common to many of our functions.
+Nevertheless, **Basket Designs** (one target, multiple tumor types) 
+can also be explored using this package by adding 
+two parameters common to many of our functions.
 
-1. **tumor.freqs**: is a named vector, containing frequencies that are used to calculated a weighted mean by tumor types. 
-                    e.g. if *PIK3CA* is mutated in the 30% of BRCA samples and 20% of LUAD samples, if you set tumor.freqs=c(brca=0.5 , luad=0.5) you 
-                    are saying that you expect the same number of breast and lung samples in your study, therefore the weighted frequency now become 
-                    0.3x0.5 + 0.2x0.5 = 0.25;
-2. **tumor.weights**: is a named vector, containing the number of samples that will be randomly sampled from the original cohort contained in the 
-                      *CancerPanel* object. e.g. by setting tumor.weights=c(brca=100 , luad=100), we randomly select 100 samples per tumor type and run 
-                      the function.
+1. **tumor.freqs**: is a named vector, containing frequencies 
+that are used to calculated a weighted mean by tumor types. 
+e.g. if *PIK3CA* is mutated in the 30% of BRCA samples and 20% of LUAD samples, 
+if you set tumor.freqs=c(brca=0.5 , luad=0.5) you are saying that you expect 
+the same number of breast and lung samples in your study, 
+therefore the weighted frequency now become 0.3x0.5 + 0.2x0.5 = 0.25;
+2. **tumor.weights**: is a named vector, containing the number of samples that 
+will be randomly sampled from the original cohort contained in the *CancerPanel*
+object. e.g. by setting tumor.weights=c(brca=100 , luad=100), 
+we randomly select 100 samples per tumor type and run the function.
 
 |Function            |tumor.freqs |tumor.weights |
 |:-------------------|:-----------|:-------------|
@@ -1142,97 +1399,125 @@ Let's now see some examples that make use of these two parameters.
 
 ## tumor.freqs: calculate weighted frequencies
 
-As mentioned in the introduction, alteration frequencies are by default calculated on all available samples inside the object. 
-If we want to establish the frequency of samples that can be targeted by each drug, we can run a simple *coverageStackPlot* like this:
+As mentioned in the introduction, alteration frequencies are by default 
+calculated on all available samples inside the object. 
+If we want to establish the frequency of samples that can be targeted by 
+each drug, we can run a simple *coverageStackPlot* like this:
 
-```{r basket1 , echo=TRUE , eval=TRUE , fig.width=7, fig.height=7, timeit=FALSE}
+```{r basket1 , echo=TRUE , eval=TRUE , fig.width=7, fig.height=7, timeit=NULL}
 coverageStackPlot(mypanel , var="drug" 
         , grouping=NA , collapseByGene=TRUE)
 ```
 
-```{r basket1Hidden , echo=FALSE , eval=TRUE, timeit=FALSE}
+```{r basket1Hidden , echo=FALSE , eval=TRUE, timeit=NULL}
 #we use this to calculate inline stuff
-covstackdrug <- coverageStackPlot(mypanel , var="drug" , grouping=NA , collapseByGene=TRUE , noPlot=TRUE)
+covstackdrug <- coverageStackPlot(mypanel , var="drug" , grouping=NA 
+                                  , collapseByGene=TRUE , noPlot=TRUE)
 ```
 
-This plot derives from a calculation made with `r covstackdrug$Samples['brca']` breast samples and 
-`r covstackdrug$Samples['luad']` lung samples, that are the ones with all available data from copynumber, mutations, fusions and expression. 
-As you can see, this is not a balanced sample because breast tumors are the large majority.
+This plot derives from a calculation made with 
+`r covstackdrug$Samples['brca']` breast samples and 
+`r covstackdrug$Samples['luad']` lung samples, that are the ones with all 
+available data from copynumber, mutations, fusions and expression. 
+As you can see, this is not a balanced sample 
+because breast tumors are the large majority.
 What if we had the same number of samples for each tumor type?
 
-```{r basket2 , echo=TRUE , eval=TRUE , fig.width=7, fig.height=7, timeit=FALSE}
+```{r basket2 , echo=TRUE , eval=TRUE , fig.width=7, fig.height=7, timeit=NULL}
 coverageStackPlot(mypanel , var="drug" 
-        , grouping=NA , collapseByGene=TRUE , tumor.freqs=c(brca=0.5 , luad=0.5))
+        , grouping=NA , collapseByGene=TRUE 
+        , tumor.freqs=c(brca=0.5 , luad=0.5))
 ```
 
-```{r basket2Hidden , echo=FALSE , eval=TRUE, timeit=FALSE}
+```{r basket2Hidden , echo=FALSE , eval=TRUE, timeit=NULL}
 covstackdrug2 <- coverageStackPlot(mypanel , var="drug" 
-        , grouping=NA , collapseByGene=TRUE , tumor.freqs=c(brca=0.5 , luad=0.5) , noPlot=TRUE)
+        , grouping=NA , collapseByGene=TRUE 
+        , tumor.freqs=c(brca=0.5 , luad=0.5) , noPlot=TRUE)
 ```
 
-While some of the drugs do not change dramatically, some other drop down or increase significantly 
-(check red numbers on top of the bars). For example, *Idelalisib* drops down in frequency by a 10% 
-(before `r unname(covstackdrug$plottedTable[1 , "Idelalisib"]/covstackdrug$Samples['all_tumors'])`, 
-now `r covstackdrug2$plottedTable[1 , "Idelalisib"]`). The reason is that is linked to *PIK3CA*, 
+While some of the drugs do not change dramatically, 
+some other drop down or increase significantly 
+(check red numbers on top of the bars). For example, *Idelalisib* 
+drops down in frequency by a 10% 
+(before 
+`r unname(covstackdrug$plottedTable[1,"Idelalisib"]/covstackdrug$Samples['all_tumors'])`, 
+now `r covstackdrug2$plottedTable[1 , "Idelalisib"]`). 
+The reason is that is linked to *PIK3CA*, 
 that is a gene that is rarely mutated in lung cancer, while it represents 
-around the 30% breast cancer case. When the design is balanced, the frequency is dragged down towards the low LUAD frequency.
-Note that the plot is also slightly different from the previous one: now Y-axis reports the relative frequency 
-(the same as the red text on the top of the bars), instead of the absolute number of samples that is usually reported. 
+around the 30% breast cancer case. When the design is balanced, 
+the frequency is dragged down towards the low LUAD frequency.
+Note that the plot is also slightly different from the previous one: 
+now Y-axis reports the relative frequency 
+(the same as the red text on the top of the bars), 
+instead of the absolute number of samples that is usually reported. 
 The reason is that tumor.freqs simply weights the tumor-wise frequencies 
-by a 0.5 - 0.5 factor per tumor type and the original number of samples is therefore lost.
+by a 0.5 - 0.5 factor per tumor type and the 
+original number of samples is therefore lost.
 
-If we want to check our theory about *PIK3CA*, we can simply use *tumor.freqs* in *cpFreq* function.
+If we want to check our theory about *PIK3CA*, 
+we can simply use *tumor.freqs* in *cpFreq* function.
 
-```{r basket3 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r basket3 , echo=TRUE , eval=TRUE , timeit=NULL}
 # Run cpFreq with and withouth tumor.freqs
 flatfreq <- cpFreq(mypanel , alterationType = "mutations")
-weightedfreq <- cpFreq(mypanel , alterationType = "mutations" , tumor.freqs=c(brca=0.5 , luad=0.5) )
+weightedfreq <- cpFreq(mypanel , alterationType = "mutations" 
+                       , tumor.freqs=c(brca=0.5 , luad=0.5) )
 ```
 
-```{r basket3show1 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r basket3show1 , echo=TRUE , eval=TRUE , timeit=NULL}
 # Frequency with no weights
 knitr::kable(flatfreq[ flatfreq$gene_symbol=="PIK3CA" , ] , row.names=FALSE)
 ```
 
-```{r basket3show2 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r basket3show2 , echo=TRUE , eval=TRUE , timeit=NULL}
 # Frequency with balanced weights
-knitr::kable(weightedfreq[ weightedfreq$gene_symbol=="PIK3CA" , ] , row.names=FALSE)
+knitr::kable(weightedfreq[ weightedfreq$gene_symbol=="PIK3CA" , ] 
+             , row.names=FALSE)
 ```
 
 ## tumor.weights: calculate frequency with fixed sample size
 
 In this section, we analyze how a basket trial simulation can be carried on. 
-Imagine a clinical trial on *Idelalisib*, a drug that acts on *PIK3CA* mutations. 
+Imagine a clinical trial on *Idelalisib*, 
+a drug that acts on *PIK3CA* mutations. 
 The study is designed so that each tumor type arm is closed when we reach 
 50 breast cancer cases and 40 lung cancer samples. Now we ask three questions:
 
-1. What is the average mutation frequency we expect from this exact sample composition?
+1. What is the average mutation frequency we expect 
+from this exact sample composition?
 2. What is the distribution and variability of this frequency?
-3. What is the maximum and minimum frequency we can expect, or in other words, 
+3. What is the maximum and minimum frequency 
+we can expect, or in other words, 
 the worst and best case scenario in terms of treatment opportunity?
 
-```{r basket4 , echo=TRUE , eval=TRUE , timeit=FALSE}
-samplefreqs <- cpFreq(mypanel , alterationType = "mutations" , tumor.weights=c(brca=50 , luad=40))
-knitr::kable(samplefreqs[ samplefreqs$gene_symbol=="PIK3CA" , ] , row.names=FALSE)
+```{r basket4 , echo=TRUE , eval=TRUE , timeit=NULL}
+samplefreqs <- cpFreq(mypanel , alterationType = "mutations" 
+                      , tumor.weights=c(brca=50 , luad=40))
+knitr::kable(samplefreqs[ samplefreqs$gene_symbol=="PIK3CA" , ] 
+             , row.names=FALSE)
 ```
 
 *tumor.weights* allows a random extraction of 50 and 40 samples from each tumor 
-type and calculate the frequency. This is just 1 extraction, so the result could be 
-completely biased. We need to run a resampling simulation to answer our questions.
+type and calculate the frequency. 
+This is just 1 extraction, so the result could be 
+completely biased. We need to run a resampling 
+simulation to answer our questions.
 
-```{r basket5 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r basket5 , echo=TRUE , eval=TRUE , timeit=NULL}
 # Run cpFreq 20 times
 samplefreqsboot <- replicate( 20 
                           , cpFreq(mypanel , alterationType = "mutations" 
                             , tumor.weights=c(brca=50 , luad=40)) 
                           , simplify=FALSE)
 # Extract PIK3CA frequency in the 20 runs
-pik3caboot <- sapply(samplefreqsboot , function(x) x[x$gene_symbol=="PIK3CA" , "freq"])
+pik3caboot <- sapply(samplefreqsboot , function(x) {
+  x[x$gene_symbol=="PIK3CA" , "freq"]})
 ```
 
-Now to answer the first two questions, let's draw the distribution of our resampling:
+Now to answer the first two questions, let's 
+draw the distribution of our resampling:
 
-```{r basket6 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r basket6 , echo=TRUE , eval=TRUE , timeit=NULL}
 # calculate mean and sd of PIK3CA frequency distribution
 avgpik3ca <- mean(pik3caboot)
 sdpik3ca <- sd(pik3caboot)
@@ -1242,20 +1527,24 @@ title <- paste("PIK3CA frequency distribution with 50 BRCA and 40 LUAD samples"
               , paste("SD:" , round(sdpik3ca , 3))
               , sep="\n")
 # draw a simple histogram. the red line shows the mean value
-hist(pik3caboot , col="cadetblue" , breaks=30 , main=title , xlab="Frequencies of resampling")
+hist(pik3caboot , col="cadetblue" , breaks=30 
+     , main=title , xlab="Frequencies of resampling")
 abline(v = avgpik3ca , col="red" , lwd=3 , xpd=FALSE)
 ```
 
-So, with our expected sample composition, we have an average of `r round(avgpik3ca , 3)` 
-samples mutated on *PIK3CA* with a standard deviation of  `r round(sdpik3ca , 3)`. 
+So, with our expected sample composition, 
+we have an average of `r round(avgpik3ca , 3)` 
+samples mutated on *PIK3CA* with a standard 
+deviation of  `r round(sdpik3ca , 3)`. 
 Also a confidence interval for our measure can be calculated, 
 using percentile bootstrap confidence interval
 
 $$(\theta_{\alpha/2}^{*};\theta_{1-\alpha/2}^{*})$$
 
-To summarize what we should expect from this study, including answering to question 3:
+To summarize what we should expect from this study, 
+including answering to question 3:
 
-```{r basket7 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r basket7 , echo=TRUE , eval=TRUE , timeit=NULL}
 # Write a simple function to calculate confidence interval of a proportion
 CI <- function(x){
   left <- quantile(x , 0.025)
@@ -1264,31 +1553,38 @@ CI <- function(x){
 }
 # Create a small data.frame to summarize everything
 pik3caSummary <- data.frame(Gene = "PIK3CA"
-                          , AverageMutationRate = round(avgpik3ca , 3)
-                          , SDMutationRate = round(sdpik3ca , 3)
-                          , MaxMutationRate = round(max(pik3caboot)[1] , 3)
-                          , MinMutationRate = round(min(pik3caboot)[1] , 3)
-                          , CI = paste( round( CI(pik3caboot) , 3) , collapse=" - ")
-                          )
+          , AverageMutationRate = round(avgpik3ca , 3)
+          , SDMutationRate = round(sdpik3ca , 3)
+          , MaxMutationRate = round(max(pik3caboot)[1] , 3)
+          , MinMutationRate = round(min(pik3caboot)[1] , 3)
+          , CI = paste( round( CI(pik3caboot) , 3) , collapse=" - "))
 knitr::kable(pik3caSummary , row.names=FALSE)
 ```
 
 What we known now is how *PIK3CA* would behave if we randomly select 90 
 individuals divided in 50 breast cancer and 40 lung cancer cases.
  
-How is this affecting sample size estimation? As mentioned in the previous section, 
-sample size at screening is influenced by the number of affected samples we expect to find.
-If you need to treat with *Idelalisib* a total of 100 samples, you would need at least 
-300 patients sequenced to obtain 100 *PIK3CA* mutated samples (considering a mutation rate of 30%). 
-This means that while sample size at treatment is fixed and depends only from hazard 
-ratio, power and other parameters chosen beforehand, sample size at screening depends 
-on how lucky/unlucky we are in finding enough patients with the alteration we are targeting. 
+How is this affecting sample size estimation? 
+As mentioned in the previous section, 
+sample size at screening is influenced by the 
+number of affected samples we expect to find.
+If you need to treat with *Idelalisib* a total 
+of 100 samples, you would need at least 
+300 patients sequenced to obtain 100 *PIK3CA* 
+mutated samples (considering a mutation rate of 30%). 
+This means that while sample size at treatment 
+is fixed and depends only from hazard 
+ratio, power and other parameters chosen beforehand, 
+sample size at screening depends 
+on how lucky/unlucky we are in finding enough 
+patients with the alteration we are targeting. 
 
 Also *survPowerSampleSize* has a tumor.weights parameter that can be resampled 
-as we did for cpFreq. Let's see how. To simplify things, we hypothesize an hazard ratio of 2 
+as we did for cpFreq. Let's see how. 
+To simplify things, we hypothesize an hazard ratio of 2 
 and we want to reach a power of 80%.
 
-```{r basket8 , echo=TRUE , eval=TRUE , timeit=FALSE}
+```{r basket8 , echo=TRUE , eval=TRUE , timeit=NULL}
 # We want to know how many samples we will need under
   # HR = 2
   # power = 0.8
@@ -1302,59 +1598,72 @@ survboot <- replicate( 10
                             , noPlot=TRUE)
                     , simplify=FALSE)
 # Extract PIK3CA results
-survbootpik3ca <- sapply(survboot , function(x) x[ x$Var=="PIK3CA" , "ScreeningSampleSize"] )
+survbootpik3ca <- sapply(survboot , function(x) {
+  x[ x$Var=="PIK3CA" , "ScreeningSampleSize"]} )
 ```
 
-Again, we create a little table that would tell us the average scenario, the best, 
-the worst etc. Calculation of confidence interval follows the same formula as above
+Again, we create a little table that would 
+tell us the average scenario, the best, 
+the worst etc. Calculation of confidence 
+interval follows the same formula as above
 
-```{r basket9 , echo=TRUE , eval=TRUE , timeit=FALSE}
-# Create a small data.frame to summarize everything (we round up to integer values)
+```{r basket9 , echo=TRUE , eval=TRUE , timeit=NULL}
+# Create a small data.frame to summarize 
+# everything (we round up to integer values)
 survSummary <- data.frame(Gene = "PIK3CA"
-                       , Mean.Screen.Samp.Size = round(mean(survbootpik3ca))
-                       , SD.Screen.Samp.Size = round(sd(survbootpik3ca))
-                       , Max.Screen.Samp.Size = round(max(survbootpik3ca)[1])
-                       , Min.Screen.Samp.Size = round(min(survbootpik3ca)[1])
-                       , CI = paste( round( CI(survbootpik3ca)) , collapse=" - ")
-                       )
+            , Mean.Screen.Samp.Size = round(mean(survbootpik3ca))
+            , SD.Screen.Samp.Size = round(sd(survbootpik3ca))
+            , Max.Screen.Samp.Size = round(max(survbootpik3ca)[1])
+            , Min.Screen.Samp.Size = round(min(survbootpik3ca)[1])
+            , CI = paste( round( CI(survbootpik3ca)) , collapse=" - "))
 knitr::kable(survSummary , row.names=FALSE)
 ```
 
 What we learnt is that in the average scenario, we would need 
-`r survSummary[1 , "Mean.Screen.Samp.Size"]` samples to start our trial, with a minimum 
+`r survSummary[1 , "Mean.Screen.Samp.Size"]` 
+samples to start our trial, with a minimum 
 of `r survSummary[1 , "Min.Screen.Samp.Size"]` and, if we are very unlucky, 
 a maximum of `r survSummary[1 , "Max.Screen.Samp.Size"]` patients at screening.
 
 
 # Panel Design
 
-Once we are satisfied with our panel (and we suppose we are), the next step is to submit it to our preferred NGS company. 
-The most accepted format to submit a panel is the [bed format](http://www.ensembl.org/info/website/upload/bed.html). 
-As mentioned in the introduction, it is sometimes difficult to reconcile all the possible formats of alteration in a genomic 
+Once we are satisfied with our panel (and we suppose we are), 
+the next step is to submit it to our preferred NGS company. 
+The most accepted format to submit a panel is the 
+[bed format](http://www.ensembl.org/info/website/upload/bed.html). 
+As mentioned in the introduction, it is sometimes 
+difficult to reconcile all the possible formats of alteration in a genomic 
 position and that is what **panelDesigner** is designed for.
 
 **panelDesigner** takes our **CancerPanel** object and 4 possible arguments.
 
-1. **alterationType**: decide to create the panel using only 'mutations','copynumber' ,'fusions', 'expression' regions  
-                      or any combination of these. Default is to perform design on the whole panel;
+1. **alterationType**: decide to create the panel using only 
+'mutations','copynumber' ,'fusions', 'expression' regions or any 
+combination of these. Default is to perform design on the whole panel;
 2. **padding_length**: every region is elongated by this value in bp. Default 0. 
                       This operation is generally performed by the sequencing 
                       company itself in order to better characterize certain regions;
-3. **merge_window**: regions with a distance below this threshold in bp are merged to reduce 
-                    the final number of amplicons at expense of sequencing more genomic space;
-4. **utr**: genes that demanded for the full length can be sequenced on their CDS or CDS + utr (full exons). Default FALSE
-5. **canonicalTranscript**: decide weather to take only the canonical transcript or collapse the genomic ranges of any transcript.
+3. **merge_window**: regions with a distance below this 
+threshold in bp are merged to reduce the final number of amplicons 
+at expense of sequencing more genomic space;
+4. **utr**: genes that demanded for the full length can be sequenced 
+on their CDS or CDS + utr (full exons). Default FALSE
+5. **canonicalTranscript**: decide weather to take only the canonical 
+transcript or collapse the genomic ranges of any transcript.
 
 
-```{r chunk11 , echo=TRUE , eval=FALSE , message=FALSE, timeit=FALSE}
-# Design our panel in full with no padding length and merge window equal to 100 bp
+```{r chunk11 , echo=TRUE , eval=FALSE , message=FALSE, timeit=NULL}
+# Design our panel in full with no padding 
+# length and merge window equal to 100 bp
 mydesign <- panelDesigner(mypanel 
                         , padding_length=0 
                         , merge_window=100)
 ```
 
-```{r chunk11_bis , echo=FALSE , eval=TRUE , message=FALSE, timeit=FALSE}
-# Design our panel in full with no padding length and merge window equal to 100 bp
+```{r chunk11_bis , echo=FALSE , eval=TRUE , message=FALSE, timeit=NULL}
+# Design our panel in full with no padding 
+# length and merge window equal to 100 bp
 data(cpDesign)
 mydesign <- cpDesign
 str(mydesign , vec.len=1)
@@ -1364,37 +1673,42 @@ str(mydesign , vec.len=1)
 The design is a list composed by four elements:
 
 1. **GeneIntervals**: all CDS and CDS + UTR for all the genes in the panel
-2. **TargetIntervals**: all requested target regions (specific single mutations) divided and collapsed by gene symbol
+2. **TargetIntervals**: all requested target regions 
+(specific single mutations) divided and collapsed by gene symbol
 3. **FullGenes**: gene symbols of the genes considered for their full sequence
-4. **BedStylePanel**: the entire panel in bed format, merged by chromosome, start and end.
+4. **BedStylePanel**: the entire panel in bed format, 
+merged by chromosome, start and end.
 
 So if you want to submit your panel right away, just write your bed file:
 
-```{r chunk12 , echo=TRUE , eval=TRUE , message=FALSE, timeit=FALSE}
+```{r chunk12 , echo=TRUE , eval=TRUE , message=FALSE, timeit=NULL}
 # Retrieve the panel in bed format
 bedPanel <- mydesign$BedStylePanel
 head(bedPanel)
 ```
 
-To know the total length of my panel, just sum up all the regions in the bed file:
+To know the total length of my panel, 
+just sum up all the regions in the bed file:
 
-```{r chunk12_bis , echo=TRUE , eval=TRUE , message=FALSE, timeit=FALSE}
+```{r chunk12_bis , echo=TRUE , eval=TRUE , message=FALSE, timeit=NULL}
 # Calculate genomic space in kilo bases
 sum( bedPanel$end - bedPanel$start )/100
 ```
 
-How **panelDesigner** decide the regions, according to the alteration specification?
+How **panelDesigner** decide the regions, 
+according to the alteration specification?
 
 1. fusions: full sequence of all the genes involved in the fusions;
 2. copynumber: full sequence of all the genes requested for copynumber;
 3. expression: full sequence of all the genes requested for expression;
-4. mutations: if every mutations are requested, full sequence, otherwise, specific genomic targets
+4. mutations: if every mutations are requested, 
+full sequence, otherwise, specific genomic targets
 
 As mentioned before, fusion, copynumber and expression data are probably 
 collected through different technologies (maybe no NGS at all). 
 Considering a specific design for every alteration type is therefore desirable.
 
-```{r chunk13 , echo=TRUE , eval=FALSE , message=FALSE, timeit=FALSE}
+```{r chunk13 , echo=TRUE , eval=FALSE , message=FALSE, timeit=NULL}
 # Design the panel for mutations
 myMutationDesign <- panelDesigner(mypanel
                         , alterationType="mutations"
@@ -1406,6 +1720,6 @@ By setting parameter **alterationType**, we require a design only for mutations.
 
 # Session Information
 
-```{r info,echo=TRUE,eval=TRUE, timeit=FALSE}
+```{r info,echo=TRUE,eval=TRUE, timeit=NULL}
 sessionInfo()
 ```

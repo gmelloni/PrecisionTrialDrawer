@@ -1,7 +1,8 @@
 \name{saturationPlot}
 \alias{saturationPlot}
 \title{
-Plot your panel along with incremental genomic space occupied adding one piece at a time
+Plot your panel along with incremental genomic 
+space occupied adding one piece at a time
 }
 \description{
 This plot method returns a scatter plot with genomic space 

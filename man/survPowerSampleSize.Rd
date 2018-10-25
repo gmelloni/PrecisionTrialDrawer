@@ -216,7 +216,8 @@ Unfortunately, there are two main drawbacks in doing so:
 \enumerate{
     \item{small sample size:}{ by selecting small random samples, 
     the real frequency can be distorted. 
-    to avoid this, it is better to run several small samples and then bootstrap them}
+    to avoid this, it is better to run several 
+    small samples and then bootstrap them}
     \item{recycling:}{ if the sample size for a tumor type 
     requested by the user is above the available number of cBioportal samples, 
     the samples are recycled. 
@@ -238,7 +239,8 @@ If this parameter is not set, the total amount of samples
 available is used with unpredictable balancing.
 
 Both tumor.freqs and tumor.weights can achieve a balanced 
-design according to user specification. For having a quick idea of the sample size required, 
+design according to user specification. For having a quick 
+idea of the sample size required, 
 it is better to use the former. To get an idea about the 
 possible distribution of sample size giving a few samples 
 (for example a minimum and a maximum sample size) it is 
@@ -278,7 +280,8 @@ In case priority.trial is set, a 5-element list is reported.
 See vignette for details.
 }
 \references{
-Schoenfeld DA. Sample-size formula for the proportional-hazards regression model. Biometrics 1983;39:499-503.
+Schoenfeld DA. Sample-size formula for the proportional-hazards 
+regression model. Biometrics 1983;39:499-503.
 }
 \author{
 Giorgio Melloni, Alessandro Guida
@@ -300,7 +303,8 @@ survPowerSampleSize(cpObj
 survPowerSampleSize(cpObj , var = "drug" 
     , HR = c(0.5 , 0.8 , 0.9) 
     , power = c(0.7 , 0.8) 
-    , priority.trial = c("Idelalisib" , "Olaparib" , "Trastuzumab" , "Vandetanib")  
+    , priority.trial = c("Idelalisib" , "Olaparib" 
+    , "Trastuzumab" , "Vandetanib")  
     , priority.trial.order = "optimal")
 }
 

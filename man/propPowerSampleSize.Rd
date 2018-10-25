@@ -129,7 +129,8 @@ In case of "as.is", the order of priority.trial
 remains unchanged.
 }
   \item{priority.trial.verbose}{
-If TRUE, the result of a priority.trial will be a complete report in a 5-element list.
+If TRUE, the result of a priority.trial will 
+be a complete report in a 5-element list.
 }
   \item{noPlot}{
 if TRUE, the plot is not shown and data are reported instead.
@@ -144,7 +145,8 @@ are required but not both at the same time.
 HR must be also set but if a vector is provided, the plot will 
 show multiple curves according to the various hazard ratios. 
 'p.event', 'alpha' and 'case.fraction' are 
-instead fixed for all the arms of the study (represented by the 'var' parameter).
+instead fixed for all the arms of the study 
+(represented by the 'var' parameter).
 
 If noPlot=TRUE, a data.frame with 6 column is reported instead:
 \describe{

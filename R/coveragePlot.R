@@ -235,7 +235,8 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                     out2 <- (out$plottedTable/out$Samples)*tumor.freqs[tum]
                 } else {
                     out2 <- apply(out$plottedTable , 2 , function(x) {
-                        as.matrix(x)/out$Samples} ) * tumor.freqs[tum]
+                        as.matrix(x)/out$Samples
+                    }) * tumor.freqs[tum]
                 }
                 rownames(out2) <- rownames(out$plotted)
                 return(out2)
@@ -346,7 +347,7 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                             , "fusions" , "expression")
                         , altID
                         , warn_missing=FALSE)
-                    pats <- object@dataFull[[altID]]$Samples[[tumTypes]]
+                    pats <- cpData(object)[[altID]]$Samples[[tumTypes]]
                 }
             } else if(!"tumor_type" %in% grouping & 
                 "alteration_id" %in% grouping){
@@ -359,7 +360,7 @@ setMethod('coveragePlot', 'CancerPanel', function(object
                             , "fusions" , "expression")
                         , altID
                         , warn_missing=FALSE)
-                    pats <- unlist(object@dataFull[[altID]]$Samples) %>% unique
+                    pats <- unlist(cpData(object)[[altID]]$Samples) %>% unique
                 }
             } else {
                 pats <- mysamples$all_tumors

@@ -13,13 +13,16 @@
     Space=Mean=CI=Coverage=NULL
     if(y_measure[1]=="mean") {
         plotTitle <- main
-        p <- ggplot(mydata_melt, aes(x=Space, y=Mean, colour=grouping, group=grouping))
+        p <- ggplot(mydata_melt, aes(x=Space, y=Mean
+                                     , colour=grouping, group=grouping))
         if(CI.show){
-            p <- p + geom_errorbar(aes(ymin=Mean-CI, ymax=Mean+CI), colour="black", width=.1)
+            p <- p + geom_errorbar(aes(ymin=Mean-CI, ymax=Mean+CI)
+                                   , colour="black", width=.1)
         }
     } else {
         plotTitle <- main
-        p <- ggplot(mydata_melt, aes(x=Space, y=Coverage, colour=grouping, group=grouping)) +
+        p <- ggplot(mydata_melt, aes(x=Space, y=Coverage
+                                     , colour=grouping, group=grouping)) +
             scale_y_continuous(limits=c(0,1))
     }
     # Thanks to MrFlick at stackoverflow for this function
@@ -38,7 +41,8 @@
                     l=40) +
         ggtitle(plotTitle)
     if(annotation){
-        p <- p + annotate("text", x = Inf, y = -Inf, label = paste(mylabel , collapse="\n")
+        p <- p + annotate("text", x = Inf, y = -Inf
+                          , label = paste(mylabel , collapse="\n")
         , hjust=1.1
         , vjust=-.2
         , col="black", cex=2.5,fontface = "bold")
@@ -47,51 +51,53 @@
         p <- p + theme(legend.justification=c(0,1), legend.position=c(0,1))
     }
     if(labelling){
-        p <- p + geom_text_repel(aes_string(label=adding) , box.padding = unit(0.6, "lines"))
+        p <- p + geom_text_repel(aes_string(label=adding)
+                                 , box.padding = unit(0.6, "lines"))
     }
     return(p)
 }
 
 # scatter plot of panel size by mean coverage or by absolute coverage
 setGeneric('saturationPlot', function(object
-                                    , alterationType=c("copynumber" , "expression" , "mutations", "fusions")
-                                    , grouping=c(NA , "drug" , "group" , "alteration_id" , "tumor_type")
-                                    , adding=c("alteration_id" , "gene_symbol" , "drug" , "group")
-                                    , tumor_type=NULL
-                                    , y_measure=c("mean" , "absolute")
-                                    , adding.order=c("absolute" , "rate")
-                                    , sum.all.feature=FALSE
-                                    #, sum.by.grouping=FALSE
-                                    , collapseMutationByGene=TRUE
-                                    , collapseByGene=FALSE
-                                    , labelling=TRUE
-                                    , tumor.weights=NULL
-                                    , main=""
-                                    , legend=c("in" , "out")
-                                    , noPlot=FALSE) {
+        , alterationType=c("copynumber" , "expression" , "mutations", "fusions")
+        , grouping=c(NA , "drug" , "group" , "alteration_id" , "tumor_type")
+        , adding=c("alteration_id" , "gene_symbol" , "drug" , "group")
+        , tumor_type=NULL
+        , y_measure=c("mean" , "absolute")
+        , adding.order=c("absolute" , "rate")
+        , sum.all.feature=FALSE
+        , collapseMutationByGene=TRUE
+        , collapseByGene=FALSE
+        , labelling=TRUE
+        , tumor.weights=NULL
+        , main=""
+        , legend=c("in" , "out")
+        , noPlot=FALSE) {
     standardGeneric('saturationPlot')
     })
 setMethod('saturationPlot', 'CancerPanel', function(object
-                                    , alterationType=c("copynumber" , "expression" , "mutations", "fusions")
-                                    , grouping=c(NA , "drug" , "group" , "alteration_id" , "tumor_type")
-                                    , adding=c("alteration_id" , "gene_symbol" , "drug" , "group")
-                                    , tumor_type=NULL
-                                    , y_measure=c("mean" , "absolute")
-                                    , adding.order=c("absolute" , "rate")
-                                    , sum.all.feature=FALSE
-                                    #, sum.by.grouping=FALSE
-                                    , collapseMutationByGene=TRUE
-                                    , collapseByGene=FALSE                                
-                                    , labelling=TRUE
-                                    , tumor.weights=NULL
-                                    , main=""
-                                    , legend=c("in" , "out")
-                                    , noPlot=FALSE)
+        , alterationType=c("copynumber" , "expression" 
+                           , "mutations", "fusions")
+        , grouping=c(NA , "drug" , "group" , "alteration_id" , "tumor_type")
+        , adding=c("alteration_id" , "gene_symbol" , "drug" , "group")
+        , tumor_type=NULL
+        , y_measure=c("mean" , "absolute")
+        , adding.order=c("absolute" , "rate")
+        , sum.all.feature=FALSE
+        , collapseMutationByGene=TRUE
+        , collapseByGene=FALSE                                
+        , labelling=TRUE
+        , tumor.weights=NULL
+        , main=""
+        , legend=c("in" , "out")
+        , noPlot=FALSE)
 {
     ## Check of parameters
     possibleAddingOrder <- c("absolute" , "rate")
-    possibleAlterations <- c("copynumber" , "expression" , "mutations" , "fusions")
-    possibleGrouping <- c(NA , "drug" , "group" , "alteration_id" , "tumor_type")
+    possibleAlterations <- c("copynumber" , "expression" 
+                             , "mutations" , "fusions")
+    possibleGrouping <- c(NA , "drug" , "group" 
+                          , "alteration_id" , "tumor_type")
     possibleAdding <- c("alteration_id" , "gene_symbol" , "drug" , "group")
     possibley_measure <- c("mean" , "absolute")
     if(any(is.na(grouping))){
@@ -124,7 +130,8 @@ setMethod('saturationPlot', 'CancerPanel', function(object
                    , paste(possibley_measure , collapse=", ")))
     }
     if(("alteration_id" %in% grouping) & length(alterationType)<2){
-        stop("If you select 'alteration_id' as grouping variable, you must select more than one alterationType")
+        stop(paste("If you select 'alteration_id' as grouping variable," 
+                   ,"you must select more than one alterationType"))
     }
     if(!is.logical(sum.all.feature)){
       stop("sum.all.feature must be TRUE or FALSE")
@@ -137,8 +144,9 @@ setMethod('saturationPlot', 'CancerPanel', function(object
         stop("legend can only be 'in' or 'out' of the plotting area")
     }
     if(!is.null(tumor_type)){
-        if(!all(tumor_type %in% object@arguments$tumor_type)){
-            stop("You selected a tumor_type that has no data in this CancerPanel object")
+        if(!all(tumor_type %in% cpArguments(object)$tumor_type)){
+            stop(paste("You selected a tumor_type that has" 
+                       ,"no data in this CancerPanel object"))
         }
     }
     # Check tumor.weights consistency
@@ -146,11 +154,12 @@ setMethod('saturationPlot', 'CancerPanel', function(object
         if( any(is.na(tumor.weights)) || any(!is.numeric(tumor.weights)) ){
             stop("tumor.weights must be an integer vector")
         }
-        if( any(names(tumor.weights) %notin% object@arguments$tumor_type) ){
-            stop("The tumor.weights names do not correspond to the tumor types present in this object")
+        if( any(names(tumor.weights) %notin% cpArguments(object)$tumor_type) ){
+            stop(paste("tumor.weights names do not correspond to the" 
+                       , "tumor types present in this CancerPanel object"))
         }
         if(grouping %in% "tumor_type"){
-            warning("If you group by tumor type, tumor.weights are ignored. Every tumor has its own plot")
+            warning("If you group by tumor type, tumor.weights are ignored.")
             tumor.weights <- NULL
         } else {
             if(!is.null(tumor_type)){
@@ -183,50 +192,63 @@ setMethod('saturationPlot', 'CancerPanel', function(object
     mydata_split <- lapply(mydata_split , function(x) {
                         # browser()
                         tums <- unique(x$tumor_type)
-                        x$case_id <- factor(x$case_id , levels=unlist(mysamples[tums]))
+                        x$case_id <- factor(x$case_id 
+                                            , levels=unlist(mysamples[tums]))
                         return(x)
         })
     # Aggregate the panel according to the adding variable
-    panel_transition <- object@arguments$panel
+    panel_transition <- cpArguments(object)$panel
     # panel_transition <- panel
-    panel_transition$alteration_id <- .mapvalues(from=c("SNV" , "CNA" , "fusion" , "expression")
-                                                        ,to=c("mut" , "cna" , "fus" , "expr")
-                                                        ,panel_transition$alteration
-                                                        ,warn_missing=FALSE)
+    panel_transition$alteration_id <- 
+      .mapvalues(from=c("SNV" , "CNA" , "fusion" , "expression")
+              ,to=c("mut" , "cna" , "fus" , "expr")
+              ,panel_transition$alteration
+              ,warn_missing=FALSE)
     if(is.na(grouping)){
         panel_transition_split <- list("NA"=panel_transition)
     } else if(grouping=="tumor_type"){
-        panel_transition_split <- lapply(names(mysamples) , function(x) panel_transition)
+        panel_transition_split <- lapply(names(mysamples) , function(x) {
+          panel_transition})
         names(panel_transition_split) <- names(mysamples)
     } else {
-        panel_transition_split <- split(panel_transition , panel_transition[[grouping]])
+        panel_transition_split <- split(panel_transition 
+                                        , panel_transition[[grouping]])
     }
-    # Here we calculate space. We developed 4 possible scenarios of space calculation:
-    # sum.all.feature=TRUE. In case of a panel of cna and snv, a gene is counted twice
+    # Here we calculate space. 
+    # We developed 4 possible scenarios of space calculation:
+    # sum.all.feature=TRUE. In case of a panel of cna and snv,a gene count twice
     # sum.all.feature=FALSE same gene counts 1
 
     .spacing <- function(df , sum.all.feature){
         if(sum.all.feature){
-            out <- aggregate(as.formula(paste("variation_len~" , adding)) , df , sum)
+            out <- aggregate(as.formula(paste("variation_len~" , adding)) 
+                             , df , sum)
         } else {
-            df$full <- ifelse(df$alteration %in% c("CNA" , "fusion" , "expression") , "yes" , 
+            df$full <- ifelse(df$alteration %in% 
+                                c("CNA" , "fusion" , "expression") , "yes" , 
             ifelse(df$exact_alteration=="" , "yes" , "no"))
             genefull <- unique(df$gene_symbol[df$full=="yes"])
-            df_small <- df[ , unique(c(adding , "gene_symbol" , "variation_len" , "full"))]
-            # If I ask for a full gene in CNA and some mutations, remove the mutations when counting length
-            df_small2 <- df_small[ !(df_small$gene_symbol %in% genefull & df_small$full=="no") , ]
+            df_small <- df[ , unique(c(adding , "gene_symbol" 
+                                       , "variation_len" , "full"))]
+            # If I ask for a full gene in CNA and some mutations, 
+            # remove the mutations when counting length
+            df_small2 <- df_small[ !(df_small$gene_symbol %in% genefull & 
+                                       df_small$full=="no") , ]
             df_small2 <- unique(df_small2)
-            out <- aggregate(as.formula(paste("variation_len~" , adding)) , df_small2 , sum)
+            out <- aggregate(as.formula(paste("variation_len~" , adding)) 
+                             , df_small2 , sum)
         }
       return(out)
     }
-    panel_agg <- lapply( panel_transition_split , function(x) .spacing(x , sum.all.feature))
+    panel_agg <- lapply( panel_transition_split , function(x) {
+      .spacing(x , sum.all.feature)
+      })
     names(panel_agg) <- names(panel_transition_split)
     # Cast the splitted data by the adding variable
     caster <- lapply(seq_len(length(mydata_split)) , function(i) {
         z <- names(mydata_split)[i]
         x <- mydata_split[[i]]
-        x_cast <- reshape2::dcast(formula=as.formula( paste("case_id~" , adding)) 
+        x_cast <- reshape2::dcast(formula=as.formula(paste("case_id~" , adding))
                         , data=x 
                         , fun.aggregate=length 
                         , drop=FALSE 
@@ -237,17 +259,24 @@ setMethod('saturationPlot', 'CancerPanel', function(object
         x_cast[ x_cast>1 ] <- 1
         # assign length to the adding variable (columns)
         x_cast_colnames <- colnames(x_cast)
-        # Problem. The space can be NA if we consider translocation in every gene of a panel
+        # Problem. The space can be NA if we consider translocation 
+        # in every gene of a panel
         # The panel doesn't know what translocation could appear
-        # In the example, RET was included for every translocation, but ERC1__RET is not in the panel
-        if(adding=="gene_symbol" & any(panel_transition[ , "exact_alteration"]=="gene_fusion")){
-            gene_fusions <- unique(panel_transition[ panel_transition$exact_alteration=="gene_fusion", "gene_symbol"])
+        # In the example, RET was included for every translocation, 
+        # but ERC1__RET is not in the panel
+        if(adding=="gene_symbol" & 
+           any(panel_transition[ , "exact_alteration"]=="gene_fusion")){
+            gene_fusions <- unique(panel_transition[ 
+              panel_transition$exact_alteration=="gene_fusion", "gene_symbol"])
             subVec <- paste0(gene_fusions , "__")
             subVec2 <- paste0("__",gene_fusions)
             searchPattern <- paste( c(subVec2 , subVec) , collapse="|")
-            x_cast_colnames2 <- stringr::str_extract(x_cast_colnames , searchPattern) %>% sub("__" , "" , .)
-            x_cast_colnames2[is.na(x_cast_colnames2)] <- x_cast_colnames[is.na(x_cast_colnames2)]
-            space <- panel_agg[[z]][ match(x_cast_colnames2 , panel_agg[[z]][,adding]), 'variation_len']
+            x_cast_colnames2 <- stringr::str_extract(x_cast_colnames 
+                                  , searchPattern) %>% sub("__" , "" , .)
+            x_cast_colnames2[is.na(x_cast_colnames2)] <- 
+              x_cast_colnames[is.na(x_cast_colnames2)]
+            space <- panel_agg[[z]][ match(x_cast_colnames2 
+                        , panel_agg[[z]][,adding]), 'variation_len']
             space <- ifelse(is.na(space) , min(space , na.rm=TRUE) , space)
             space <- space/1000
             len_df <- data.frame(gene_symbol2=x_cast_colnames2 
@@ -258,20 +287,24 @@ setMethod('saturationPlot', 'CancerPanel', function(object
                 total <- unique(panel_transition[ , adding])
                 missing <- setdiff( total , len_df[ , "gene_symbol2"] )
             }else{
-                total <- unique(panel_transition[panel_transition[ , grouping]==z , adding])
+                total <- unique(panel_transition[
+                  panel_transition[ , grouping]==z , adding])
                 missing <- setdiff( total , len_df[ , "gene_symbol2"] )
             }
         } else {
-            space <- panel_agg[[z]][ match(x_cast_colnames , panel_agg[[z]][,adding]), 'variation_len']
+            space <- panel_agg[[z]][ match(x_cast_colnames 
+                        , panel_agg[[z]][,adding]), 'variation_len']
             space <- ifelse(is.na(space) , min(space , na.rm=TRUE) , space)
             space <- space/1000
-            len_df <- data.frame(addingVar=x_cast_colnames , Space=space , stringsAsFactors=FALSE)
+            len_df <- data.frame(addingVar=x_cast_colnames
+                                 , Space=space , stringsAsFactors=FALSE)
             colnames(len_df) <- c(adding , "Space")
             if(!grouping %in% colnames(panel_transition)){
                 total <- unique(panel_transition[ , adding])
                 missing <- setdiff( total , len_df[ , adding] )
             }else{
-                total <- unique(panel_transition[panel_transition[ , grouping]==z , adding])
+                total <- unique(panel_transition[
+                  panel_transition[ , grouping]==z , adding])
                 missing <- setdiff( total , len_df[ , adding] )
             }
         }
@@ -280,7 +313,8 @@ setMethod('saturationPlot', 'CancerPanel', function(object
         # If the order is based just on number of variants:
         if(adding.order=="absolute"){
             x_cast <- x_cast[ , names(adding_sum) , drop=FALSE]
-            df <- data.frame(adding_var=names(adding_sum) , stringsAsFactors=FALSE)
+            df <- data.frame(adding_var=names(adding_sum) 
+                             , stringsAsFactors=FALSE)
         } else {
             # If the order is based on rate of variants per length
             # things are a little more complicated
@@ -292,9 +326,11 @@ setMethod('saturationPlot', 'CancerPanel', function(object
             len_df <- merge(len_df , adding_sum_df , all.y=TRUE)
             len_df$num_of_variants_per_KB <- (len_df$var_num/len_df$Space)
             len_df$var_num <- NULL
-            len_df <- len_df[ order(len_df$num_of_variants_per_KB , decreasing=TRUE) , ]
+            len_df <- len_df[ order(len_df$num_of_variants_per_KB 
+                                    , decreasing=TRUE) , ]
             x_cast <- x_cast[ , len_df[ , adding] , drop=FALSE]
-            df <- data.frame(adding_var=len_df[ , adding] , stringsAsFactors=FALSE)
+            df <- data.frame(adding_var=len_df[ , adding] 
+                             , stringsAsFactors=FALSE)
         }
         x_cast2 <- lapply(seq_len(ncol(x_cast)), function(i) {
           rowSums(x_cast[,seq_len(i),drop=FALSE])
@@ -302,9 +338,11 @@ setMethod('saturationPlot', 'CancerPanel', function(object
         # create the dataset to plot
         df <- rename(df, c("adding_var" = adding))
         df$grouping <- z
-        df$Mean <- apply(x_cast2 , 2 , mean)
-        df$Coverage <- apply(x_cast2 , 2 , function(x) length(x[x!=0])/length(x))
-        df$SD <- apply(x_cast2 , 2 , sd)
+        df$Mean <- matrixStats::colMeans2(x_cast2)
+        df$Coverage <- apply(x_cast2 , 2 , function(x) {
+          length(x[x!=0])/length(x)
+          })
+        df$SD <- matrixStats::colSds(x_cast2)
         # Calculate standard error of the mean
         df$SE <- df$SD / sqrt(nrow(x_cast2))
         confInt <- .95
@@ -314,8 +352,10 @@ setMethod('saturationPlot', 'CancerPanel', function(object
         df$Space <- cumsum(df$Space)
         return(list(df , c(length(missing) , length(total) )))
     })
-    mydata_melt <- as.data.frame(data.table::rbindlist(lapply(caster , '[[' , 1)) , stringsAsFactors=FALSE)
-    mydata_melt$grouping <- factor(mydata_melt$grouping , levels=unique(mydata_melt$grouping))
+    mydata_melt <- as.data.frame(data.table::rbindlist(
+      lapply(caster , '[[' , 1)) , stringsAsFactors=FALSE)
+    mydata_melt$grouping <- factor(mydata_melt$grouping 
+                                   , levels=unique(mydata_melt$grouping))
     
     labels <- c( levels(mydata_melt$grouping) )
     mylabel <- vapply(seq_len(length(caster)) , function(x) {
