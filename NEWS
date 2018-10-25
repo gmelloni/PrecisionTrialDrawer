@@ -1,3 +1,17 @@
+### Version 0.99.12
+ADDITIONAL FUNCTIONS:
+- Add Luca Mazarella as author
+- add matrixStats function to improve apply speed
+***
+BUG FIXES:
+- remove mclapply
+- remove environment calls
+- NEWS file moved to the main folder
+- %+% and %++% removed
+- accessors functions used in the code
+- code lines reduced to 80 characters
+- general cleanup
+
 ### Version 0.99.11
 No changes. Just a rebump
 
