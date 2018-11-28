@@ -512,7 +512,7 @@ how many samples are covered
 by at least one of the alteration of our panel, divided by tumor type: 
 
 
-```{r plot1, echo=TRUE, eval=TRUE, fig.width=7, fig.height=5 , timeit=NULL}
+```{r plot1, echo=TRUE, eval=TRUE , timeit=NULL}
 coveragePlot(mypanel 
             , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
             , grouping="tumor_type")
@@ -543,7 +543,7 @@ in our panel to divide druggable from non-druggable alterations,
 it is pretty easy to answer this question.
 
 
-```{r plot2 , echo=TRUE , eval=TRUE, fig.width=7, fig.height=7 , timeit=NULL}
+```{r plot2 , echo=TRUE , eval=TRUE , timeit=NULL}
 # We add a new grouping variable, 'group'
 coveragePlot(mypanel 
             , alterationType=c("mutations" , "expression" 
@@ -582,7 +582,7 @@ that only returns the number of samples
 with at least one alteration stratified for a 'grouping' variable.
 
 
-```{r plotStack,echo=TRUE,eval=TRUE,fig.width=7,fig.height=14,timeit=NULL}
+```{r plotStack,echo=TRUE,eval=TRUE,timeit=NULL}
 # the stacked coverage plot requires:
   # 'var' parameter (that selects the bars)
   # 'grouping' parameter (that selects the stratification variable, optional)
@@ -670,7 +670,7 @@ myHTMLPlot <- coverageStackPlot(mypanel
 plot(myHTMLPlot)
 ```
 
-```{r plotStackHTMLshow,echo=FALSE,eval=TRUE,results='asis',fig.width=7,fig.height=14,timeit=NULL}
+```{r plotStackHTMLshow,echo=FALSE,eval=TRUE,results='asis',timeit=NULL}
 # Print is the actual command that works inside a Rmd
 # Plot is the one to use in case you are on a R console
 print(myHTMLPlot , tag="chart")
@@ -683,7 +683,7 @@ of subject that can be potentially treated by a drug.
 In this example, we will see the effect of the **rules** 
 parameter on Erlotinib drug in the lung dataset.
 
-```{r plotStack_exclude,echo=TRUE,eval=TRUE,fig.width=7,fig.height=14,timeit=NULL}
+```{r plotStack_exclude,echo=TRUE,eval=TRUE,timeit=NULL}
 # First plot with exclude activated, second without
 par(mfrow=c(2,1))
 coverageStackPlot(mypanel_exclude
@@ -725,7 +725,7 @@ by growing the panel one piece at a time?
 
 To answer these questions, let's draw a saturation plot.
 
-```{r plot3 , echo=TRUE , eval=TRUE, fig.width=7, fig.height=7, timeit=NULL}
+```{r plot3 , echo=TRUE , eval=TRUE, timeit=NULL}
 # Saturation plot by adding one gene at a time divided by tumor type
 saturationPlot(mypanel 
             , alterationType=c("mutations" , "expression" 
@@ -746,7 +746,7 @@ most altered. As can be seen from the bottom right annotation,
 some of the genes are never altered in these tumor types. 
 To find out who they are, we can run this simple lines of code:
 
-```{r chunk9 , echo=TRUE , eval=TRUE, fig.width=7, fig.height=10, timeit=NULL}
+```{r chunk9 , echo=TRUE , eval=TRUE, timeit=NULL}
 # As always, we can ask for the statistics with the option noPlot
 satStats <- saturationPlot(mypanel
              , alterationType=c("mutations" , "expression" 
@@ -773,7 +773,7 @@ This plot can also be seen from the drug point of view,
 by changing the variable *adding*:
 
 
-```{r plot4 , echo=TRUE , eval=TRUE,  fig.width=7, fig.height=7, timeit=NULL}
+```{r plot4 , echo=TRUE , eval=TRUE, timeit=NULL}
 # Saturation plot by adding one drug at a time divided by tumor type
 saturationPlot(mypanel 
             , alterationType=c("mutations" , "expression" 
@@ -811,7 +811,7 @@ can be misleading about the true coverage of a single feature.
 For example, let's plot the coverage by drug and tumor type:
 
 
-```{r plot5 , echo=TRUE , eval=TRUE , fig.width=7, fig.height=11, timeit=NULL}
+```{r plot5 , echo=TRUE , eval=TRUE , timeit=NULL}
 # One tumor at a time, we draw a stack plot of drug without stratification
 par(mfrow=c(2,1))
 coverageStackPlot(mypanel , var="drug" 
@@ -842,7 +842,7 @@ This is where the **coocMutexPlot** comes handy.
 
 
 
-```{r plot6 , echo=TRUE , eval=TRUE , fig.width=10, fig.height=4, timeit=NULL}
+```{r plot6 , echo=TRUE , eval=TRUE , timeit=NULL}
 # coocMutexPlot of drug divided by tumor type
 coocMutexPlot(mypanel 
      , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
@@ -866,7 +866,7 @@ The very same plot, using genes instead of drugs, shows a mutual exclusivity
 on both *BRCA1* and *BRCA2* against *PIK3CA*.
 
 
-```{r plot7 , echo=TRUE , eval=TRUE , fig.height=10, fig.width=15, timeit=NULL}
+```{r plot7 , echo=TRUE , eval=TRUE , timeit=NULL}
 # coocMutexPlot of genes divided by tumor type
 # To avoid plotting gene pairs with no significance, we set parameter plotrandom
 coocMutexPlot(mypanel 
@@ -883,7 +883,7 @@ prospective of similarity, rather than pair-wise mutex. For this purpose,
 we developed an alternative style for the plot that exploits binary 
 distance between occurrences of alterations between genes or drugs.
 
-```{r plotDendro,echo=TRUE,eval=TRUE,fig.height=10,fig.width=15, timeit=NULL}
+```{r plotDendro,echo=TRUE,eval=TRUE, timeit=NULL}
 # coocMutexPlot of drugs divided by tumor type
 # Style set to dendro
 coocMutexPlot(mypanel 
@@ -1404,7 +1404,7 @@ calculated on all available samples inside the object.
 If we want to establish the frequency of samples that can be targeted by 
 each drug, we can run a simple *coverageStackPlot* like this:
 
-```{r basket1 , echo=TRUE , eval=TRUE , fig.width=7, fig.height=7, timeit=NULL}
+```{r basket1 , echo=TRUE , eval=TRUE , timeit=NULL}
 coverageStackPlot(mypanel , var="drug" 
         , grouping=NA , collapseByGene=TRUE)
 ```
@@ -1423,7 +1423,7 @@ As you can see, this is not a balanced sample
 because breast tumors are the large majority.
 What if we had the same number of samples for each tumor type?
 
-```{r basket2 , echo=TRUE , eval=TRUE , fig.width=7, fig.height=7, timeit=NULL}
+```{r basket2 , echo=TRUE , eval=TRUE , timeit=NULL}
 coverageStackPlot(mypanel , var="drug" 
         , grouping=NA , collapseByGene=TRUE 
         , tumor.freqs=c(brca=0.5 , luad=0.5))
