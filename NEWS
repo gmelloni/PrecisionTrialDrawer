@@ -1,3 +1,10 @@
+### Version 0.99.14
+ADDITIONAL FUNCTIONS:
+***
+BUG FIXES:
+- some lines shortened
+- dependency to R 3.6 instead of 3.5
+
 ### Version 0.99.13
 ADDITIONAL FUNCTIONS:
 ***

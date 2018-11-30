@@ -514,8 +514,8 @@ by at least one of the alteration of our panel, divided by tumor type:
 
 ```{r plot1, echo=TRUE, eval=TRUE , timeit=NULL}
 coveragePlot(mypanel 
-            , alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
-            , grouping="tumor_type")
+, alterationType=c("mutations" , "expression" , "copynumber" , "fusions")
+, grouping="tumor_type")
 ```
 
 If we do not want the plot to be displayed but just the statistics, 
@@ -1081,7 +1081,7 @@ survSampInv <- survPowerSampleSize(mypanel
 ```
 
 So with 
-`r sampSize[sampSize$HazardRatio==0.5 & sampSize$Power==0.8,"ScreeningSampleSize"]` 
+`r with(sampSize,sampSize[HazardRatio==0.5 & Power==0.8,"ScreeningSampleSize"])` 
 patients we obtain an estimated power 
 of `r survSampInv[ survSampInv$ScreeningSampleSize==120 , "Power"]`.
 
@@ -1128,7 +1128,8 @@ survPowerSampleSize(mypanel
 ```
 
 It is noteworthy that the calculations performed arm-wise are 
-based on the assumption that each arm is completely independent from the others. 
+based on the assumption that each 
+arm is completely independent from the others. 
 In other terms, patients with two targetable alterations enter 
 in the frequency calculations twice as they could 
 be treated with both drugs. In a typical 
@@ -1192,7 +1193,8 @@ second drug/group and collects as many samples as possible up to ESS
 5. If all the drugs/groups have reached ESS, stop screening of new samples, 
     otherwise start a new screening with the first 
     drug/group that has not reached ESS yet.
-6. Repeat from point 3 up to the point that all drugs have reached ESS threshold.
+6. Repeat from point 3 up to the point 
+    that all drugs have reached ESS threshold.
 
 In order to calculate the fraction of expected patients with an 
 alteration that make them eligible for a drug, 
