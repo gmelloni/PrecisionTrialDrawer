@@ -16,9 +16,9 @@
     if(!is.numeric(bed[,3]))
         stop("end column must be numeric")
     if(! all(grepl("^chr" , bed[ , 1])))
-        stop("first column must be in the format chr1-22,chrX,chrY,chrM,chrMT")
+        stop("first column must be in the format chr1-23,chrX,chrY,chrM,chrMT")
     # chr must be chrX format
-    if( ! all(bed[,1] %in% paste0("chr" , c(seq_len(22), "X", "M", "MT", "Y"))))
+    if( ! all(bed[,1] %in% paste0("chr" , c(seq_len(23), "X", "M", "MT", "Y"))))
         stop("chr name not in chr1-chr22,chrX,chrY,chrM or chrMT")
     # check start end
     if( !all( bed[,2] < bed[,3]) )
@@ -31,6 +31,7 @@
     bed$chr <- gsub("chr" , "" , bed$chr)
     return(bed)
 }
+
 
 setGeneric('filterMutations'
            , function(object , filtered = NULL 
