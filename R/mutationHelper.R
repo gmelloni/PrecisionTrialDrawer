@@ -140,6 +140,13 @@
                                 # ,"genetic_profile_id"
                                 )
                         muts <- muts[ , colsIlike]
+                        # Fix chromosome number
+                        muts$chr <- muts$chr %>% as.character %>%
+                          sub("chr" , "" , .) %>%
+                          sub("23" , "X" , .) %>%
+                          sub("24" , "Y" , .) %>%
+                          sub("M" , "MT" , .)
+                        muts <- muts[ muts$chr %in% c(1:22, "X", "Y", "MT") , ]
                         muts$genetic_profile_id <- i
                         patients <- strsplit(caseList[sel, 'case_ids'] 
                                              , split=" ")[[1]]
