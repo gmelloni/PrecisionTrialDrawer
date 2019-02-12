@@ -20,7 +20,7 @@
 # ------------------------------------------------------------------------------
 showTumorType <- function() {
   # create CGDS object
-  mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
+  mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
   # Fetch cancer study from cbioportal
   all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
   
@@ -63,7 +63,7 @@ showTumorType <- function() {
 # ------------------------------------------------------------------------------
 showCancerStudy <- function(tumor_type=NULL) {
   # create CGDS object
-  mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
+  mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
   # Fetch cancer study from cbioportal
   all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
   if(is.null(tumor_type))

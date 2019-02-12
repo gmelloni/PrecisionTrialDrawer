@@ -7,7 +7,7 @@
 .getCNA <- function(myGenes=myGenes
                     ,tumor_type="all_tumors"
                     ,block=NULL) {
-    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
+    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
     all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
     all_cancer_studies$tumor_type <- vapply(strsplit(all_cancer_studies[,1] 
       , "_") , '[' , character(1) , 1)

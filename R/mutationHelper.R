@@ -7,7 +7,7 @@
                             ,tumor_type="all_tumors"
                             , block=NULL)
 {
-    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/public-portal/")
+    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
     allCanStudy <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
     allCanStudy$tumor_type <- vapply(strsplit(allCanStudy[,1] 
                                           , "_") , '[' , character(1) , 1)
