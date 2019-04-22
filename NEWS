@@ -1,3 +1,9 @@
+### Version 0.99.18
+ADDITIONAL FUNCTIONS:
+***
+BUG FIXES:
+- hg19 biomart version changed from feb2014.archive.ensembl.org to grch37.ensembl.org
+
 ### Version 0.99.17
 ADDITIONAL FUNCTIONS:
 ***

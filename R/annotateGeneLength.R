@@ -36,7 +36,7 @@
   ensembl=biomaRt::useMart(host=myhost
                            , biomart="ENSEMBL_MART_ENSEMBL" 
                            , dataset="hsapiens_gene_ensembl")
-  ensemblold=biomaRt::useMart(host="feb2014.archive.ensembl.org" 
+  ensemblold=biomaRt::useMart(host="grch37.ensembl.org" 
                               , biomart="ENSEMBL_MART_ENSEMBL" 
                               , dataset="hsapiens_gene_ensembl")
   

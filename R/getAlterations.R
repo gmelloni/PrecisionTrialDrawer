@@ -486,7 +486,7 @@ setMethod('getAlterations', 'CancerPanel', function(object
         if (any(is.na(gmOut2$chr))) {
           nochr <- gmOut2[is.na(gmOut2$chr) , "gene_symbol"] %>% unique
           ensembl <-
-            biomaRt::useMart(host = "feb2014.archive.ensembl.org"
+            biomaRt::useMart(host = "grch37.ensembl.org"
                              ,
                              biomart = "ENSEMBL_MART_ENSEMBL"
                              ,

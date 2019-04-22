@@ -15,7 +15,7 @@
   rs <- unique(rs)
   # Query Biomart HG19
   snp_mart = biomaRt::useMart(biomart="ENSEMBL_MART_SNP"
-                    , host="feb2014.archive.ensembl.org"
+                    , host="grch37.ensembl.org"
                     , dataset="hsapiens_snp")
   #run the query
   BM_rs = biomaRt::getBM(attributes=c( "chr_name"
@@ -97,7 +97,7 @@
     ensembl <- biomaRt::useMart(host=myhost 
                 , biomart="ENSEMBL_MART_ENSEMBL" 
                 , dataset="hsapiens_gene_ensembl")
-    ensemblold <- biomaRt::useMart(host="feb2014.archive.ensembl.org" 
+    ensemblold <- biomaRt::useMart(host="grch37.ensembl.org" 
                 , biomart="ENSEMBL_MART_ENSEMBL" 
                 , dataset="hsapiens_gene_ensembl")
     # Retrieve proteins in biomart
@@ -280,7 +280,7 @@
   ensembl=biomaRt::useMart(host=myhost 
                   , biomart="ENSEMBL_MART_ENSEMBL" 
                   , dataset="hsapiens_gene_ensembl")
-  ensemblold=biomaRt::useMart(host="feb2014.archive.ensembl.org" 
+  ensemblold=biomaRt::useMart(host="grch37.ensembl.org" 
                      , biomart="ENSEMBL_MART_ENSEMBL" 
                      , dataset="hsapiens_gene_ensembl")
   dframe <- biomaRt::getBM(attributes=c("hgnc_symbol"
