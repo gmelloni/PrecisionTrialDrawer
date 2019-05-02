@@ -1,7 +1,7 @@
 Package: PrecisionTrialDrawer
 Type: Package
 Title: A Tool to Analyze and Design NGS Based Custom Gene Panels
-Version: 1.0.0
+Version: 1.1.0
 Date: 2018-10-01
 Author: Giorgio Melloni , Alessandro Guida, Luca Mazzarella
 Maintainer: Giorgio Melloni <melloni.giorgio@gmail.com>
