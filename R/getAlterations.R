@@ -353,16 +353,20 @@ setMethod('getAlterations', 'CancerPanel', function(object
         gmOut <-
           lapply(seq_len(length(myGenesBlocks)) , function(x) {
             geneblock <- myGenesBlocks[[x]]
-            .getMutations(geneblock , tumor_type = tumor_type , block =
-                            x)
+            .getMutations(geneblock 
+                          , tumor_type = tumor_type 
+                          , block = x 
+                          , totalBlocks = length(myGenesBlocks))
           })
+        isThereAnyData <- lapply( gmOut , function(x) {
+          
+        })
         gmOut2 <- bplapply(names(gmOut[[1]]), function(x) {
-          box <- lapply(gmOut , function(z)
-            z[[x]]$out)
-          as.data.frame(rbindlist(box))
+          box <- lapply(gmOut , function(z) z[[x]]$out)
+          as.data.frame(data.table::rbindlist(box))
         } , BPPARAM = BPPARAM)
-        gmOut2 <- as.data.frame(rbindlist(gmOut2))
-        if (!is.null(gmOut2)) {
+        gmOut2 <- as.data.frame(data.table::rbindlist(gmOut2))
+        if (!is.null(gmOut2) && nrow(gmOut2) > 0) {
           tumor_type_vec <- unique(gmOut2$genetic_profile_id) %>%
             strsplit(. , "_") %>%
             vapply(., '[' , character(1) , 1)
@@ -385,7 +389,10 @@ setMethod('getAlterations', 'CancerPanel', function(object
         }
       } else {
         gmOut <-
-          .getMutations(mutgenes , tumor_type = tumor_type , block = NULL)
+          .getMutations(mutgenes 
+                        , tumor_type = tumor_type 
+                        , block = NULL
+                        , totalBlocks = NULL)
         gmOut2 <-
           as.data.frame(data.table::rbindlist(lapply(gmOut , '[[' , 1)))
         if (is.data.frame(gmOut2)) {

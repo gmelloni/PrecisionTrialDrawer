@@ -4,8 +4,9 @@
 # Each element is composed by a mutation df and a 
 # vector with all patient barcodes for that tumor type
 .getMutations <- function(myGenes=myGenes
-                            ,tumor_type="all_tumors"
-                            , block=NULL)
+                            , tumor_type="all_tumors"
+                            , block=NULL
+                            , totalBlocks=NULL)
 {
     mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
     allCanStudy <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
@@ -24,9 +25,19 @@
         } 
         #if still we have not found anything
         if (length(chosenTumors)==0){
-          stop(paste("Error: could not find tumor_type nor"
-                     ,"cancer_study_id in .getMutations()"))
+          stop(paste("Could not find the tumor_type nor"
+                     ,"cancer_study_id specified"))
         }
+    }
+    # Remove all old TCGA instances if the new pancanatlas is present
+    newTCGA <- grep("_tcga_pan_can_atlas_2018$" , chosenTumors , value=TRUE)
+    if(length(newTCGA)>0){
+      newTCGAtum <- lapply( strsplit(newTCGA , "_") , '[' , 1) %>% 
+        unlist %>% unique
+      oldTCGA <- c( paste0(newTCGAtum , "_tcga") 
+                    , paste0(newTCGAtum , "_tcga_pub") )
+      chosenTumors <- setdiff(chosenTumors 
+                            , oldTCGA)
     }
     out_double <- lapply(chosenTumors , function(i)
         {
@@ -77,21 +88,24 @@
                       setNames(df[[1]])
                     return(df)
             })
+            toLowCL <- tolower(caseList$case_list_name)
             #find if we have any sequenced tumor
-            sel <- caseList$case_list_name=="Sequenced Tumors"
-            # sometimes 'Sequenced Tumors' is not the 
-            # name of the case_list_name for mutations
-            # If 'Sequenced Tumors' does not exist, try 'All Tumors'
+            sel <- toLowCL=="sequenced tumors"
+            # sometime 'Sequenced Tumors' is not the name of the case_list_name for mutations
+            # If 'Sequenced Tumors' does not exist, try 'Samples with mutation data' first and 'All Tumors' next
             if(!any(sel)){
-                sel <- caseList$case_list_name=="All Tumors"
+              sel <- toLowCL=="samples with mutation data" | toLowCL=="samples with mutation data."
+            }
+            if(!any(sel)){
+              sel <- toLowCL=="all samples"
             }
             if(any(sel)) {
                 if(is.null(block)){
                     message(paste("getting mutations from this cancer study:" 
-                                  , i ))
+                          , i ))
                 } else {
                     message(paste("getting mutations from this cancer study:" 
-                                  , i , paste0("(" , block , ")")))
+                          , i , paste0("(" , block , "/" , totalBlocks , ")")))
                 }
                 caseListID <- caseList[sel, 1]
                 error <- tryCatch(

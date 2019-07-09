@@ -1,3 +1,10 @@
+### Version 1.1.1
+ADDITIONAL FUNCTIONS:
+***
+BUG FIXES:
+- cgdsr new caseList naming was bringing to no mutational data. now fixed
+- If _tcga_pan_can_atlas_2018 data are requested, _tcga and _tcga_pub are removed
+
 ### Version 0.99.18
 ADDITIONAL FUNCTIONS:
 ***
