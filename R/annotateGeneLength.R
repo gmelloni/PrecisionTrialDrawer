@@ -115,7 +115,7 @@
   
   #clean up attribute fetching only the tsl number
   dframe_merge <- lapply(dframe_merge , function(x) {
-    if(all( x$transcript_tsl %in% c("tslNA" , NA)) ){
+    if(all( is.na(x$transcript_tsl) | grepl("tslNA" , x$transcript_tsl)) ){
       x$transcript_tsl <- 1
       return(x)
     }
@@ -124,6 +124,11 @@
       sub("^tsl" , "" , .)
     x$transcript_tsl <- suppressWarnings(as.numeric(x$transcript_tsl))
     # Substitute NA transcript tsl with the highest number of tsl
+    # mymax <- tryCatch(max(x$transcript_tsl , na.rm=TRUE) 
+    #                   , warning = function(w) w
+    #                   , error = function(e) e)
+    # if( any( class(mymax) %in% c("simpleWarning", "warning", "condition") ) )
+    #   stop(x)
     tsl_max <- ifelse( is.na(max(x$transcript_tsl , na.rm=TRUE)) 
                        , 1 
                        , max(x$transcript_tsl , na.rm=TRUE))
@@ -151,8 +156,8 @@
       return(x)
     }
     if(nrow(x[ !is.na(x$cds_length) , ])==0){
-      warning(paste("The following gene has no coding regions:" 
-                    , unique(x$hgnc_symbol) 
+      warning(paste("The following gene has no coding regions:"
+                    , unique(x$hgnc_symbol)
                     , ". Only full exons length will be used"))
       x$genomic_coding_start <- x$exon_chrom_start
       x$genomic_coding_end <- x$exon_chrom_end
