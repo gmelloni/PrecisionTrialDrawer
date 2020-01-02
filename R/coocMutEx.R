@@ -260,44 +260,45 @@
   # fakedf <- data.frame(Random=NA)
   # Avoid complaints from check
   Var1=Var2=value=NULL
+  # melted_cormat$value <- ifelse(is.na(melted_cormat$value),0,melted_cormat$value)
   ggheatmap <- ggplot(melted_cormat, aes(Var1, Var2)) + 
-    geom_tile(aes(fill = value), colour ="white" )+
+    geom_tile(aes(fill = value), colour ="white" ) +
     scale_fill_gradient2(space="Lab"
-        ,low = "navy blue"
-        ,na.value="dark gray"
-        ,high="#FFCC66"
-        ,midpoint=0
-        ,mid="dark gray"
-        # ,name="log10 Pvalue\nNegative MutEx\nPositive Cooc"
-        ,name="p-value\nyellow cooc\nblue mutex"
+        # NOTE 02/12/2020 - Using default colors to avoid approx() error
+        # ,low = "navy blue"
+        # ,na.value="dark gray"
+        # ,high="#FFCC66"
+        # ,midpoint=0
+        # ,mid="dark gray"
+        ,name="p-value\nblue cooc\nred mutex"
         ,breaks=c(minMelt
                   # ,-log10pvalthr
                   , 0
                   # ,log10pvalthr
                   , maxMelt
                   )
-        ,labels=c(paste("Lower mutex p:" , 
+        ,labels=c(paste("Lower mutex p:" ,
           if(minMelt<=-log10pvalthr) {
-            prettyNum(10^minMelt , digits=3) 
+            prettyNum(10^minMelt , digits=3)
           } else {
             "no significance"
           })
           # , "MutEx Threshold"
-          , "Random" 
+          , "Random"
           # , "Cooc Threshold"
-          , paste("Lower cooc p:" , 
+          , paste("Lower cooc p:" ,
             if(maxMelt>=log10pvalthr) {
-              prettyNum(10^-maxMelt , digits=3) 
+              prettyNum(10^-maxMelt , digits=3)
             } else {
               "no significance"
             })
           )
-        ,limits=c(minMelt,maxMelt))+
-              theme_minimal()+ # minimal theme
-              xlab("") + ylab("") + 
-              theme(axis.text.x = element_text(angle = 45, vjust = 1, 
-                    size = 12, hjust = 1))+
-              coord_fixed() +
+        ,limits=c(minMelt,maxMelt)) +
+    theme_minimal() + # minimal theme
+    xlab("") + ylab("") + 
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, 
+                    size = 12, hjust = 1)) +
+    coord_fixed() +
     ggtitle(title)
     return(ggheatmap)
 }

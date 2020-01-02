@@ -1,3 +1,10 @@
+### Version 1.3.1
+ADDITIONAL FUNCTIONS:
+***
+BUG FIXES:
+- scale_fill_gradient2 throws a need at least two non-NA values to interpolate error. 
+  Leaving the default colors resolve the issue
+
 ### Version 1.1.1
 ADDITIONAL FUNCTIONS:
 ***
