@@ -2,7 +2,7 @@
 title: "PrecisionTrialDrawer - To analyze and design NGS-based gene panels"
 author: 
 - name: Giorgio Melloni
-  affiliation: Harvard Medical School, Boston, MA.
+  affiliation: Brigham and Women's Hospital, Boston, MA.
 - name: Alessandro Guida
   affiliation: European Institute of Oncology, Milan, Italy
 - name: Luca Mazzarella
@@ -437,7 +437,7 @@ new_panel <- filterMutations(mypanel_toy , bed = bed
 
 ```{r chunk5,echo=FALSE,eval=TRUE,message=FALSE,warning=FALSE,timeit=NULL}
 rm(mypanel_toy)
-rm(new_panel)
+# rm(new_panel)
 ```
 
 ## subsetAlterations
