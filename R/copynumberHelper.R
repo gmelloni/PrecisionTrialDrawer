@@ -21,6 +21,7 @@
             all_cancer_studies[,'cancer_study_id'] %in% tumor_type, 1]
         }
     }
+    
     out_double <- lapply(chosenTumors , function(i){
     geneticProfile <- tryCatch({
         cgdsr::getGeneticProfiles(mycgds, i)
@@ -62,9 +63,12 @@
          message("\n")
          return(df)
      })
+    
     # This definition changes often, keep the pace
     sel <- caseList$case_list_name %in% c("Tumors log2 copy-number" 
-                                        , "Tumor Samples with CNA data")
+                                        , "Tumor Samples with CNA data" 
+                                        , "Samples with CNA data" 
+                                        , "log2 copy-number")
     if(any(sel)) {
         if(is.null(block)){
             message(paste("getting CNA from this cancer study:" , i ))
