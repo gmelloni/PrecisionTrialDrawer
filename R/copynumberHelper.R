@@ -7,105 +7,91 @@
 .getCNA <- function(myGenes=myGenes
                     ,tumor_type="all_tumors"
                     ,block=NULL) {
-    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
-    all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
-    all_cancer_studies$tumor_type <- vapply(strsplit(all_cancer_studies[,1] 
-      , "_") , '[' , character(1) , 1)
-    if(tumor_type[1]=="all_tumors") {
-        chosenTumors <- all_cancer_studies[,1]
-    } else {
-        chosenTumors <- all_cancer_studies[ 
-            all_cancer_studies[,'tumor_type'] %in% tumor_type, 1]
-        if(length(chosenTumors)==0){
-            chosenTumors <- all_cancer_studies[ 
-            all_cancer_studies[,'cancer_study_id'] %in% tumor_type, 1]
-        }
+  mycgds <- cBioPortalData::cBioPortal(
+    hostname = "www.cbioportal.org",
+    protocol = "https",
+    api. = "/api/api-docs")
+  allCanStudy <- cBioPortalData::getStudies(mycgds)[ , c("cancerTypeId" , "studyId")]
+  allCanStudy <- unique(allCanStudy)
+  # allCanStudy$tumor_type <- vapply(strsplit(allCanStudy$cancerTypeId
+  #                                       , "_") , '[' , character(1) , 1)
+  allCanStudy$tumor_type <- allCanStudy$cancerTypeId
+  if(tumor_type[1]=="all_tumors") {
+    chosenTumors <- allCanStudy[,1,drop=TRUE]
+  } else {
+    #FIND All cancer studies associated with the tumor_type specified
+    chosenTumors <- allCanStudy[ allCanStudy$tumor_type %in% 
+                                   tumor_type, 1,drop=TRUE]
+    names(chosenTumors) <- allCanStudy[ allCanStudy$tumor_type %in% 
+                                          tumor_type, 2,drop=TRUE]
+    #In case we are not looking for tumor ID but cancer studies ID
+    if(length(chosenTumors)==0){
+      chosenTumors <- allCanStudy[ allCanStudy$studyId %in% 
+                                     tumor_type, 1,drop=TRUE]
+      names(chosenTumors) <- allCanStudy[ allCanStudy$studyId %in% 
+                                            tumor_type, 2,drop=TRUE]
     }
+    #if still we have not found anything
+    if (length(chosenTumors)==0){
+      stop(paste("Could not find the tumor_type nor"
+                 ,"the cancer_study_id specified"))
+    }
+  }
     
-    out_double <- lapply(chosenTumors , function(i){
-    geneticProfile <- tryCatch({
-        cgdsr::getGeneticProfiles(mycgds, i)
-    } , error = function(e) {
-         url <- paste(mycgds$.url
-          , "webservice.do?cmd=getGeneticProfiles&&cancer_study_id="
-          , i, sep = "")
-         res <- httr::GET(url)
-         if(res$status_code!=200){
-             stop(paste("Problems with cBioPortal Connection at" , url))
-         }
-         df <- strsplit(httr::content(res) , "\n") %>% unlist %>% strsplit("\t")
-         df <- do.call("rbind" , df[-1]) %>% 
-            as.data.frame(stringsAsFactors=FALSE) %>% setNames(df[[1]])
-         message("\n")
-         return(df)
-     })
-    geneticProfile <- geneticProfile[ ,c(1,2)]
-    geneticProfileID <- grep("gistic" , geneticProfile$genetic_profile_id
-                        , value=TRUE , ignore.case=TRUE)
-    if(length(geneticProfileID)==0){
-      geneticProfileID <- grep("cna$" , geneticProfile$genetic_profile_id 
-                             , value=TRUE , ignore.case=TRUE)
+  out_double <- lapply(names(chosenTumors) , function(i){
+    geneticProfile <- cBioPortalData::molecularProfiles(mycgds, i)
+    geneticProfile <- geneticProfile[ grepl("COPY_NUMBER_ALTERATION" , geneticProfile$molecularAlterationType) &
+                                        grepl("DISCRETE" , geneticProfile$datatype)
+                                        # grepl("LOG2-VALUE" , geneticProfile$datatype) 
+                                      , ]
+    if(nrow(geneticProfile)==0){
+      message(paste("geneticProfile" , i , "has no copynumber data"))
+      return( list( out=NULL , patients=NULL) )
     }
-    # Unfortunately, cgdsr is very weak and crush frequently
-    # In case of 
-    caseList <- tryCatch({
-        cgdsr::getCaseLists(mycgds, i)
-    } , error = function(e) {
-         url <- paste(mycgds$.url
-          , "webservice.do?cmd=getCaseLists&cancer_study_id=", i, sep = "")
-         res <- httr::GET(url)
-         if(res$status_code!=200){
-             stop(paste("Problems with cBioPortal Connection at" , url))
-         }
-         df <- strsplit(httr::content(res) , "\n") %>% unlist %>% strsplit("\t")
-         df <- do.call("rbind" , df[-1]) %>% 
-         as.data.frame(stringsAsFactors=FALSE) %>% setNames(df[[1]])
-         message("\n")
-         return(df)
-     })
-    
-    # This definition changes often, keep the pace
-    sel <- caseList$case_list_name %in% c("Tumors log2 copy-number" 
-                                        , "Tumor Samples with CNA data" 
-                                        , "Samples with CNA data" 
-                                        , "log2 copy-number")
-    if(any(sel)) {
-        if(is.null(block)){
-            message(paste("getting CNA from this cancer study:" , i ))
-        } else {
-            message(paste("getting CNA from this cancer study:" 
-              , i, paste0("(" , block , ")")))
-        }
-        if(length(which(sel))>1)
-            sel <- which(sel)[1]
-        caseListID <- caseList[sel, 1]
-        error <- tryCatch(
-            cna <- cgdsr::getProfileData( mycgds 
-                , caseList=caseListID 
-                , geneticProfile=geneticProfileID
-                , genes=myGenes)
-            , error=function(e) {
-                message(paste("Impossible to retrive CNA from" , i , "study"))
-                return(e)
-                }
-            )
-        if(!exists("cna")) {
-          cna <- NULL
-          patients <- NULL
-        } else if(nrow(cna) == 0 ){
-          cna <- NULL
-          patients <- NULL
-        } else {
-            patients <- strsplit(caseList[sel, 'case_ids'] , split=" ")[[1]]
-        }
+    # Fetch the patient list for the specified molecular profile and data type (mutations)
+    caseList <- cBioPortalData::sampleLists(mycgds, i)
+    # caseList <- caseList[ caseList$category == "all_cases_with_log2_cna_data" , ]
+    caseList <- caseList[ caseList$category == "all_cases_with_cna_data" , ]
+    if(nrow(caseList)==0){
+      message(paste("ProfileId" , i , "has no samples with copynumber"))
+      return( list( out=NULL , patients=NULL) )
+    }
+    # Get the actual case names (e.g. TCGA-AR-A1AR)
+    caseListId <- cBioPortalData::getSampleInfo(api = mycgds 
+                                                , studyId = geneticProfile$studyId 
+                                                , sampleListIds = caseList$sampleListId)$sampleId
+    tryCatch(
+      cna <- cBioPortalData::molecularData(
+        api = mycgds
+        , molecularProfileIds = geneticProfile$molecularProfileId
+        , entrezGeneIds = as.numeric(names(myGenes))
+        , sampleIds = caseListId
+      )[[1]]
+      , error=function(e) message(paste("Impossible to retrive copynumber from" , i , "study or no copynumber are present on the selected genes"))
+    )
+    if(!exists("cna")) {
+      cna <- NULL
+      patients <- NULL
+    } else if(nrow(cna) == 0 ){
+      cna <- NULL
+      patients <- NULL
     } else {
-        cna <- NULL
-        patients <- NULL
+      patients <- unique(ifelse(grepl("^TCGA" , caseListId) 
+                         , unlist(lapply(strsplit(caseListId , "-") , function(x) paste(x[seq_len(3)] , collapse="-")))
+                         , caseListId))
+      cna$genetic_profile_id <- i
+      cna$tumor_type <- chosenTumors[i]
+      cna$case_id <- ifelse(grepl("^TCGA" , cna$sampleId) 
+                             , unlist(lapply(strsplit(cna$sampleId , "-") , function(x) paste(x[seq_len(3)] , collapse="-")))
+                             , cna$sampleId)
+      cna$gene_symbol <- myGenes[ as.character(cna$entrezGeneId) ]
+      cna <- cna[ , c("case_id" , "entrezGeneId" , "gene_symbol" , "value" , "genetic_profile_id" , "tumor_type")]
     }
+    # message(paste("Copynumber retrieved from" , i , "study"))
     return( list( out=cna , patients=patients) )
-})
-        names(out_double) <- chosenTumors
-        return(out_double)
+  })
+  names(out_double) <- names(chosenTumors)
+  return(out_double)
 }
 
 .subsetCNA <- function(panel , cna_full)

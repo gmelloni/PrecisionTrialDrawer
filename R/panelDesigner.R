@@ -9,14 +9,14 @@ setGeneric('panelDesigner', function(object
         , alterationType = c("copynumber", "expression", "mutations", "fusions")
         , padding_length=100 , merge_window=50 , utr=FALSE 
         , canonicalTranscript=TRUE , BPPARAM=bpparam("SerialParam")
-        , myhost="www.ensembl.org")  {
+        , myhost="https://www.ensembl.org")  {
     standardGeneric('panelDesigner')
     })
 setMethod('panelDesigner', 'CancerPanel', function(object 
         , alterationType = c("copynumber", "expression", "mutations", "fusions")
         , padding_length=100 , merge_window=50 , utr=FALSE 
         , canonicalTranscript=TRUE , BPPARAM=bpparam("SerialParam")
-        , myhost="www.ensembl.org") {
+        , myhost="https://www.ensembl.org") {
     panel <- cpArguments(object)$panel
     alterationType <- .mapvalues(from=c("copynumber", "expression"
                                         , "mutations", "fusions") 

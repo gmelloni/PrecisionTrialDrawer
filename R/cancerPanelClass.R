@@ -26,7 +26,7 @@ setClass('CancerPanel',
 # Add info to the object
 newCancerPanel <- function(panel , rules=NULL 
                            , padding_length=100 , utr=FALSE 
-                           , canonicalTranscript=TRUE , myhost="www.ensembl.org"
+                           , canonicalTranscript=TRUE , myhost="https://www.ensembl.org"
                            )
 {
     message("Checking panel construction...")
@@ -37,46 +37,46 @@ newCancerPanel <- function(panel , rules=NULL
   if( is.null(panel) )
       stop('You should enter a dataframe containing your panel')
   panel <- .panelCheck(panel)
-  
+  # NOW RULES CAN BE SET ONLY AFTER WE FETCH ALTERATIONS
   # rules requires a more delicate procedure for the check
   # If we retrieve it from the object it can still be NULL
-  if(!is.null(rules)){
-    # If we are checking a rules panel, we split the checks in two functions
-    # druggability is scorporated and contain only the cases in which an 
-    # entire drug is excluded/included from certain tumor types
-    druggabilityWhich <- which( 
-      matrixStats::rowAlls(
-        as.matrix(panel[ , c("gene_symbol" , "alteration" 
-                  , "exact_alteration", "mutation_specification") , drop=FALSE])
-        , value=""))
-    if(length(druggabilityWhich)>0){
-      # If there are druggability rules, perform check
-      druggability <- rules[ druggabilityWhich 
-      , c("drug" , "group" , "tumor_type" , "in_out"), drop=FALSE]
-      druggability_full <- .druggabilityCheck(druggability 
-        , tumor_type = object@arguments$tumor_type)
-      exclude <- rules[ -druggabilityWhich , , drop=FALSE]
-    } else {
-      exclude <- rules
-    }
-    # Check on exclude panel (the one with 8 columns)
-    if(! is.null(exclude)){
-      if(nrow(exclude)!=0){
-        exclude <- .panelCheck(exclude 
-          , comparison_panel=panel , tumor_type=NULL)
-      }
-    }
-  }
+  # if(!is.null(rules)){
+  #   # If we are checking a rules panel, we split the checks in two functions
+  #   # druggability is scorporated and contain only the cases in which an 
+  #   # entire drug is excluded/included from certain tumor types
+  #   druggabilityWhich <- which( 
+  #     matrixStats::rowAlls(
+  #       as.matrix(rules[ , c("gene_symbol" , "alteration" 
+  #                 , "exact_alteration", "mutation_specification") , drop=FALSE])
+  #       , value=""))
+  #   if(length(druggabilityWhich)>0){
+  #     # If there are druggability rules, perform check
+  #     druggability <- rules[ druggabilityWhich 
+  #     , c("drug" , "group" , "tumor_type" , "in_out"), drop=FALSE]
+  #     druggability_full <- .druggabilityCheck(druggability 
+  #       , tumor_type = object@arguments$tumor_type)
+  #     exclude <- rules[ -druggabilityWhich , , drop=FALSE]
+  #   } else {
+  #     exclude <- rules
+  #   }
+  #   # Check on exclude panel (the one with 8 columns)
+  #   if(! is.null(exclude)){
+  #     if(nrow(exclude)!=0){
+  #       exclude <- .panelCheck(exclude 
+  #         , comparison_panel=panel , tumor_type=NULL)
+  #     }
+  #   }
+  # }
   ##################################################
   # INITIALIZE CancerPanel Object
   # ------------------------------------------------
   object <- new('CancerPanel')
   message("Calculating panel size...")
-  # A precse estimate of space can be 
+  # A precise estimate of space can be 
   # calculate but during simple panel construction
   # we calculate a variation-wise genomic length
   
-  #get gene fusions and seperate the gene names
+  #get gene fusions and separate the gene names
   all_genes <- unique(panel$gene_symbol %>% strsplit(. , "__") %>% unlist)
   
   # ------------------------------------------------

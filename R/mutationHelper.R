@@ -8,172 +8,127 @@
                             , block=NULL
                             , totalBlocks=NULL)
 {
-    mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
-    allCanStudy <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
-    allCanStudy$tumor_type <- vapply(strsplit(allCanStudy[,1] 
-                                          , "_") , '[' , character(1) , 1)
+    mycgds <- cBioPortalData::cBioPortal(
+      hostname = "www.cbioportal.org",
+      protocol = "https",
+      api. = "/api/api-docs")
+    allCanStudy <- cBioPortalData::getStudies(mycgds)[ , c("cancerTypeId" , "studyId")]
+    allCanStudy <- unique(allCanStudy)
+    # allCanStudy$tumor_type <- vapply(strsplit(allCanStudy$cancerTypeId
+    #                                       , "_") , '[' , character(1) , 1)
+    allCanStudy$tumor_type <- allCanStudy$cancerTypeId
     if(tumor_type[1]=="all_tumors") {
-        chosenTumors <- allCanStudy[,1]
+        chosenTumors <- allCanStudy[,1,drop=TRUE]
     } else {
         #FIND All cancer studies associated with the tumor_type specified
-        chosenTumors <- allCanStudy[ allCanStudy[,'tumor_type'] %in% 
-                                       tumor_type, 1]
+        chosenTumors <- allCanStudy[ allCanStudy$tumor_type %in% 
+                                       tumor_type, 1,drop=TRUE]
+        names(chosenTumors) <- allCanStudy[ allCanStudy$tumor_type %in% 
+                                              tumor_type, 2,drop=TRUE]
         #In case we are not looking for tumor ID but cancer studies ID
         if(length(chosenTumors)==0){
-            chosenTumors <- allCanStudy[ allCanStudy[,'cancer_study_id'] %in% 
-                                           tumor_type, 1]
-        } 
+            chosenTumors <- allCanStudy[ allCanStudy$studyId %in% 
+                                           tumor_type, 1,drop=TRUE]
+            names(chosenTumors) <- allCanStudy[ allCanStudy$studyId %in% 
+                                                  tumor_type, 2,drop=TRUE]
+        }
         #if still we have not found anything
         if (length(chosenTumors)==0){
           stop(paste("Could not find the tumor_type nor"
-                     ,"cancer_study_id specified"))
+                     ,"the cancer_study_id specified"))
         }
     }
-    # Remove all old TCGA instances if the new pancanatlas is present
-    newTCGA <- grep("_tcga_pan_can_atlas_2018$" , chosenTumors , value=TRUE)
-    if(length(newTCGA)>0){
-      newTCGAtum <- lapply( strsplit(newTCGA , "_") , '[' , 1) %>% 
-        unlist %>% unique
-      oldTCGA <- c( paste0(newTCGAtum , "_tcga") 
-                    , paste0(newTCGAtum , "_tcga_pub") )
-      chosenTumors <- setdiff(chosenTumors 
-                            , oldTCGA)
-    }
-    out_double <- lapply(chosenTumors , function(i)
+    out_double <- lapply(names(chosenTumors) , function(i)
         {
             #for each Cancer Study, fetch the type 
             # of alteration (genetic profile) 
             #to be considered
-            geneticProfile <- tryCatch({
-                cgdsr::getGeneticProfiles(mycgds, i)
-            } , error = function(e) {
-                 url <- paste0(mycgds$.url
-                      , "webservice.do?cmd=getGeneticProfiles&&cancer_study_id="
-                      , i)
-                 res <- httr::GET(url)
-                 if(res$status_code!=200){
-                     stop(paste("Problems with cBioPortal Connection at" , url))
-                 }
-                 df <- strsplit(httr::content(res) , "\n") %>% 
-                   unlist %>% strsplit("\t")
-                 df <- do.call("rbind" , df[-1]) %>% 
-                   as.data.frame(stringsAsFactors=FALSE) %>% setNames(df[[1]])
-                 return(df)
-             })
-            geneticProfile <- geneticProfile[ ,c(1,2)]
-            # select mutations
-            # NEW APPROACH, we retrieve more
-            sel <- grepl("mutations$" , geneticProfile$genetic_profile_id)
-            # in 99% of the cases mutations are present 
-            # but in case, just return NULL
-            if(!any(sel)){
-              return( list( out=NULL , patients=NULL) )
-            }
-            geneticProfile <- geneticProfile[sel, 1]
-            caseList <- tryCatch({
-                cgdsr::getCaseLists(mycgds, i)
-                } , error = function(e) {
-                    url <- paste(mycgds$.url
-                      , "webservice.do?cmd=getCaseLists&cancer_study_id="
-                      , i, sep = "")
-                    res <- httr::GET(url)
-                    if(res$status_code!=200){
-                     stop(paste("Problems with cBioPortal Connection at" 
-                                , url))
-                    }
-                    df <- strsplit(httr::content(res) , "\n") %>% 
-                      unlist %>% strsplit("\t")
-                    df <- do.call("rbind" , df[-1]) %>% 
-                      as.data.frame(stringsAsFactors=FALSE) %>% 
-                      setNames(df[[1]])
-                    return(df)
-            })
-            toLowCL <- tolower(caseList$case_list_name)
-            #find if we have any sequenced tumor
-            sel <- toLowCL=="sequenced tumors"
-            # sometime 'Sequenced Tumors' is not the name of the case_list_name for mutations
-            # If 'Sequenced Tumors' does not exist, try 'Samples with mutation data' first and 'All Tumors' next
-            if(!any(sel)){
-              sel <- toLowCL=="samples with mutation data" | toLowCL=="samples with mutation data."
-            }
-            if(!any(sel)){
-              sel <- toLowCL=="all samples"
-            }
-            if(any(sel)) {
-                if(is.null(block)){
-                    message(paste("getting mutations from this cancer study:" 
-                          , i ))
-                } else {
-                    message(paste("getting mutations from this cancer study:" 
-                          , i , paste0("(" , block , "/" , totalBlocks , ")")))
-                }
-                caseListID <- caseList[sel, 1]
-                error <- tryCatch(
-                    muts <- cgdsr::getMutationData( mycgds 
-                        , caseList=caseListID 
-                        , geneticProfile=geneticProfile 
-                        , genes=myGenes)
-                    , error=function(e) {
-                        message(paste("Impossible to retrive mutations from" 
-                                      , i , "study"))
-                        }
-                    )
-                if(!exists("muts")) {
-                    muts <- NULL
-                    patients <- NULL
-                } else if(nrow(muts) == 0 ){
-                  muts <- NULL
-                  patients <- NULL
-                } else {
-                    if(ncol(muts)!=22) {
-                        muts <- NULL
-                        patients <- NULL
-                    } else {
-                        colsIlike <- c(
-                                "entrez_gene_id"
-                                ,"gene_symbol"
-                                ,"case_id"
-                                # ,"sequencing_center"
-                                # ,"mutation_status"
-                                ,"mutation_type"
-                                # ,"validation_status"
-                                ,"amino_acid_change"
-                                # ,"functional_impact_score"
-                                # ,"xvar_link"
-                                # ,"xvar_link_pdb"
-                                # ,"xvar_link_msa"
-                                ,"chr"
-                                ,"start_position"
-                                # ,"end_position"
-                                ,"reference_allele"
-                                ,"variant_allele"
-                                # ,"reference_read_count_tumor"
-                                # ,"variant_read_count_tumor"
-                                # ,"reference_read_count_normal"
-                                # ,"variant_read_count_normal"
-                                # ,"genetic_profile_id"
-                                )
-                        muts <- muts[ , colsIlike]
-                        # Fix chromosome number
-                        muts$chr <- muts$chr %>% as.character %>%
-                          sub("chr" , "" , .) %>%
-                          sub("23" , "X" , .) %>%
-                          sub("24" , "Y" , .) %>%
-                          sub("M" , "MT" , .)
-                        muts <- muts[ muts$chr %in% c(1:22, "X", "Y", "MT") , ]
-                        muts$genetic_profile_id <- i
-                        patients <- strsplit(caseList[sel, 'case_ids'] 
-                                             , split=" ")[[1]]
-                    }
-                }
-            } else {
-                muts <- NULL
-                patients <- NULL
-            }
-            return( list( out=muts , patients=patients) )
-        })
-        names(out_double) <- chosenTumors
-        return(out_double)
+      geneticProfile <- cBioPortalData::molecularProfiles(mycgds, i)
+      geneticProfile <- geneticProfile[ grep("MUTATION" , geneticProfile$molecularAlterationType) , ]
+      if(nrow(geneticProfile)==0){
+        message(paste("geneticProfile" , i , "has no mutation data"))
+        return( list( out=NULL , patients=NULL) )
+      }
+      # Fetch the patient list for the specified molecular profile and data type (mutations)
+      caseList <- cBioPortalData::sampleLists(mycgds, i)
+      caseList <- caseList[ caseList$category == "all_cases_with_mutation_data" , ]
+      if(nrow(caseList)==0){
+        message(paste("ProfileId" , i , "has no samples with mutations"))
+        return( list( out=NULL , patients=NULL) )
+      }
+      # Get the actual case names (e.g. TCGA-AR-A1AR)
+      caseListId <- cBioPortalData::getSampleInfo(api = mycgds 
+                                                  , studyId = geneticProfile$studyId 
+                                                  , sampleListIds = caseList$sampleListId)$sampleId
+      tryCatch(
+        muts <- cBioPortalData::mutationData(
+          api = mycgds
+          , molecularProfileIds = geneticProfile$molecularProfileId
+          , entrezGeneIds = as.numeric(names(myGenes))
+          , sampleIds = caseListId
+        )[[1]]
+        , error=function(e) message(paste("Impossible to retrive mutations from" , i , "study or no mutations are present on the selected genes"))
+      )
+      
+      if(!exists("muts")) {
+        muts <- NULL
+        patients <- NULL
+      } else if(nrow(muts) == 0 ){
+        muts <- NULL
+        patients <- NULL
+      } else {
+        colsIlike <- c(
+          "entrezGeneId"
+          # ,"gene_symbol"
+          # ,"patientId"
+          , "sampleId"
+          # ,"sequencing_center"
+          # ,"mutation_status"
+          ,"mutationType"
+          # ,"validation_status"
+          ,"proteinChange"
+          # ,"functional_impact_score"
+          # ,"xvar_link"
+          # ,"xvar_link_pdb"
+          # ,"xvar_link_msa"
+          ,"chr"
+          ,"startPosition"
+          # ,"end_position"
+          ,"referenceAllele"
+          ,"variantAllele"
+          # ,"reference_read_count_tumor"
+          # ,"variant_read_count_tumor"
+          # ,"reference_read_count_normal"
+          # ,"variant_read_count_normal"
+          # ,"genetic_profile_id"
+          )
+        muts <- muts[ , colsIlike]
+        # Fix chromosome number
+        muts$chr <- muts$chr %>% as.character %>%
+          sub("chr" , "" , .) %>%
+          sub("23" , "X" , .) %>%
+          sub("24" , "Y" , .) %>%
+          sub("M" , "MT" , .)
+        muts <- muts[ muts$chr %in% c(1:22, "X", "Y", "MT") , ]
+        muts$genetic_profile_id <- i
+        muts$gene_symbol <- myGenes[ as.character(muts$entrezGeneId) ]
+        colnames(muts)[colnames(muts)=="sampleId"] <- "case_id"
+        muts$case_id <- ifelse(grepl("^TCGA" , muts$case_id) 
+                               , unlist(lapply(strsplit(muts$case_id , "-") , function(x) paste(x[seq_len(3)] , collapse="-")))
+                               , muts$case_id)
+        muts$tumor_type <- chosenTumors[ muts$genetic_profile_id ]
+        # patients <- strsplit(caseList[sel, 'case_ids'] 
+        #                      , split=" ")[[1]]
+        patients <- unique(ifelse(grepl("^TCGA" , caseListId) 
+                           , unlist(lapply(strsplit(caseListId , "-") , function(x) paste(x[seq_len(3)] , collapse="-")))
+                           , caseListId))
+        # message(paste("Mutations retrieved from" , i , "study"))
+      }
+      return( list( out=muts , patients=patients) )
+  # } , .inform = TRUE)
+    })
+  names(out_double) <- names(chosenTumors)
+  return(out_double)
 }
 
 .subsetMutations <- function(panel , muts_full , rs_df)

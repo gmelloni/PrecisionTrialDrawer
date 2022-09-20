@@ -196,7 +196,7 @@ located closer to your location.
 ```{r chunk2_h, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE,timeit=NULL}
 # Connect to US east coast server
 # The default is www.ensembl.org
-mypanel <- newCancerPanel(panelexample , myhost="uswest.ensembl.org")
+mypanel <- newCancerPanel(panelexample , myhost="https://uswest.ensembl.org")
 ```
 
 A convenient list of mirror servers can be found here: 
@@ -228,14 +228,14 @@ rules <- data.frame(
 knitr::kable(rules)
 ```
 
-It can be added directly when the object is 
-constructed or later on during **subsetAlteration**.
+<!-- It can be added directly when the object is  -->
+<!-- constructed or later on during **subsetAlteration**. -->
 
-```{r chunk2_e, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE,timeit=NULL}
-mypanel_exclude <- newCancerPanel(panelexample 
-                                  , myhost="uswest.ensembl.org" 
-                                  , rules = rules)
-```
+<!-- ```{r chunk2_e, echo=TRUE, eval=FALSE, message=FALSE, warning=FALSE,timeit=NULL} -->
+<!-- mypanel_exclude <- newCancerPanel(panelexample  -->
+<!--                                   , myhost="uswest.ensembl.org" -->
+<!--                                   , rules = rules) -->
+<!-- ``` -->
 
 We developed two type of possible rules described below.
 
@@ -294,25 +294,27 @@ coadread is not included but the rule can stay.
 Now that we have our panel, we want to test it against tumor samples. 
 We will choose two different cancer types among the available ones: 
 
-```{r chunk3, echo=TRUE , eval=FALSE, message=TRUE, warning=FALSE, timeit=NULL}
+```{r chunk3, echo=TRUE , eval=TRUE, message=TRUE, warning=FALSE, timeit=NULL}
 # Check available tumor types
 knitr::kable( head(showTumorType()) , row.names=FALSE)
+# Let's make a copy of the empty panel
+mypanel_empty <- mypanel
 # Fetch data from breast cancer and lung adenocarcinoma samples
 mypanel <- getAlterations(mypanel , tumor_type=c("brca" , "luad"))
 # See the updated slot dataFull for mutations
 str( cpData(mypanel)$mutations , vec.len = 1)
 ```
 
-```{r chunk3_b, echo=FALSE , eval=TRUE, message=TRUE, warning=FALSE,timeit=NULL}
-# Check available tumor types
-knitr::kable( head(showTumorType()) , row.names=FALSE)
-# Fetch data from breast cancer and lung adenocarcinoma samples
-data(cpObj)
-mypanel <- cpObj
-# See the updated slot dataFull for mutations
-str( cpData(mypanel)$mutations , vec.len = 1)
-rm(cpObj)
-```
+<!-- ```{r chunk3_b, echo=FALSE , eval=TRUE, message=TRUE, warning=FALSE,timeit=NULL} -->
+<!-- # Check available tumor types -->
+<!-- knitr::kable( head(showTumorType()) , row.names=FALSE) -->
+<!-- # Fetch data from breast cancer and lung adenocarcinoma samples -->
+<!-- data(cpObj) -->
+<!-- mypanel <- cpObj -->
+<!-- # See the updated slot dataFull for mutations -->
+<!-- str( cpData(mypanel)$mutations , vec.len = 1) -->
+<!-- rm(cpObj) -->
+<!-- ``` -->
 
 This method performs 2 tasks. Download data from 
 cBioportal and MD Anderson Fusion Portal 
@@ -335,9 +337,9 @@ the user more control over what dataset will be used to run the simulation.
 # Check available tumor types
 knitr::kable( showCancerStudy(c("brca","luad")) , row.names = FALSE )
 # Fetch data from breast cancer and lung adenocarcinoma samples
-mypanel_alternative <- getAlterations(mypanel 
-                        , tumor_type=c("luad_tcga_pan_can_atlas_2018"
-                                       , "brca_tcga_pan_can_atlas_2018"))
+mypanel_alternative <- getAlterations(mypanel_empty 
+                        , tumor_type=c("luad_tcga"
+                                       , "brca_tcga"))
 ```
 
 At this point, the data are downloaded by gene, without 
@@ -360,7 +362,7 @@ mypanel_toy <- getAlterations(mypanel_toy , repos=repos)
 
 ```{r chunk4_b,echo=FALSE,eval=TRUE,message=FALSE,warning=FALSE,timeit=NULL}
 # Use custom data in a new CancerPanel object
-mypanel_toy <- mypanel2
+mypanel_toy <- mypanel_empty
 mypanel_toy <- getAlterations(mypanel_toy , repos=repos)
 ```
 
@@ -382,8 +384,8 @@ statistics and calculation are made after the call to **subsetAlterations**.
 ### Add or filter custom data
 
 In case you want to add extra data from a different source, 
-and you dispose of the data 
-already according to the @dataFull slot format, 
+and you already have data 
+according to the @dataFull slot format, 
 you can append this dataset to an existing panel. 
 This allows to increase the sample size for those 
 rare tumor_types that are not present in cBioPortal.
@@ -445,7 +447,7 @@ rm(mypanel_toy)
 After getting alterations, we have to subset 
 alterations for the exact specifications of our panel.
 
-```{r chunk6,echo=TRUE,eval=FALSE,message=FALSE,warning=FALSE,timeit=NULL}
+```{r chunk6,echo=TRUE,eval=TRUE,message=FALSE,warning=FALSE,timeit=NULL}
 # Subset the alterations using panel information
 mypanel <- subsetAlterations(mypanel)
 # See the updated slot dataSubset

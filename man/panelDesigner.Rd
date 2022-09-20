@@ -16,7 +16,7 @@ panelDesigner(object
     , utr = FALSE 
     , canonicalTranscript=TRUE
     , BPPARAM=bpparam("SerialParam")
-    , myhost="www.ensembl.org")
+    , myhost="https://www.ensembl.org")
 }
 \arguments{
   \item{object}{

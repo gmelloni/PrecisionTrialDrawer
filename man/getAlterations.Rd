@@ -80,13 +80,13 @@ copynumber and expression data}
 Giorgio Melloni , Alessandro Guida
 }
 \seealso{
-\code{\link[cgdsr]{cgdsr-getCancerStudies}} \code{\link{subsetAlterations}} 
+\code{\link[cBioPortalData]{getStudies}} \code{\link{subsetAlterations}} 
 \code{\link{showTumorType}} \code{\link{showCancerStudy}}
 }
 \examples{
 #Load panelexample
 data(cpObj2)
 # Retrieve data from AML
-cpObj <- getAlterations(cpObj2 , tumor_type=c("laml"))
+cpObj2 <- getAlterations(cpObj2 , tumor_type=c("aml"))
 }
 

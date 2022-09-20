@@ -10,13 +10,13 @@ Show all the possible tumor types accepted by PrecisionTrialDrawer
 showTumorType()
 }
 \value{
-A data.frame of all the tumor types available in cgdsr package 
+A data.frame of all the tumor types available in cBioPortalData package 
 that can be passed to the method getAlterations. Every element is the 
 aggregation of all the available sequenced data from all the studies 
 involved in a particular tumor type.
 }
 \details{
-This method is a wrapper around \code{\link[cgdsr]{cgdsr-getCancerStudies}}
+This method is a wrapper around \code{\link[cBioPortalData]{getStudies}}
 and show all the barcodes for the tumor 
 types included in the cBioPortal. 
 Even though the tumor types are present, 
@@ -30,7 +30,7 @@ Giorgio Melloni, Alessandro Guida
 }
 \seealso{
 \code{\link{getAlterations}} \code{\link{showCancerStudy}} 
-\code{\link[cgdsr]{cgdsr-getCancerStudies}}
+\code{\link[cBioPortalData]{getStudies}}
 }
 \examples{
 myTumTypes <- showTumorType()

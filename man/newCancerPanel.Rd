@@ -14,7 +14,7 @@ newCancerPanel(panel
             , padding_length = 100
             , utr = FALSE 
             , canonicalTranscript=TRUE
-            , myhost="www.ensembl.org"
+            , myhost="https://www.ensembl.org"
             )
 }
 \arguments{

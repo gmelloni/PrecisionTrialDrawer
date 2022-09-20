@@ -19,42 +19,30 @@
 # Names are fetched from cbioportal, formated and output
 # ------------------------------------------------------------------------------
 showTumorType <- function() {
-  # create CGDS object
-  mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
-  # Fetch cancer study from cbioportal
-  all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
-  
-  # From "cancer_study_id" field: 
-  #      1) spit by "_" and 
-  #      2) select the first element of the split. 
-  #          This will correspond to the TCGA disease code
-  # From the "name" field: 
-  #      1) Split string to get the disease name
-  #      2) trim unwanted spaces
+  mycgds <- cBioPortalData::cBioPortal(
+    hostname = "www.cbioportal.org",
+    protocol = "https",
+    api. = "/api/api-docs")
+  all_cancer_studies <- cBioPortalData::getStudies(mycgds)
   all_cancer_studies2 <- unique(
     data.frame(
-      Code=vapply(all_cancer_studies$cancer_study_id
-                  , function(x) {
-                    strsplit(x , "_")[[1]][1]
-                  } , character(1))
-      , Full_Name=vapply(all_cancer_studies$name
-                         , function(x) {
-                           .myTrimmer(strsplit(x , "\\(")[[1]][1])
-                        } , character(1))
-    )
-  )
-  
-  # Since one TCGA symbol can correspond to 1 or more description, reduce the 
-  # dataframe with the aggregate function, putting together description from the
-  # same TCGA code separated by "|"
-  all_cancer_studies3 <- aggregate(Full_Name~Code, all_cancer_studies2
-                                   , FUN=function(x) {paste(x , collapse="|")})
-  # reformat output
-  out <- data.frame(tumor_type = as.character(all_cancer_studies3$Code)
-                  , name = all_cancer_studies3$Full_Name
-                  , stringsAsFactors = FALSE)
-  # out <- as.character(all_cancer_studies3$Code)
-  # names(out) <- all_cancer_studies3$Full_Name
+      # Code=sapply(all_cancer_studies$cancer_study_id
+      #     , function(x) strsplit(x , "_")[[1]][1])
+      Code=all_cancer_studies$cancerTypeId
+      , Full_Name=sapply(all_cancer_studies$name
+                         , function(x) .myTrimmer(strsplit(x , "\\(")[[1]][1]))
+      , studyId = all_cancer_studies$studyId
+    ))
+  # all_cancer_studies3 <- aggregate(Full_Name~Code, all_cancer_studies2[ , setdiff(colnames(all_cancer_studies2),"studyId")]
+  #                                  , FUN=function(x) {paste(x , collapse="|")})
+  # all_cancer_studies4 <- aggregate(studyId~Code, all_cancer_studies2[ , setdiff(colnames(all_cancer_studies2),"Full_Name")]
+  #                                  , FUN=function(x) {paste(x , collapse="|")})
+  # all_cancer_studies5 <- merge(all_cancer_studies3 , all_cancer_studies4 , by = "Code")
+  # # reformat output
+  # out <- data.frame(tumor_type = as.character(all_cancer_studies3$Code)
+  #                 , name = all_cancer_studies3$Full_Name
+  #                 , stringsAsFactors = FALSE)
+  out <- all_cancer_studies2
   return(out)
 }
 
@@ -63,9 +51,11 @@ showTumorType <- function() {
 # ------------------------------------------------------------------------------
 showCancerStudy <- function(tumor_type=NULL) {
   # create CGDS object
-  mycgds <- cgdsr::CGDS("http://www.cbioportal.org/")
-  # Fetch cancer study from cbioportal
-  all_cancer_studies <- cgdsr::getCancerStudies(mycgds)[,c(1,2)]
+  mycgds <- cBioPortalData::cBioPortal(
+    hostname = "www.cbioportal.org",
+    protocol = "https",
+    api. = "/api/api-docs")
+  all_cancer_studies <- cBioPortalData::getStudies(mycgds)
   if(is.null(tumor_type))
     return(all_cancer_studies)
   else
@@ -73,5 +63,5 @@ showCancerStudy <- function(tumor_type=NULL) {
     # run a grep on all the entries using sapply
     # unlist and get the matches
     all_cancer_studies[unlist(lapply(paste0("^" , tumor_type , "_")
-                            , function(x) grep(x, all_cancer_studies[,1]))),]
+                            , function(x) grep(x, all_cancer_studies$cancerTypeId))),]
 }

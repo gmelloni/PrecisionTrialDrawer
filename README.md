@@ -16,7 +16,7 @@ you can install the dependencies first and then run *install_github*
 
 ```{r}
 source("https://bioconductor.org/biocLite.R")
-biocLite(c('cgdsr','parallel','stringr',
+biocLite(c('cBioPortalData','parallel','stringr',
     'reshape2','data.table','RColorBrewer',
     'BiocParallel','magrittr','biomaRt',
     'XML','httr','jsonlite',

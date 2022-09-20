@@ -15,7 +15,7 @@
   rs <- unique(rs)
   # Query Biomart HG19
   snp_mart = biomaRt::useMart(biomart="ENSEMBL_MART_SNP"
-                    , host="grch37.ensembl.org"
+                    , host="https://grch37.ensembl.org"
                     , dataset="hsapiens_snp")
   #run the query
   BM_rs = biomaRt::getBM(attributes=c( "chr_name"
@@ -79,7 +79,7 @@
 # OUTPUT:
 #   df with genomic coordinates for each AA change or AA 
 .fromAAtoGenomic <- function(panel_aa , hgnc_query 
-                , BPPARAM=bpparam("SerialParam") , myhost="www.ensembl.org") {
+                , BPPARAM=bpparam("SerialParam") , myhost="https://www.ensembl.org") {
     if(any(panel_aa$exact_alteration=="amino_acid_variant")){
         aa <- panel_aa[panel_aa$exact_alteration=="amino_acid_variant" 
                        , "mutation_specification"]
@@ -97,7 +97,7 @@
     ensembl <- biomaRt::useMart(host=myhost 
                 , biomart="ENSEMBL_MART_ENSEMBL" 
                 , dataset="hsapiens_gene_ensembl")
-    ensemblold <- biomaRt::useMart(host="grch37.ensembl.org" 
+    ensemblold <- biomaRt::useMart(host="https://grch37.ensembl.org" 
                 , biomart="ENSEMBL_MART_ENSEMBL" 
                 , dataset="hsapiens_gene_ensembl")
     # Retrieve proteins in biomart
@@ -108,8 +108,8 @@
              ,attributes = c(
                  "peptide"
                  # ,"peptide_location"
-                 ,"uniprot_swissprot"
-                 #,"uniprotswissprot"
+                 # ,"uniprot_swissprot"
+                 ,"uniprotswissprot"
                  ,"ensembl_gene_id"
                  ,"ensembl_peptide_id"
                  ,"hgnc_symbol"
@@ -122,7 +122,7 @@
                     x$prot_len <- nchar(x$peptide) - 1
                     out <- x[ x$ensembl_gene_id %in% 
                                 hgnc_query[ , 'ensembl_gene_id'] , ]
-                    out <- out[out$uniprot_swissprot!="" , ]
+                    out <- out[out$uniprotswissprot!="" , ]
                     if(nrow(out)==0)
                         stop("you look for a gene with no uniprot entry")
                     else
@@ -266,7 +266,7 @@
 # OUTPUT:
 #   panel updated with gene length
 .calculateGenomicSpace <- function(panel , canonicalTranscript 
-                  , BPPARAM=bpparam("SerialParam") , myhost="www.ensembl.org"){
+                  , BPPARAM=bpparam("SerialParam") , myhost="https://www.ensembl.org"){
   genes <- panel$gene_symbol %>% strsplit(. , "__") %>% unlist %>% unique
   # Retrieve full exon length from ENSEMBL
   #########################################
@@ -280,7 +280,7 @@
   ensembl=biomaRt::useMart(host=myhost 
                   , biomart="ENSEMBL_MART_ENSEMBL" 
                   , dataset="hsapiens_gene_ensembl")
-  ensemblold=biomaRt::useMart(host="grch37.ensembl.org" 
+  ensemblold=biomaRt::useMart(host="https://grch37.ensembl.org" 
                      , biomart="ENSEMBL_MART_ENSEMBL" 
                      , dataset="hsapiens_gene_ensembl")
   dframe <- biomaRt::getBM(attributes=c("hgnc_symbol"

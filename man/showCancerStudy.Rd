@@ -13,11 +13,11 @@ showCancerStudy(tumor_type=NULL)
 \item{tumor_type}{ a valid tumor type barcode in TCGA standard coding}
 }
 \value{
-A named vector of all the cancer studies available in cgdsr package 
+A named vector of all the cancer studies available in cBioPortalData package 
 that can be passed to the method getAlterations.
 }
 \details{
-This method is a wrapper around \code{\link[cgdsr]{cgdsr-getCancerStudies}} 
+This method is a wrapper around \code{\link[cBioPortalData]{getStudies}} 
 and show all the cancer studies included in the cBioPortal. 
 If you specify the tumor_type, follow 
 the list of \code{showTumorType}.
@@ -32,7 +32,7 @@ Giorgio Melloni, Alessandro Guida
 }
 \seealso{
 \code{\link{getAlterations}} \code{\link{showTumorType}} 
-\code{\link[cgdsr]{cgdsr-getCancerStudies}}
+\code{\link[cBioPortalData]{getStudies}}
 }
 \examples{
 myCanStudies <- showCancerStudy()
