@@ -10,7 +10,7 @@
 # a series of genes and transcripts length 
 .annotateGeneLength <- function(genes 
                                 , canonicalTranscript=TRUE 
-                                , myhost="www.ensembl.org") {
+                                , myhost="https://www.ensembl.org") {
   
   ########################################
   #Initial safe check
@@ -36,23 +36,26 @@
   ensembl=biomaRt::useMart(host=myhost
                            , biomart="ENSEMBL_MART_ENSEMBL" 
                            , dataset="hsapiens_gene_ensembl")
-  ensemblold=biomaRt::useMart(host="grch37.ensembl.org" 
-                              , biomart="ENSEMBL_MART_ENSEMBL" 
-                              , dataset="hsapiens_gene_ensembl")
+  # ensemblold=biomaRt::useMart(host="grch37.ensembl.org" 
+  #                             , biomart="ENSEMBL_MART_ENSEMBL" 
+  #                             , dataset="hsapiens_gene_ensembl")
   
   # ---------------------------------------
   # Run first Biomart Query on hgnc symbol to fetch info
   # ---------------------------------------
   # Due to the Biomart design, attributes from multiple attribute pages are not 
-  # allow. In order to walkaround the problem, we have therefore performed 
-  # separete queries, and marged them back together. This will be the main 
-  # biomart dataset of refence upon which to run further queries. 
+  # allowed. In order to walk around the problem, we have therefore performed 
+  # separate queries, and merged them back together. This will be the main 
+  # biomart dataset of reference upon which to run further queries. 
   dframe <- biomaRt::getBM(attributes=c("hgnc_symbol"
                                         , "ensembl_transcript_id"
-                                        ,"ensembl_gene_id")
+                                        ,"ensembl_gene_id"
+                                        ,"entrezgene_id")
                            , filters=c("hgnc_symbol")
                            , values=genes
-                           , mart=ensemblold)
+                           , mart=ensembl)
+  entrezIDtab <- unique(dframe[ , c("hgnc_symbol" , "entrezgene_id")]) %>% 
+    setNames(c("gene_symbol" , "entrezgene_id"))
   #Check for missing genes symbols in the query results
   if(any(genes %notin% dframe$hgnc_symbol)){
     genesNotFound <- setdiff(unique(genes) , unique(dframe$hgnc_symbol))
@@ -93,7 +96,7 @@
   )
   , filters=c("ensembl_transcript_id")
   , values=dframe[["ensembl_transcript_id"]]
-  , mart=ensemblold)
+  , mart=ensembl)
   
   #########################################
   # MERGING BACK QUERIES RESULTS TO ONE SINGLE DATAFRAME
@@ -134,7 +137,7 @@
                        , max(x$transcript_tsl , na.rm=TRUE))
     x$transcript_tsl[is.na(x$transcript_tsl)] <- tsl_max
     return(x)
-  })  
+  })
   
   #########################################
   # ADJUST GENES WITH NO CDS (like pseudo genes or RNA genes)
@@ -250,9 +253,9 @@
   codingIR <- lapply(dframe_merge 
                      , function(df) {
                 df <- df[ !is.na(df$genomic_coding_start) , ] #rm NAs
-                ir <- IRanges(start=df$genomic_coding_start 
+                ir <- IRanges::IRanges(start=df$genomic_coding_start 
                               , end=df$genomic_coding_end)
-                ir <- reduce(ir , min.gapwidth=1L) #merge transcripts
+                ir <- IRanges::reduce(ir , min.gapwidth=1L) #merge transcripts
                 out <- data.frame(gene_symbol=unique(df$hgnc_symbol)
                     , cds_len=sum(ir@width)
                     , stringsAsFactors=FALSE)
@@ -261,9 +264,9 @@
   codingUTRIR <- lapply(dframe_merge 
                         , function(df) {
                           df <- df[ !is.na(df$exon_chrom_start) , ]
-                          ir <- IRanges(start=df$exon_chrom_start 
+                          ir <- IRanges::IRanges(start=df$exon_chrom_start 
                                   , end=df$exon_chrom_end) #Select UTS too here
-                          ir <- reduce(ir , min.gapwidth=1L)
+                          ir <- IRanges::reduce(ir , min.gapwidth=1L)
                           out <- data.frame(gene_symbol=unique(df$hgnc_symbol)
                                             , cds_and_utr_len=sum(ir@width)
                                             , stringsAsFactors=FALSE)
@@ -271,5 +274,7 @@
   ) %>% do.call("rbind" , .)
   #merge the two dafatrame into one table
   final_df <- merge(codingIR , codingUTRIR , all.x=TRUE) %>% unique
+  #add back the entrez ID
+  final_df <- merge(final_df , entrezIDtab , by = "gene_symbol" , all.x=TRUE)
   return(final_df)
 }
