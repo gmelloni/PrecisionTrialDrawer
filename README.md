@@ -1,3 +1,7 @@
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/gmelloni/PrecisionTrialDrawer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/gmelloni/PrecisionTrialDrawer/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 # PrecisionTrialDrawer
 
 A set of tools to help bioinformaticians, clinicians and biostatisticians

@@ -8,3 +8,4 @@ vignette/*.html
 ^\.Rproj\.user$
 README.md
 LICENSE
+^\.github$
