@@ -3,7 +3,7 @@
 .surv2Samps <- function(alpha = 0.05 , beta = NULL , sample.size = NULL 
     , hr , hr0 , case.fraction , mode = c("sample.size" , "power") 
     , ber , fu , acc = NULL , side){
-    mode = mode[1]
+    mode <- mode[1]
     # Default Accrual time is Infinite, here express as NULL
     if(!is.null(acc)){
           accA <- (1 - exp(-ber * acc)) / (ber * acc)

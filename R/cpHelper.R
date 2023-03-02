@@ -3,9 +3,9 @@
   # Since tibbles are now a thing, we don't require 
   # a strict data.frame, as long as data.frame
   # class is among the classes of the panel
-  if("data.frame" %notin% class(panel))
+  if(is(panel,"data.frame"))
     stop('The panel must be a data.frame')
-  if(class(panel)[1]!="data.frame"){
+  if(length(class(panel))>1){
     panel <- as.data.frame(panel , stringsAsFactors=FALSE)
   }
   ##################################################
@@ -138,9 +138,9 @@
   # Since tibbles are now a thing, we don't require 
   # a strict data.frame, as long as data.frame
   # class is among the classes of the panel
-  if("data.frame" %notin% class(panel))
+  if(is(panel,"data.frame"))
     stop('The panel must be a data.frame')
-  if(class(panel)[1]!="data.frame"){
+  if(length(class(panel))>1){
     panel <- as.data.frame(panel , stringsAsFactors=FALSE)
   }
   # The presence of comparison panel trigger the signal that .panelCheck

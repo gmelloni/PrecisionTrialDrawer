@@ -4,9 +4,9 @@
                         , sample.size = NULL , med0 , med1 
                         , mode = c("sample.size" , "power") 
                         , fu , acc = NULL , side ){
- mode = mode[1]
- ber0 = -log(.5) / med0
- ber1 = -log(.5) / med1
+ mode <- mode[1]
+ ber0 <- -log(.5) / med0
+ ber1 <- -log(.5) / med1
  # Default accrual is infinite, here expressed as NULL
  if(!is.null(acc)){
      acc0 <- (1 - exp(-ber0 * acc)) / (ber0 * acc)

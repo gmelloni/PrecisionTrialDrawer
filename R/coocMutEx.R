@@ -6,11 +6,11 @@
     # Make a list from the ... arguments and plotlist
     plots <- plotlist
 
-    numPlots = length(plots)
+    numPlots <- length(plots)
 
     # Make the panel
-    plotCols = plot_layout[2] # Number of columns of plots
-    plotRows = plot_layout[1] # Number of rows needed, calculated from # of cols
+    plotCols <- plot_layout[2] # Number of columns of plots
+    plotRows <- plot_layout[1] # Number of rows needed, calculated from # of cols
 
     # Set up the page
     grid.newpage()
@@ -20,8 +20,8 @@
 
     # Make each plot, in the correct location
     for(i in seq_len(numPlots)) {
-        curRow = ceiling(i/plotCols)
-        curCol = (i-1) %% plotCols + 1
+        curRow <- ceiling(i/plotCols)
+        curCol <- (i-1) %% plotCols + 1
         print(plots[[i]], vp = vplayout(curRow,  curCol))
     }
 }

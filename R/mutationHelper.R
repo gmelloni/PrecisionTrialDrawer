@@ -109,7 +109,7 @@
           sub("23" , "X" , .) %>%
           sub("24" , "Y" , .) %>%
           sub("M" , "MT" , .)
-        muts <- muts[ muts$chr %in% c(1:22, "X", "Y", "MT") , ]
+        muts <- muts[ muts$chr %in% c(seq_len(22), "X", "Y", "MT") , ]
         muts$genetic_profile_id <- i
         muts$gene_symbol <- myGenes[ as.character(muts$entrezGeneId) ]
         colnames(muts)[colnames(muts)=="sampleId"] <- "case_id"

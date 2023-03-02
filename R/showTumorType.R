@@ -29,8 +29,8 @@ showTumorType <- function() {
       # Code=sapply(all_cancer_studies$cancer_study_id
       #     , function(x) strsplit(x , "_")[[1]][1])
       Code=all_cancer_studies$cancerTypeId
-      , Full_Name=sapply(all_cancer_studies$name
-                         , function(x) .myTrimmer(strsplit(x , "\\(")[[1]][1]))
+      , Full_Name=unlist(lapply(all_cancer_studies$name
+                         , function(x) .myTrimmer(strsplit(x , "\\(")[[1]][1])))
       , studyId = all_cancer_studies$studyId
     ))
   # all_cancer_studies3 <- aggregate(Full_Name~Code, all_cancer_studies2[ , setdiff(colnames(all_cancer_studies2),"studyId")]
@@ -59,8 +59,8 @@ showCancerStudy <- function(tumor_type=NULL) {
   if(is.null(tumor_type))
     return(all_cancer_studies)
   else
-    # transform the tumor_type entreis in a grep pattern
-    # run a grep on all the entries using sapply
+    # transform the tumor_type entries in a grep pattern
+    # run a grep on all the entries
     # unlist and get the matches
     all_cancer_studies[unlist(lapply(paste0("^" , tumor_type , "_")
                             , function(x) grep(x, all_cancer_studies$cancerTypeId))),]

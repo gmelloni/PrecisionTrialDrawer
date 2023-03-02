@@ -36,10 +36,10 @@
     , case.fraction , side = c(2 , 1) 
     , type = c("chisquare" , "arcsin" ,"exact") 
     , mode = c("sample.size" , "power")){
-    mode = mode[1]
-    type = type[1]
-    errorItype = alpha/side
-    kappa = case.fraction / (1 - case.fraction)
+    mode <- mode[1]
+    type <- type[1]
+    errorItype <- alpha/side
+    kappa <- case.fraction / (1 - case.fraction)
     if(mode == "sample.size"){
         if(type=="chisquare"){
             nControl <- (pCase*(1-pCase)/kappa+pControl*(1-pControl))*

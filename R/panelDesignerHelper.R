@@ -14,11 +14,11 @@
   # Do not look at the same rs twice
   rs <- unique(rs)
   # Query Biomart HG19
-  snp_mart = biomaRt::useMart(biomart="ENSEMBL_MART_SNP"
+  snp_mart <- biomaRt::useMart(biomart="ENSEMBL_MART_SNP"
                     , host="https://grch37.ensembl.org"
                     , dataset="hsapiens_snp")
   #run the query
-  BM_rs = biomaRt::getBM(attributes=c( "chr_name"
+  BM_rs <- biomaRt::getBM(attributes=c( "chr_name"
               , "chrom_start"
               , "refsnp_id"
           )
@@ -277,10 +277,10 @@
   # attributes like transcript tsl and transcript 
   # source can only be found in the most recent versions
   message("Connecting to ensembl biomart...")
-  ensembl=biomaRt::useMart(host=myhost 
+  ensembl <- biomaRt::useMart(host=myhost 
                   , biomart="ENSEMBL_MART_ENSEMBL" 
                   , dataset="hsapiens_gene_ensembl")
-  ensemblold=biomaRt::useMart(host="https://grch37.ensembl.org" 
+  ensemblold <- biomaRt::useMart(host="https://grch37.ensembl.org" 
                      , biomart="ENSEMBL_MART_ENSEMBL" 
                      , dataset="hsapiens_gene_ensembl")
   dframe <- biomaRt::getBM(attributes=c("hgnc_symbol"
