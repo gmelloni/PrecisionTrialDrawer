@@ -3,9 +3,19 @@ Type: Package
 Title: A Tool to Analyze and Design NGS Based Custom Gene Panels
 Version: 1.13.1
 Date: 2022-09-19
-Author: Giorgio Melloni, Alessandro Guida, Luca Mazzarella
-Maintainer: Giorgio Melloni <melloni.giorgio@gmail.com>
-Description: A suite of methods to design umbrella and basket trials for precision oncology.
+Authors@R: 
+    c(person(given = "Giorgio",
+            family = "Melloni",
+            role = c("aut", "cre"),
+            email = "melloni.giorgio@gmail.com",
+            comment = c(ORCID = "0000-0001-6371-1334")),
+    person(given = "Alessandro",
+            family = "Guida",
+            role = c("aut"),
+            email = "aleguida@gmail.com",
+            comment = c(ORCID = "0000-0002-7160-750X")))
+Description: PrecisionTrialDrawer provides a suite of methods to design umbrella and basket trials for precision oncology. 
+Given a set of targets and possible alteration the user can create projections and sample size estimation based on real public available genomic data.
 License: GPL-3
 Depends:
     R (>= 3.6)
